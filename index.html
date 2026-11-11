@@ -1,0 +1,1200 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>룸 디펜스 프로토타입 v0.16</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Do+Hyeon&display=swap">
+<style>
+  html,body{margin:0;height:100%;background:#0f0d0b;overflow:hidden;user-select:none;-webkit-user-select:none}
+  #wrap{position:fixed;inset:0;display:flex;align-items:center;justify-content:center}
+  #stage{position:relative;display:flex;height:540px;flex:none;transform-origin:center center}
+  #field{position:relative;width:960px;height:540px;flex:none}
+  /* 타워 구매 칸은 게임 화면 바깥 오른쪽 사이드바로 (몹을 가리지 않게) */
+  #side{width:184px;height:540px;flex:none;box-sizing:border-box;background:#1d1915;border-left:3px solid #0f0d0b;box-shadow:inset 2px 0 0 #4a3f33;padding:14px 10px;display:flex;flex-direction:column;gap:10px;color:#f1e8d6}
+  .in-title #side,.hide-ui #side{display:none}
+  #side .sidettl{font-family:'Press Start 2P',monospace;font-size:10px;color:#f5a623;letter-spacing:1px}
+  #palette{gap:4px !important}
+  .tw.locked{opacity:.38;filter:grayscale(1)}
+  .tw.locked .ct2{color:#8a7e6c}
+  .tw.new{animation:newtw .5s steps(2) 6}
+  @keyframes newtw{50%{background:#f5a623;box-shadow:inset 0 0 0 2px #ffd27a}}
+  #next{font-family:'Do Hyeon',sans-serif;font-size:14px;color:#8a7e6c;line-height:1.3}
+  #next b{color:#cfc3ae;font-weight:400}
+  #info{margin-top:auto;background:#2c2620;border:3px solid #0f0d0b;box-shadow:inset 0 0 0 2px #4a3f33;padding:7px 9px;display:flex;flex-direction:column;gap:4px}
+  #info .in1{font-family:'Do Hyeon',sans-serif;font-size:18px;color:#f5a623}
+  #info .in2{font-family:'Do Hyeon',sans-serif;font-size:14px;line-height:1.3;color:#f1e8d6;white-space:normal}
+  #info .in3{font-family:'Do Hyeon',sans-serif;font-size:14px;color:#8a7e6c}
+  #pause .keys2{font-family:'Do Hyeon',sans-serif;font-size:16px;line-height:1.6;color:#cfc3ae;text-align:center}
+  #pause .keys2 b{font-family:'Press Start 2P',monospace;font-size:9px;color:#f5a623;font-weight:400}
+  #side .keys{margin-top:auto;font-family:'Do Hyeon',sans-serif;font-size:14px;line-height:1.5;color:#8a7e6c}
+  #side .keys b{font-family:'Press Start 2P',monospace;font-size:8px;color:#cfc3ae;font-weight:400}
+  #game{width:960px;height:540px;display:block;touch-action:none;image-rendering:pixelated;image-rendering:crisp-edges;cursor:crosshair}
+  .hud{position:absolute;font-family:'Press Start 2P',monospace;color:#f1e8d6;transition:opacity .25s}
+  .hide-ui .hud{opacity:0;pointer-events:none}
+  /* UI 숨김 중에도 오른쪽 위 버튼 줄은 마우스를 올리면 다시 보이고 누를 수 있다 */
+  .hide-ui #tr{pointer-events:auto}
+  .hide-ui #tr:hover{opacity:1}
+  #tmenu{position:absolute;display:none;flex-direction:column;gap:6px;padding:8px;width:150px;box-sizing:border-box;transform:translate(-50%,-100%)}
+  #tmenu.show{display:flex}
+  #tmenu .tmh{display:flex;align-items:baseline;justify-content:space-between;font-family:'Do Hyeon',sans-serif;font-size:18px;color:#f1e8d6}
+  #tmenu .tmh span:last-child{font-family:'Press Start 2P',monospace;font-size:8px;color:#f5c623}
+  #tmenu .btn{font-family:'Do Hyeon',sans-serif;font-size:16px;padding:6px 8px;display:flex;justify-content:space-between}
+  #tmenu .btn b{font-family:'Press Start 2P',monospace;font-size:8px;font-weight:400;align-self:center}
+  #tmUp b{color:#f5a623} #tmSell b{color:#8fd06a}
+  #tmUp.poor{opacity:.45} #tmUp.max{opacity:.45;cursor:default}
+  #toast{position:absolute;left:50%;bottom:24px;transform:translateX(-50%);font-family:'Do Hyeon',sans-serif;font-size:18px;color:#f1e8d6;background:rgba(29,25,21,.9);border:3px solid #0f0d0b;box-shadow:inset 0 0 0 2px #4a3f33;padding:8px 14px;white-space:nowrap;opacity:0;transition:opacity .4s;pointer-events:none}
+  #toast.show{opacity:1}
+  .panel{background:rgba(29,25,21,.9);border:3px solid #0f0d0b;box-shadow:inset 0 0 0 2px #4a3f33}
+  #tl{left:12px;top:12px;padding:9px 11px;display:flex;flex-direction:column;gap:9px}
+  .fencerow{display:flex;align-items:center;gap:8px;border-top:2px solid #4a3f33;padding-top:8px}
+  .fencerow .fn{font-family:'Do Hyeon',sans-serif;font-size:17px;color:#f1e8d6}
+  .fencerow .fi{font-family:'Do Hyeon',sans-serif;font-size:14px;color:#8a7e6c;margin-top:2px}
+  #bFence{margin-left:auto;font-size:8px;padding:7px 8px}
+  #bFence.poor{opacity:.45}
+  #bFence.max{background:#3a3d44;color:#8a7e6c;cursor:default}
+  .row{display:flex;align-items:center;gap:8px;font-size:10px}
+  .heart{color:#e0412f;font-size:12px}
+  .hpbar{width:150px;height:12px;background:#3a1512;border:2px solid #0f0d0b;position:relative}
+  .hpfill{position:absolute;left:0;top:0;bottom:0;width:100%;background:#e0412f;box-shadow:inset 0 -3px 0 #a52a1e}
+  .gear{width:12px;height:12px;background:#f5a623;border:2px solid #0f0d0b;box-sizing:border-box}
+  #scrap{color:#f5a623}
+  .lbl{font-family:'Do Hyeon',sans-serif;font-size:16px;color:#cfc3ae}
+  #tc{left:50%;top:12px;transform:translateX(-50%);text-align:center;display:flex;flex-direction:column;align-items:center;gap:6px}
+  #wave{font-size:16px;padding:10px 18px}
+  #sub{font-family:'Do Hyeon',sans-serif;font-size:17px;color:#f1e8d6;text-shadow:2px 2px 0 #0f0d0b}
+  #tr{right:12px;top:12px;display:flex;gap:6px}
+  .btn{font-family:'Press Start 2P',monospace;font-size:9px;color:#f1e8d6;background:#2c2620;border:3px solid #0f0d0b;box-shadow:inset 0 0 0 2px #4a3f33,0 3px 0 #0f0d0b;padding:8px 9px;cursor:pointer}
+  .btn:active{transform:translateY(2px);box-shadow:inset 0 0 0 2px #4a3f33,0 1px 0 #0f0d0b}
+  .btn.on{background:#f5a623;color:#1d1915;box-shadow:inset 0 0 0 2px #ffd27a,0 3px 0 #0f0d0b}
+  #palette{display:flex;flex-direction:column;gap:7px}
+  .tw{display:flex;align-items:center;gap:6px;width:100%;white-space:nowrap;padding:1px 6px 1px 4px;background:#2c2620;border:3px solid #0f0d0b;box-shadow:inset 0 0 0 2px #4a3f33;cursor:pointer;box-sizing:border-box}
+  .tw.sel{background:#3d3226;box-shadow:inset 0 0 0 2px #f5a623}
+  .tw.poor{opacity:.45}
+  .tw canvas{width:24px;height:26px;image-rendering:pixelated;flex:none}
+  .tw .nm{font-family:'Do Hyeon',sans-serif;font-size:16px;line-height:1}
+  .tw .ct2{margin-left:auto;font-family:'Press Start 2P',monospace;font-size:8px;color:#f5a623}
+  .tw .ct{font-size:8px;color:#f5a623;margin-top:5px}
+  .tw .key{font-size:7px;color:#8a7e6c;margin-left:auto;align-self:flex-start}
+  #hint{left:12px;bottom:10px;font-family:'Do Hyeon',sans-serif;font-size:15px;color:#cfc3ae;text-shadow:2px 2px 0 #0f0d0b}
+  .in-title .hud{opacity:0;pointer-events:none}
+  #title{position:absolute;inset:0;display:none;flex-direction:column;align-items:center;justify-content:center;gap:14px;background:radial-gradient(ellipse at center,rgba(15,13,11,.45) 0%,rgba(15,13,11,.88) 75%);color:#f1e8d6;text-align:center}
+  .in-title #title{display:flex}
+  #title .eyebrow{font-family:'Press Start 2P',monospace;font-size:12px;color:#f5a623;letter-spacing:2px}
+  #title h1{margin:0;font-family:'Do Hyeon',sans-serif;font-weight:400;font-size:84px;line-height:1.05;text-shadow:5px 5px 0 #0f0d0b}
+  #title .tag{font-family:'Do Hyeon',sans-serif;font-size:24px;color:#cfc3ae;text-shadow:2px 2px 0 #0f0d0b;margin-bottom:18px}
+  #title .btns{display:flex;gap:14px}
+  #bStart{font-size:18px;padding:16px 30px;background:#f5a623;color:#1d1915;box-shadow:inset 0 0 0 3px #ffd27a,0 5px 0 #0f0d0b}
+  #bStartDemo{font-size:12px;padding:16px 18px}
+  #title .press{font-family:'Press Start 2P',monospace;font-size:10px;color:#f1e8d6;margin-top:14px;animation:blink 1s steps(1) infinite}
+  #title .ver{position:absolute;right:14px;bottom:10px;font-family:'Press Start 2P',monospace;font-size:8px;color:#8a7e6c}
+  @keyframes blink{50%{opacity:0}}
+  #pause{position:absolute;inset:0;display:none;flex-direction:column;align-items:center;justify-content:center;gap:16px;background:rgba(15,13,11,.7);color:#f1e8d6}
+  #pause.show{display:flex}
+  #pause .ttl{font-family:'Press Start 2P',monospace;font-size:28px;color:#f5a623;text-shadow:4px 4px 0 #0f0d0b;animation:blink 1.2s steps(1) infinite}
+  #pause .col{display:flex;flex-direction:column;gap:10px;width:220px}
+  #pause .btn{font-size:12px;padding:12px}
+  #pause .keys{font-family:'Do Hyeon',sans-serif;font-size:17px;color:#cfc3ae}
+  #over{position:absolute;inset:0;display:none;flex-direction:column;align-items:center;justify-content:center;gap:18px;background:rgba(15,13,11,.78);color:#f1e8d6;text-align:center}
+  #over.show{display:flex}
+  #over h1{margin:0;font-family:'Do Hyeon',sans-serif;font-weight:400;font-size:56px;text-shadow:4px 4px 0 #0f0d0b}
+  #over p{margin:0;font-family:'Press Start 2P',monospace;font-size:12px;color:#f5a623}
+</style>
+</head>
+<body>
+<div id="wrap"><div id="stage" class="in-title"><div id="field">
+  <canvas id="game"></canvas>
+  <div id="tl" class="hud panel">
+    <div class="row"><span class="heart">&#9829;</span><div class="hpbar"><div class="hpfill" id="hpfill"></div></div></div>
+    <div class="row"><span class="gear"></span><span id="scrap">0</span><span class="lbl">스크랩</span></div>
+    <div class="fencerow"><div><div class="fn" id="fenceName">나무 울타리</div><div class="fi" id="fenceInfo"></div></div><button class="btn" id="bFence" title="울타리 강화 (U)">UP 80</button></div>
+  </div>
+  <div id="tc" class="hud">
+    <div id="wave" class="panel">WAVE 0</div>
+    <div id="sub"></div>
+  </div>
+  <div id="tr" class="hud">
+    <button class="btn" id="bPause" title="일시정지 (ESC)">II</button>
+    <button class="btn" id="bSpeed" title="속도 (F)">x1</button>
+    <button class="btn" id="bDemo" title="자동 데모 (D)">DEMO</button>
+    <button class="btn" id="bHide" title="UI 숨기기 (H)">HIDE</button>
+  </div>
+  <div id="hint" class="hud">빈 슬롯 클릭: 설치 · 타워 클릭: 업그레이드·판매 · 타워 끌기: 이동 · ESC 메뉴</div>
+  <div id="title">
+    <div class="eyebrow">AI x INDIE GAME</div>
+    <h1>방치형 룸 디펜스</h1>
+    <div class="tag">세상은 망했다. 내 방만 빼고.</div>
+    <div class="btns"><button class="btn" id="bStart">START</button><button class="btn" id="bStartDemo">DEMO</button></div>
+    <div class="press">PRESS ENTER</div>
+    <div class="ver" id="ver"></div>
+  </div>
+  <div id="tmenu" class="hud panel"><div class="tmh"><span id="tmName"></span><span id="tmLv"></span></div><button class="btn" id="tmUp">업그레이드 <b id="tmUpC"></b></button><button class="btn" id="tmSell">판매 <b id="tmSellC"></b></button></div>
+  <div id="toast">H 키, 또는 오른쪽 위에 마우스를 올리면 UI가 다시 보여요</div>
+  <div id="pause">
+    <div class="ttl">PAUSED</div>
+    <div class="col"><button class="btn" id="bResume">RESUME</button><button class="btn" id="bRestart">RESTART</button><button class="btn" id="bTitle">TITLE</button></div>
+    <div class="keys2"><b>1-9</b> 타워 선택 · <b>SPACE</b> 웨이브 시작 · <b>F</b> 속도 · <b>U</b> 울타리 강화<br><b>H</b> UI 숨김 · <b>D</b> 자동 데모 · <b>ESC</b> 계속하기</div>
+  </div>
+  <div id="over"><h1>침대가 함락됐다...</h1><p id="overWave">WAVE 0</p><button class="btn" id="bRetry" style="font-size:12px;padding:12px 16px">RETRY</button></div>
+</div>
+<div id="side">
+  <div class="sidettl">TOWERS</div>
+  <div id="palette"></div>
+  <div id="next"></div>
+  <div id="info"><div class="in1" id="in1"></div><div class="in2" id="in2"></div><div class="in3" id="in3"></div></div>
+</div>
+</div></div>
+
+<script>
+'use strict';
+const VERSION = 'v0.16';   // 수정할 때마다 올린다
+// ───────── 기본 설정 ─────────
+const W = 480, H = 270, CX = 240, CY = 140;          // 내부 해상도(픽셀아트) & 방 중심
+const FENCE = { rx: 118, ry: 92 };                    // 울타리 타원
+const STOP  = { rx: 128, ry: 102 };                   // 적이 멈춰서 공격하는 선
+const cv = document.getElementById('game');
+cv.width = W; cv.height = H;
+const ctx = cv.getContext('2d');
+ctx.imageSmoothingEnabled = false;
+
+const R = Math.random;
+const rnd = (a, b) => a + R() * (b - a);
+const dist = (a, b) => Math.hypot(a.x - b.x, a.y - b.y);
+const ell = (x, y, rx = STOP.rx, ry = STOP.ry) => ((x - CX) / rx) ** 2 + ((y - CY) / ry) ** 2;
+function angDiff(a, b) { let d = b - a; while (d > Math.PI) d -= 2 * Math.PI; while (d < -Math.PI) d += 2 * Math.PI; return d; }
+
+// ───────── 픽셀 스프라이트 도구 ─────────
+function mk(w, h) { const c = document.createElement('canvas'); c.width = w; c.height = h; const g = c.getContext('2d'); g.imageSmoothingEnabled = false; return [c, g]; }
+function P(g, x, y, c) { g.fillStyle = c; g.fillRect(x, y, 1, 1); }
+function RC(g, x, y, w, h, c) { g.fillStyle = c; g.fillRect(x, y, w, h); }
+function oval(g, cx, cy, rx, ry, c) {
+  g.fillStyle = c;
+  for (let y = Math.floor(cy - ry); y <= Math.ceil(cy + ry); y++)
+    for (let x = Math.floor(cx - rx); x <= Math.ceil(cx + rx); x++) {
+      const dx = (x + .5 - cx) / rx, dy = (y + .5 - cy) / ry;
+      if (dx * dx + dy * dy <= 1) g.fillRect(x, y, 1, 1);
+    }
+}
+function tint(src, col) { const [c, g] = mk(src.width, src.height); g.drawImage(src, 0, 0); g.globalCompositeOperation = 'source-in'; g.fillStyle = col; g.fillRect(0, 0, c.width, c.height); return c; }
+function outlined(src, col = '#120d0a') {
+  const [c, g] = mk(src.width + 2, src.height + 2);
+  const t = tint(src, col);
+  for (const [dx, dy] of [[0, 1], [2, 1], [1, 0], [1, 2]]) g.drawImage(t, dx, dy);
+  g.drawImage(src, 1, 1);
+  return c;
+}
+// 2프레임 애니메이션 스프라이트 (+ 피격용 흰색 버전)
+function sprite(w, h, draw, over) {
+  const n = [];
+  for (let f = 0; f < 2; f++) {
+    const [c, g] = mk(w, h); draw(g, f);
+    const o = outlined(c);
+    if (over) { const og = o.getContext('2d'); og.save(); og.translate(1, 1); over(og, f); og.restore(); }
+    n.push(o);
+  }
+  return { n, w: n.map(s => tint(s, '#ffffff')), W: w + 2, H: h + 2 };
+}
+function single(w, h, draw) { const [c, g] = mk(w, h); draw(g); return outlined(c); }
+
+// ───────── 적 스프라이트 (오른쪽을 바라보는 기준) ─────────
+const SPR = {};
+SPR.ant = sprite(12, 9, (g, f) => {
+  const k = '#2a1d17';
+  [5, 7, 9].forEach((x, i) => {
+    const d = ((i + f) % 2) ? 1 : -1;
+    P(g, x, 2, k); P(g, x + d, 1, k);
+    P(g, x, 6, k); P(g, x - d, 7, k);
+  });
+  oval(g, 3, 4.5, 2.6, 2.0, k); P(g, 2, 3, '#5a4033');
+  P(g, 5, 4, k);
+  oval(g, 6.8, 4.5, 1.3, 1.1, k);
+  oval(g, 9.2, 4.5, 1.6, 1.5, k);
+  P(g, 11, 3, k); P(g, 11, 5, k);
+});
+SPR.mosq = sprite(16, 14, (g, f) => {
+  const k = '#2a1210';
+  // 긴 다리
+  for (const [x, y] of [[8, 5], [7, 4], [6, 3], [10, 5], [11, 4], [12, 3]]) { P(g, x, y, k); P(g, x, 13 - y, k); }
+  RC(g, 2, 6, 7, 2, '#6a2a22'); P(g, 3, 6, k); P(g, 5, 6, k); P(g, 7, 6, k);
+  oval(g, 10, 7, 2, 2, '#3a1d18');
+  oval(g, 12.6, 7, 1.2, 1.2, k); P(g, 13, 6, '#e0412f');
+  RC(g, 14, 7, 2, 1, k);
+}, (g, f) => {
+  const wc = 'rgba(205,232,255,0.6)';
+  if (f === 0) { oval(g, 8, 3, 4, 2, wc); oval(g, 8, 11, 4, 2, wc); }
+  else { oval(g, 9, 4.5, 3.5, 1.2, wc); oval(g, 9, 9.5, 3.5, 1.2, wc); }
+});
+SPR.rat = sprite(18, 11, (g, f) => {
+  const pink = '#e58f9a';
+  const tail = f ? [[0, 6], [1, 6], [2, 5], [3, 5]] : [[0, 4], [1, 5], [2, 5], [3, 5]];
+  tail.forEach(([x, y]) => P(g, x, y, '#d98c8c'));
+  const fx = f ? [7, 12] : [6, 11];
+  fx.forEach(x => { P(g, x, 2, pink); P(g, x, 8, pink); });
+  oval(g, 8.5, 5.5, 5, 3.2, '#6e6a6a');
+  RC(g, 5, 5, 7, 1, '#5a5656');
+  oval(g, 13.8, 5.5, 2.6, 2.1, '#7a7676');
+  P(g, 16, 5, '#7a7676'); P(g, 17, 5, pink);
+  oval(g, 12.5, 2.6, 1.2, 1.1, pink); oval(g, 12.5, 8.4, 1.2, 1.1, pink);
+  P(g, 14, 4, '#1a1210'); P(g, 14, 6, '#1a1210');
+});
+SPR.roach = sprite(18, 14, (g, f) => {
+  const k = '#2a1408';
+  [6, 9, 12].forEach((x, i) => {
+    const d = ((i + f) % 2) ? 1 : -1;
+    P(g, x, 2, k); P(g, x + d, 1, k); P(g, x + d * 2, 0, k);
+    P(g, x, 11, k); P(g, x - d, 12, k); P(g, x - d * 2, 13, k);
+  });
+  oval(g, 8.5, 7, 6, 4, '#7a3e1a');
+  oval(g, 7, 5.6, 3.5, 1.4, '#a35a2a');
+  RC(g, 3, 7, 9, 1, '#4e2610');
+  oval(g, 14.2, 7, 2, 3, '#5e2e12');
+  P(g, 16, 6, '#3a1a08'); P(g, 16, 7, '#3a1a08');
+  P(g, 17, 5, k); P(g, 17, 4, k); P(g, 17, 8, k); P(g, 17, 9, k);
+});
+
+const EDEF = {
+  ant:   { spr: SPR.ant,   hp: 8,  speed: 24, dmg: 1, reward: 3,  blood: ['#3a2a1a', '#5a4a2a', '#2a1d17'] },
+  mosq:  { spr: SPR.mosq,  hp: 5,  speed: 36, dmg: 1, reward: 3,  blood: ['#b0302a', '#6a2a22', '#e0412f'], fly: true },
+  rat:   { spr: SPR.rat,   hp: 30, speed: 17, dmg: 3, reward: 8,  blood: ['#8a2a22', '#6e6a6a', '#b0302a'] },
+  roach: { spr: SPR.roach, hp: 85, speed: 11, dmg: 5, reward: 15, blood: ['#7aa83a', '#4e6a22', '#a35a2a'] },
+};
+
+// ───────── 타워 스프라이트 ─────────
+const TSPR = {
+  fan: {
+    base: single(16, 16, g => { RC(g, 2, 11, 12, 4, '#5a5f6a'); oval(g, 8, 7, 6.5, 6.5, '#3a6fa8'); oval(g, 8, 7, 5, 5, '#1d2a3a'); }),
+    blades: [0, 1].map(f => { const [c, g] = mk(12, 12); const b = '#cfe4f5';
+      if (f === 0) { RC(g, 5, 1, 2, 10, b); RC(g, 1, 5, 10, 2, b); } else { for (let i = 1; i < 11; i++) { P(g, i, i, b); P(g, 11 - i, i, b); P(g, i, i - 1 < 1 ? 1 : i - 1, b); P(g, 11 - i, i - 1 < 1 ? 1 : i - 1, b); } }
+      RC(g, 5, 5, 2, 2, '#f5a623'); return c; }),
+  },
+  laser: {
+    base: single(16, 16, g => {
+      RC(g, 1, 2, 14, 3, '#2c2c30'); RC(g, 1, 11, 14, 3, '#2c2c30');
+      for (let x = 1; x < 15; x += 2) { P(g, x, 3, '#5a5a62'); P(g, x, 12, '#5a5a62'); }
+      RC(g, 3, 5, 10, 6, '#8a3027'); RC(g, 3, 5, 10, 1, '#c04a3a');
+      oval(g, 8, 8, 3, 3, '#6a6e78');
+    }),
+    barrel: single(14, 5, g => { RC(g, 0, 1, 11, 3, '#7a7f8a'); RC(g, 0, 1, 11, 1, '#a0a6b2'); RC(g, 11, 0, 3, 5, '#d63a2a'); P(g, 13, 2, '#ff9a8a'); }),
+  },
+  hammer: {
+    base: single(16, 16, g => { RC(g, 3, 11, 10, 5, '#5a5f6a'); RC(g, 3, 11, 10, 1, '#7a808c'); RC(g, 6, 3, 4, 9, '#c9a03a'); RC(g, 6, 3, 1, 9, '#e8c45a'); }),
+    head: single(11, 7, g => { RC(g, 0, 0, 11, 7, '#d63a2a'); RC(g, 1, 1, 9, 1, '#f06a5a'); RC(g, 0, 0, 1, 7, '#f1e8d6'); RC(g, 10, 0, 1, 7, '#f1e8d6'); }),
+  },
+  tesla: {
+    base: single(16, 16, g => {
+      RC(g, 3, 9, 10, 5, '#5a5f6a'); RC(g, 2, 13, 12, 3, '#3a3d44');
+      RC(g, 6, 3, 4, 7, '#b08a3a'); [4, 6, 8].forEach(y => RC(g, 6, y, 4, 1, '#e0b84a'));
+      oval(g, 8, 3, 2.6, 2.6, '#7fd8f0'); P(g, 7, 2, '#e8fbff');
+    }),
+  },
+  glue: {
+    base: single(16, 16, g => {
+      oval(g, 8, 10, 7.5, 5, '#b8902a'); oval(g, 8, 10, 6.5, 4, '#e8c24a'); oval(g, 7, 9, 3.5, 1.6, '#f8e08a');
+      P(g, 5, 11, '#2a1d17'); P(g, 6, 11, '#2a1d17'); P(g, 11, 9, '#2a1d17'); P(g, 10, 12, '#2a1d17');
+      RC(g, 3, 3, 10, 3, '#cfc3ae'); RC(g, 3, 3, 10, 1, '#f1e8d6'); P(g, 5, 4, '#d65a5a'); P(g, 7, 4, '#d65a5a');
+    }),
+  },
+  coil: {
+    base: single(16, 16, g => {
+      oval(g, 8, 11, 7, 4, '#5a5f6a'); RC(g, 7, 9, 2, 4, '#3a3d44');
+      oval(g, 8, 7, 6.5, 6.5, '#3f7a2a'); oval(g, 8, 7, 5.3, 5.3, '#1d2a1a'); oval(g, 8, 7, 4.2, 4.2, '#4f9a3a');
+      oval(g, 8, 7, 3, 3, '#1d2a1a'); oval(g, 8, 7, 1.9, 1.9, '#4f9a3a'); RC(g, 13, 6, 2, 2, '#e0412f'); P(g, 14, 6, '#ffd27a');
+    }),
+  },
+  swatter: {
+    base: single(16, 16, g => { oval(g, 8, 11, 6.5, 4, '#5a5f6a'); RC(g, 5, 6, 6, 6, '#3a6fa8'); RC(g, 5, 6, 6, 1, '#5a8ad6'); P(g, 7, 9, '#f5c623'); }),
+    barrel: single(17, 9, g => {
+      RC(g, 0, 3, 7, 3, '#2a2a30'); RC(g, 0, 3, 7, 1, '#4a4a52');
+      RC(g, 7, 0, 10, 9, '#f5c623'); RC(g, 8, 1, 8, 7, '#2a2d34');
+      for (let x = 9; x < 16; x += 2) RC(g, x, 1, 1, 7, '#8a8e96'); for (let y = 2; y < 8; y += 2) RC(g, 8, y, 8, 1, '#8a8e96');
+    }),
+  },
+  sling: {
+    base: single(16, 16, g => { oval(g, 8, 11, 6.5, 4, '#7d7a72'); oval(g, 7, 10, 3.5, 1.6, '#a8a49a'); RC(g, 6, 6, 4, 6, '#6b4426'); RC(g, 6, 6, 1, 6, '#8a5a32'); }),
+    barrel: single(14, 11, g => {
+      RC(g, 0, 4, 6, 3, '#8a5a32'); RC(g, 0, 4, 6, 1, '#b07a4a');
+      RC(g, 5, 1, 2, 9, '#8a5a32'); RC(g, 6, 0, 6, 2, '#8a5a32'); RC(g, 6, 9, 6, 2, '#8a5a32');
+      RC(g, 12, 0, 2, 2, '#6b4426'); RC(g, 12, 9, 2, 2, '#6b4426');
+      for (let y = 2; y < 9; y++) P(g, 11, y, '#e58f9a'); RC(g, 9, 4, 2, 3, '#4a3020');
+    }),
+  },
+  cannon: {
+    base: single(16, 16, g => { oval(g, 8, 9, 6.5, 5.5, '#5a5f6a'); oval(g, 8, 8, 4.5, 4.5, '#c4512a'); oval(g, 7, 7, 2, 1.5, '#e8783e'); }),
+    barrel: single(13, 7, g => { RC(g, 0, 1, 11, 5, '#2a2a30'); RC(g, 0, 1, 11, 1, '#4a4a52'); RC(g, 10, 0, 3, 7, '#1a1a1e'); }),
+  },
+};
+
+// ───────── 배경 (흙 + 바위 + 잔디 + 울타리) ─────────
+let seed = 1234;
+const sr = () => (seed = (seed * 16807) % 2147483647) / 2147483647;
+const srnd = (a, b) => a + sr() * (b - a);
+const [bg, bgg] = mk(W, H);
+(function buildBg() {
+  const g = bgg;
+  RC(g, 0, 0, W, H, '#6b4a2f');
+  for (let i = 0; i < 30; i++) oval(g, srnd(0, W), srnd(0, H), srnd(8, 30), srnd(5, 18), sr() < .5 ? '#634430' : '#755236');
+  const dirt = ['#5e4029', '#7a5536', '#634430', '#82603e', '#584028'];
+  for (let i = 0; i < 4200; i++) P(g, (sr() * W) | 0, (sr() * H) | 0, dirt[(sr() * dirt.length) | 0]);
+  // 바위 (가장자리 쪽)
+  function rock(x, y, s) {
+    oval(g, x + 1, y + 2, s, s * .7, '#3a2c20');
+    oval(g, x, y, s, s * .7, '#7d7a72');
+    oval(g, x - s * .25, y - s * .2, s * .6, s * .35, '#a8a49a');
+    oval(g, x + s * .3, y + s * .3, s * .5, s * .25, '#5f5c56');
+  }
+  const big = [[30, 30, 22], [70, 14, 14], [450, 22, 20], [410, 10, 12], [20, 240, 18], [62, 258, 12], [460, 250, 22], [420, 262, 12], [8, 140, 10], [474, 130, 12]];
+  big.forEach(([x, y, s]) => rock(x, y, s));
+  for (let i = 0; i < 26; i++) { let x, y; do { x = srnd(0, W); y = srnd(0, H); } while (ell(x, y, 150, 120) < 1); rock(x, y, srnd(2.5, 6)); }
+  // 잔디 덤불
+  for (let i = 0; i < 70; i++) { let x, y; do { x = srnd(0, W); y = srnd(0, H); } while (ell(x, y, 130, 104) < 1); const c = sr() < .5 ? '#5f8a3a' : '#4c7330';
+    P(g, x | 0, y | 0, c); P(g, (x | 0) - 1, (y | 0) - 1, c); P(g, (x | 0) + 1, (y | 0) - 1, c); P(g, x | 0, (y | 0) - 2, c); }
+  // 울타리 안쪽 잔디
+  oval(g, CX, CY + 2, FENCE.rx + 3, FENCE.ry + 3, '#2f5229');
+  oval(g, CX, CY + 2, FENCE.rx, FENCE.ry, '#3e6b33');
+  const gr = ['#4c7d3c', '#355d2c', '#46743a', '#3a6430'];
+  for (let i = 0; i < 2600; i++) { const x = srnd(CX - FENCE.rx, CX + FENCE.rx), y = srnd(CY - FENCE.ry, CY + FENCE.ry); if (ell(x, y - 2, FENCE.rx - 1, FENCE.ry - 1) < 1) P(g, x | 0, y | 0, gr[(sr() * 4) | 0]); }
+})();
+// ───────── 울타리 (레벨마다 모양이 바뀐다) ─────────
+const FENCE_LV = [
+  { name: '나무 울타리', cost: 0,   reduce: 0,   thorns: 0, maxHp: 100 },
+  { name: '보강 울타리', cost: 80,  reduce: .2,  thorns: 0, maxHp: 120 },
+  { name: '철조망',     cost: 140, reduce: .35, thorns: 2, maxHp: 140 },
+  { name: '강철 펜스',   cost: 220, reduce: .5,  thorns: 4, maxHp: 170 },
+  { name: '전기 펜스',   cost: 320, reduce: .6,  thorns: 9, maxHp: 200 },
+];
+const FENCE_IMG = FENCE_LV.map((_, lv) => {
+  const [c, g] = mk(W, H);
+  const rail = [['#6a4426', '#7a5030'], ['#8a5a32', '#a8744a'], ['#8a8e96', '#b0b6c0'], ['#6a6e78', '#a0a6b2'], ['#3fa0c8', '#9fe8ff']][lv];
+  for (let t = 0; t < Math.PI * 2; t += .004) {
+    const x = CX + Math.cos(t) * FENCE.rx, y = CY + Math.sin(t) * FENCE.ry;
+    P(g, x | 0, (y - 3) | 0, rail[0]); P(g, x | 0, (y - 1) | 0, rail[1]);
+    if (lv >= 1) P(g, x | 0, (y - 5) | 0, rail[0]);
+  }
+  if (lv === 2) for (let t = 0; t < Math.PI * 2; t += .035) {          // 철조망 가시
+    const x = Math.round(CX + Math.cos(t) * FENCE.rx), y = Math.round(CY + Math.sin(t) * FENCE.ry);
+    P(g, x - 1, y - 4, '#d0d4da'); P(g, x + 1, y - 4, '#d0d4da'); P(g, x, y - 3, '#ffffff'); P(g, x - 1, y - 2, '#d0d4da'); P(g, x + 1, y - 2, '#d0d4da');
+  }
+  const posts = 44;
+  for (let i = 0; i < posts; i++) {
+    const t = i / posts * Math.PI * 2, x = Math.round(CX + Math.cos(t) * FENCE.rx), y = Math.round(CY + Math.sin(t) * FENCE.ry);
+    const [body, hi] = lv <= 2 ? (lv === 1 ? ['#9a6a3a', '#c08a5a'] : ['#8a5a32', '#b07a4a']) : ['#7a808c', '#b0b6c0'];
+    const h = lv >= 3 ? 10 : 9;
+    RC(g, x - 2, y - h + 2, 5, h, '#2a1a10'); RC(g, x - 1, y - h + 3, 3, h - 2, body); RC(g, x - 1, y - h + 3, 3, 1, hi);
+    if (lv === 1) RC(g, x - 1, y - 3, 3, 1, '#8a8e96');                 // 보강 철띠
+    if (lv === 4) { RC(g, x - 1, y - h + 1, 3, 2, '#f5c623'); P(g, x, y - h + 1, '#fff6b0'); }   // 전기 애자
+  }
+  return c;
+});
+const [ground, gg] = mk(W, H);            // 배경 + 얼룩(데칼) 레이어
+gg.drawImage(bg, 0, 0);
+
+// ───────── 방 (가운데) ─────────
+const ROOM = { w: 120, h: 92 };
+const [room, rg] = mk(ROOM.w, ROOM.h);
+(function buildRoom() {
+  const g = rg;
+  RC(g, 0, 0, 120, 92, '#1a1410'); RC(g, 1, 1, 118, 90, '#cdb68a'); RC(g, 1, 1, 118, 2, '#e2cfa4');
+  RC(g, 5, 5, 110, 82, '#3b4a6b');
+  for (let y = 9; y < 87; y += 6) RC(g, 5, y, 110, 1, '#35435f');
+  RC(g, 52, 87, 16, 5, '#6b4426'); RC(g, 52, 87, 16, 1, '#8a5a34');            // 문
+  // 벽 장식
+  RC(g, 10, 1, 8, 4, '#d65a5a'); RC(g, 22, 1, 8, 4, '#5a8ad6'); RC(g, 66, 1, 8, 4, '#e0b84a'); oval(g, 38, 3, 2, 2, '#f1e8d6'); P(g, 38, 2, '#1a1410');
+  // 책상 + 모니터
+  RC(g, 8, 8, 34, 14, '#6b4426'); RC(g, 8, 8, 34, 2, '#8a5a34');
+  RC(g, 14, 6, 14, 9, '#2a2d34'); RC(g, 15, 7, 12, 6, '#3fa0c8'); RC(g, 15, 7, 12, 1, '#7fd0f0');
+  RC(g, 16, 17, 10, 3, '#cfcfcf'); oval(g, 22, 27, 5, 4, '#2c2c30');
+  // 책장
+  RC(g, 46, 6, 22, 8, '#5a3a22'); ['#d65a5a', '#5a8ad6', '#e0b84a', '#7aa83a', '#a35aa8', '#f1e8d6', '#d65a5a', '#5a8ad6', '#e0b84a', '#7aa83a'].forEach((c, i) => RC(g, 47 + i * 2, 7, 2, 6, c));
+  // 러그
+  RC(g, 38, 40, 36, 26, '#a55566'); RC(g, 40, 42, 32, 22, '#7a3b4a');
+  // 옛날 TV + 게임기
+  RC(g, 8, 38, 16, 13, '#2a2d34'); RC(g, 10, 40, 12, 8, '#5a7a6a'); RC(g, 10, 40, 12, 1, '#8ab09a');
+  RC(g, 46, 72, 7, 3, '#2a2a30'); P(g, 47, 73, '#e0412f'); P(g, 51, 73, '#5a8ad6');
+  RC(g, 26, 66, 9, 5, '#c8c8c8'); RC(g, 26, 66, 9, 1, '#e8e8e8');
+  // 과자, 피자 박스, 컵
+  RC(g, 30, 52, 4, 5, '#e0b84a'); RC(g, 12, 60, 10, 8, '#c8964a'); P(g, 15, 63, '#d63a2a'); P(g, 18, 65, '#d63a2a');
+  oval(g, 62, 30, 1.6, 1.6, '#f1e8d6'); RC(g, 20, 78, 4, 2, '#f1e8d6'); RC(g, 66, 80, 3, 2, '#d65a5a');
+  // 침대
+  RC(g, 78, 28, 34, 52, '#6b4426'); RC(g, 80, 30, 30, 48, '#e8e0d0');
+  RC(g, 84, 32, 22, 10, '#f8f4ea'); RC(g, 84, 41, 22, 1, '#d8d0c0');
+  RC(g, 80, 48, 30, 30, '#3f6fb5'); RC(g, 80, 48, 30, 2, '#5a8ad6');
+  oval(g, 95, 60, 8, 10, '#4a7ac0');
+  // 주인공
+  oval(g, 95, 41, 4, 4, '#f1c27d'); oval(g, 95, 38.5, 4.3, 2.3, '#3a2a1a');
+  RC(g, 98, 45, 6, 4, '#4f9a5a'); RC(g, 87, 45, 6, 4, '#4f9a5a');      // 초록 티셔츠 팔
+  RC(g, 92, 45, 3, 3, '#f1c27d'); RC(g, 92, 42, 3, 4, '#1a1a1e');       // 손 + 폰
+})();
+const ROOM_X = CX - ROOM.w / 2, ROOM_Y = CY - ROOM.h / 2;
+
+// ───────── 게임 상태 ─────────
+const SLOTS = [];
+const SLOT_COUNT = 8;
+for (let i = 0; i < SLOT_COUNT; i++) { const t = i / SLOT_COUNT * Math.PI * 2 + Math.PI / SLOT_COUNT; SLOTS.push({ x: Math.round(CX + Math.cos(t) * 98), y: Math.round(CY + Math.sin(t) * 76), tower: null }); }
+
+const G = {};
+let enemies, towers, shells, parts, fx, floats;
+function reset(keepDemo, title = false) {
+  Object.assign(G, { hp: 100, maxHp: 100, scrap: 200, wave: 0, phase: title ? 'title' : 'break', ambT: 0, paused: false, cleared: 0, fence: 0, breakT: 8, queue: [], waveT: 0, over: false, time: 0,
+    shake: 0, baseFlash: 0, banner: 0, bannerText: '', demo: keepDemo ? G.demo : false, demoT: 0 });
+  if (G.demo) G.scrap = 400;
+  selType = 'laser';
+  enemies = []; towers = []; shells = []; parts = []; fx = []; floats = [];
+  SLOTS.forEach(s => s.tower = null);
+  if (typeof closeMenu === 'function') closeMenu();
+  gg.drawImage(bg, 0, 0);
+  document.getElementById('over').classList.remove('show');
+}
+
+// ───────── 적 (Enemy) ─────────
+class Enemy {
+  constructor(type, ang, wave, boss = false) {
+    const d = EDEF[type];
+    this.type = type; this.d = d; this.boss = boss;
+    this.maxHp = d.hp * (1 + 0.22 * (wave - 1)) * (boss ? 10 : 1);
+    this.hp = this.maxHp;
+    this.speed = d.speed * rnd(.88, 1.12) * (boss ? .7 : 1);
+    this.scale = boss ? 1.8 : 1;
+    this.x = CX + Math.cos(ang) * 290; this.y = CY + Math.sin(ang) * 185;
+    // 목표 지점: 울타리 바로 바깥. 여기서 울타리를 갉아 침대에 피해를 준다
+    const ta = ang + rnd(-.22, .22), k = rnd(1, 1.1);
+    this.tx = CX + Math.cos(ta) * STOP.rx * k; this.ty = CY + Math.sin(ta) * STOP.ry * k;
+    this.state = 'move'; this.slowT = 0; this.slowMul = 1; this.anim = R() * 2; this.flash = 0; this.atkT = rnd(.3, 1); this.wob = R() * 9; this.dead = false;
+    this.ang = Math.atan2(this.ty - this.y, this.tx - this.x);
+    this.vx = 0; this.vy = 0;
+  }
+  update(dt) {
+    this.flash -= dt;
+    this.slowT -= dt; if (this.slowT <= 0) this.slowMul = 1;
+    const sp = this.speed * this.slowMul;      // 끈끈이 덫에 걸리면 느려진다
+    this.anim += dt * (this.d.fly ? 14 : sp * .35);
+    if (this.state === 'move') {
+      const dx = this.tx - this.x, dy = this.ty - this.y, d = Math.hypot(dx, dy);
+      if (d < 1.5) { this.state = 'attack'; this.vx = this.vy = 0; return; }
+      this.vx = dx / d * sp; this.vy = dy / d * sp;
+      this.x += this.vx * dt; this.y += this.vy * dt;
+      if (this.d.fly) { const s = Math.sin(G.time * 7 + this.wob) * 14 * dt; this.x += -this.vy / this.speed * s; this.y += this.vx / this.speed * s; }
+      this.ang = Math.atan2(this.vy, this.vx);
+    } else {                                   // 공격 상태: 울타리에 붙어서 깨문다
+      this.ang = Math.atan2(CY - this.y, CX - this.x);
+      const fl = FENCE_LV[G.fence];
+      if (fl.thorns && G.phase !== 'title') {             // 철조망 이상: 울타리에 붙은 적은 가시/전기에 계속 피해
+        this.hit(fl.thorns * dt, false);
+        if (R() < dt * 3) parts.push(new Part(this.x, this.y, rnd(-20, 20), rnd(-25, -5), G.fence === 4 ? '#9fe8ff' : '#d0d4da', .25, 1));
+      }
+      if (this.dead) return;
+      this.atkT -= dt;
+      if (this.atkT <= 0) {
+        this.atkT = 1.4;
+        if (G.phase === 'title') return;
+        // 초반 웨이브는 약하게 물고, 웨이브가 오를수록 세진다 (1웨이브 35% → 6웨이브부터 100%)
+        const ramp = Math.min(1, .35 + .13 * (G.wave - 1));
+        G.hp -= this.d.dmg * (this.boss ? 4 : 1) * ramp * (1 - fl.reduce);   // 울타리가 좋을수록 덜 아프다
+        G.baseFlash = .15;
+        const bx = this.x + Math.cos(this.ang) * 6, by = this.y + Math.sin(this.ang) * 6;
+        for (let i = 0; i < 3; i++) parts.push(new Part(bx, by, rnd(-30, 30), rnd(-40, 0), '#f1e8d6', .3, 1));
+      }
+    }
+  }
+  hit(dmg, flash = true) {
+    if (this.dead) return;
+    this.hp -= dmg; if (flash) this.flash = .07;
+    if (this.hp <= 0) this.die();
+  }
+  die() {
+    this.dead = true;
+    const rew = this.d.reward * (this.boss ? 8 : 1);
+    G.scrap += rew;
+    const n = this.boss ? 40 : 9;
+    for (let i = 0; i < n; i++) { const a = R() * 6.28, s = rnd(15, this.boss ? 110 : 55); parts.push(new Part(this.x, this.y, Math.cos(a) * s, Math.sin(a) * s, this.d.blood[(R() * 3) | 0], rnd(.3, .7), R() < .3 ? 2 : 1)); }
+    // 바닥 얼룩
+    const c = this.d.blood;
+    for (let i = 0; i < (this.boss ? 30 : 6); i++) P(gg, (this.x + rnd(-4, 4) * this.scale) | 0, (this.y + rnd(-3, 3) * this.scale) | 0, c[(R() * 3) | 0]);
+    if (rew >= 5) floats.push(new Floater(this.x, this.y - 8, '+' + rew, '#f5a623'));
+    if (this.boss) { G.shake = 5; floats.push(new Floater(this.x, this.y - 18, 'BOSS DOWN', '#f1e8d6', 1.6)); }
+  }
+  draw() {
+    const s = this.d.spr, f = Math.floor(this.anim) % 2, img = this.flash > 0 ? s.w[f] : s.n[f];
+    const sc = this.scale, fly = this.d.fly;
+    ctx.fillStyle = 'rgba(0,0,0,0.28)';
+    ctx.beginPath(); ctx.ellipse(this.x, this.y + (fly ? 7 : 2) * sc, s.W * .32 * sc, s.H * .2 * sc, 0, 0, 7); ctx.fill();
+    if (this.slowT > 0) { ctx.fillStyle = 'rgba(232,194,74,.55)'; ctx.beginPath(); ctx.ellipse(this.x, this.y + 2 * sc, s.W * .4 * sc, s.H * .26 * sc, 0, 0, 7); ctx.fill(); }
+    ctx.save(); ctx.translate(Math.round(this.x), Math.round(this.y)); ctx.rotate(this.ang); ctx.scale(sc, sc);
+    ctx.drawImage(img, -Math.round(s.W / 2), -Math.round(s.H / 2)); ctx.restore();
+    if (this.hp < this.maxHp) {
+      const w = Math.round(10 * sc), x = Math.round(this.x - w / 2), y = Math.round(this.y - s.H * .5 * sc - 4), r = Math.max(0, this.hp / this.maxHp);
+      ctx.fillStyle = '#120d0a'; ctx.fillRect(x - 1, y - 1, w + 2, 4);
+      ctx.fillStyle = r > .5 ? '#6cd04a' : r > .25 ? '#f5c623' : '#e0412f'; ctx.fillRect(x, y, Math.ceil(w * r), 2);
+    }
+  }
+}
+
+// ───────── 타워 (부모 클래스) ─────────
+const TDEF = {   // 해금 순서 = 가격 순서 = 단축키 순서
+  fan:     { name: '강풍기',     cost: 40, range: 72,  dmg: 3,  unlock: 0, key: '1', desc: '앞쪽 적을 바람으로 밀어낸다' },
+  laser:   { name: '레이저 포탑', cost: 50, range: 96,  dmg: 15, unlock: 0, key: '2', desc: '한 마리에게 끊김 없는 빔' },
+  glue:    { name: '끈끈이 덫',   cost: 55, range: 64,  dmg: 1,  slow: .5, unlock: 1, key: '3', desc: '범위 안 적의 발을 묶어 느리게 만든다' },
+  hammer:  { name: '뿅망치 기계', cost: 60, range: 62,  dmg: 24, rate: .9, unlock: 2, key: '4', desc: '근처 적을 한꺼번에 내려찍기' },
+  coil:    { name: '모기향',     cost: 65, range: 62,  dmg: 4,  unlock: 3, key: '5', desc: '범위 안 모두에게 독 연기, 모기는 3배' },
+  swatter: { name: '전기 파리채', cost: 70, range: 70,  dmg: 32, rate: .75, unlock: 4, key: '6', desc: '강한 한 방, 모기는 즉사' },
+  tesla:   { name: '테슬라 코일', cost: 75, range: 82,  dmg: 9,  rate: .75, chain: 4, unlock: 5, key: '7', desc: '여러 마리를 잇는 연쇄 번개' },
+  cannon:  { name: '대포',       cost: 85, range: 115,  dmg: 28, rate: 1.3, splash: 22, unlock: 6, key: '8', desc: '포탄 폭발로 범위 피해' },
+  sling:   { name: '고무줄 새총', cost: 95, range: 170, dmg: 48, rate: 1.6, unlock: 7, key: '9', desc: '초장거리 저격, 체력 높은 적부터' },
+};
+class Tower {
+  constructor(type, slot) {
+    this.type = type; this.def = TDEF[type]; this.slot = slot; this.x = slot.x; this.y = slot.y;
+    this.lvl = 1; this.spent = TDEF[type].cost; this.cd = 0; this.ang = Math.atan2(slot.y - CY, slot.x - CX); this.anim = 0; this.target = null; this.pop = .25;
+  }
+  get range() { return this.def.range * (1 + .12 * (this.lvl - 1)); }
+  get dmg() { return this.def.dmg * (1 + .6 * (this.lvl - 1)); }
+  get upCost() { return Math.round(this.def.cost * .8 * this.lvl); }
+  findTarget() {                          // 사거리 안에서 침대에 가장 가까운 적
+    let best = null, bv = 1e9;
+    for (const e of enemies) {
+      if (e.dead || dist(this, e) > this.range) continue;
+      const v = ell(e.x, e.y); if (v < bv) { bv = v; best = e; }
+    }
+    return best;
+  }
+  aim(dt, speed = 8) { if (this.target) { const a = Math.atan2(this.target.y - this.y, this.target.x - this.x); this.ang += angDiff(this.ang, a) * Math.min(1, dt * speed); } }
+  update(dt) { this.pop = Math.max(0, this.pop - dt); this.cd -= dt; this.target = this.findTarget(); }
+  drawBase(img) {
+    const sy = 1 + this.pop * 1.4;
+    ctx.fillStyle = 'rgba(0,0,0,0.3)'; ctx.beginPath(); ctx.ellipse(this.x, this.y + 6, 8, 3, 0, 0, 7); ctx.fill();
+    ctx.save(); ctx.translate(this.x, this.y); ctx.scale(1, sy); ctx.drawImage(img, -9, -9); ctx.restore();
+    for (let i = 0; i < this.lvl - 1; i++) { ctx.fillStyle = '#120d0a'; ctx.fillRect(this.x - 5 + i * 5, this.y + 9, 4, 4); ctx.fillStyle = '#f5c623'; ctx.fillRect(this.x - 4 + i * 5, this.y + 10, 2, 2); }
+  }
+  drawRot(img, ox, oy, recoil = 0) {
+    ctx.save(); ctx.translate(this.x, this.y); ctx.rotate(this.ang); ctx.drawImage(img, -ox - recoil, -oy); ctx.restore();
+  }
+  draw() {}
+  drawFx() {}
+}
+
+// 강풍기: 앞쪽 부채꼴 안의 적을 밀어내고 약한 지속 피해
+class Fan extends Tower {
+  update(dt) {
+    super.update(dt); this.aim(dt, 5);
+    this.anim += dt * (this.target ? 30 : 6);
+    if (!this.target) return;
+    for (const e of enemies) {
+      if (e.dead) continue;
+      const d = dist(this, e); if (d > this.range) continue;
+      const a = Math.atan2(e.y - this.y, e.x - this.x);
+      if (Math.abs(angDiff(this.ang, a)) > .55) continue;
+      const push = (e.boss ? 10 : 46) * (1 + .25 * (this.lvl - 1)) * dt;
+      e.x += Math.cos(a) * push; e.y += Math.sin(a) * push; e.state = 'move';
+      e.hit(this.dmg * dt, false);
+    }
+    if (R() < dt * 40) { const a = this.ang + rnd(-.45, .45), s = rnd(90, 140); parts.push(new Part(this.x + Math.cos(a) * 6, this.y + Math.sin(a) * 6, Math.cos(a) * s, Math.sin(a) * s, 'rgba(225,242,255,0.75)', .35, 1, true)); }
+  }
+  draw() {
+    this.drawBase(TSPR.fan.base);
+    const b = TSPR.fan.blades[Math.floor(this.anim) % 2];
+    ctx.drawImage(b, Math.round(this.x - 6), Math.round(this.y - 8));
+  }
+}
+
+// 레이저: 사거리 안 적에게 지속 빔
+class Laser extends Tower {
+  update(dt) {
+    super.update(dt); this.aim(dt, 12);
+    this.firing = !!this.target && Math.abs(angDiff(this.ang, Math.atan2(this.target.y - this.y, this.target.x - this.x))) < .25;
+    if (this.firing) { this.target.hit(this.dmg * dt, R() < .3); if (R() < dt * 25) parts.push(new Part(this.target.x, this.target.y, rnd(-40, 40), rnd(-40, 40), '#ffb0a0', .2, 1)); }
+  }
+  draw() { this.drawBase(TSPR.laser.base); this.drawRot(TSPR.laser.barrel, 2, 3); }
+  drawFx() {
+    if (!this.firing) return;
+    const tx = this.x + Math.cos(this.ang) * 13, ty = this.y + Math.sin(this.ang) * 13, e = this.target;
+    ctx.save(); ctx.globalCompositeOperation = 'lighter'; ctx.lineCap = 'round';
+    const fl = .7 + R() * .3;
+    [[4, `rgba(255,60,40,${.25 * fl})`], [2, `rgba(255,90,70,${.8 * fl})`], [.8, '#fff']].forEach(([w, c]) => { ctx.strokeStyle = c; ctx.lineWidth = w; ctx.beginPath(); ctx.moveTo(tx, ty); ctx.lineTo(e.x, e.y); ctx.stroke(); });
+    ctx.fillStyle = 'rgba(255,120,90,.8)'; ctx.beginPath(); ctx.arc(e.x, e.y, 2.5 * fl, 0, 7); ctx.fill();
+    ctx.restore();
+  }
+}
+
+// 뿅망치 기계: 근거리 범위 내려찍기
+class Hammer extends Tower {
+  update(dt) {
+    super.update(dt); this.anim = Math.max(0, this.anim - dt);
+    if (this.cd <= 0 && this.target) {
+      this.cd = this.def.rate; this.anim = .12;
+      for (const e of enemies) if (!e.dead && dist(this, e) <= this.range) {
+        e.hit(this.dmg); e.state = 'move';
+        for (let i = 0; i < 4; i++) { const a = R() * 6.28; parts.push(new Part(e.x, e.y - 2, Math.cos(a) * 30, Math.sin(a) * 30 - 10, R() < .5 ? '#f1e8d6' : '#f5c623', .25, 1)); }   // 맞은 자리에 충격 표시
+      }
+      fx.push(new Ring(this.x, this.y + 2, this.range, '#f1e8d6', .3));
+      for (let i = 0; i < 10; i++) { const a = R() * 6.28; parts.push(new Part(this.x + Math.cos(a) * 8, this.y + 4 + Math.sin(a) * 4, Math.cos(a) * 40, Math.sin(a) * 20 - 10, '#c9a77a', .4, 1)); }
+      G.shake = Math.max(G.shake, 1.5);
+      floats.push(new Floater(this.x, this.y - 18, 'BONK', '#f5c623', .6));
+    }
+  }
+  draw() {
+    this.drawBase(TSPR.hammer.base);
+    const r = Math.max(0, this.cd) / this.def.rate;
+    const lift = this.anim > 0 ? -5 : -7 - 6 * (1 - r);
+    ctx.drawImage(TSPR.hammer.head, Math.round(this.x - 6.5), Math.round(this.y + lift - 4));
+  }
+}
+
+// 테슬라 코일: 연쇄 번개
+class Tesla extends Tower {
+  update(dt) {
+    super.update(dt); this.anim = Math.max(0, this.anim - dt);
+    if (this.cd <= 0 && this.target) {
+      this.cd = this.def.rate; this.anim = .15;
+      const hit = [this.target]; let cur = this.target;
+      for (let i = 1; i < this.def.chain + this.lvl - 1; i++) {
+        let nb = null, bd = 38;
+        for (const e of enemies) { if (e.dead || hit.includes(e)) continue; const d = dist(cur, e); if (d < bd) { bd = d; nb = e; } }
+        if (!nb) break; hit.push(nb); cur = nb;
+      }
+      const pts = [{ x: this.x, y: this.y - 8 }, ...hit.map(e => ({ x: e.x, y: e.y }))];
+      hit.forEach(e => e.hit(this.dmg));
+      fx.push(new Zap(pts));
+    }
+  }
+  draw() {
+    this.drawBase(TSPR.tesla.base);
+    if (this.anim > 0 || R() < .04) { ctx.save(); ctx.globalCompositeOperation = 'lighter'; ctx.fillStyle = 'rgba(127,216,240,.5)'; ctx.beginPath(); ctx.arc(this.x, this.y - 7, 5, 0, 7); ctx.fill(); ctx.restore(); }
+  }
+}
+
+// 대포: 포탄 발사 → 폭발 범위 피해
+class Cannon extends Tower {
+  update(dt) {
+    super.update(dt); this.aim(dt, 6); this.anim = Math.max(0, this.anim - dt * 4);
+    if (this.cd <= 0 && this.target && Math.abs(angDiff(this.ang, Math.atan2(this.target.y - this.y, this.target.x - this.x))) < .3) {
+      this.cd = this.def.rate; this.anim = 1;
+      const sx = this.x + Math.cos(this.ang) * 12, sy = this.y + Math.sin(this.ang) * 12;
+      const t = dist({ x: sx, y: sy }, this.target) / 170;
+      shells.push(new Shell(sx, sy, this.target.x + this.target.vx * t, this.target.y + this.target.vy * t, this.dmg, this.def.splash));
+      for (let i = 0; i < 6; i++) parts.push(new Part(sx, sy, Math.cos(this.ang) * rnd(30, 70) + rnd(-20, 20), Math.sin(this.ang) * rnd(30, 70) + rnd(-20, 20), R() < .5 ? '#ffd27a' : '#f5a623', .18, 2));
+    }
+  }
+  draw() { this.drawBase(TSPR.cannon.base); this.drawRot(TSPR.cannon.barrel, 2, 4, this.anim * 3); }
+}
+// 끈끈이 덫: 범위 안 적을 감속 (레벨이 오를수록 더 느리게)
+class Glue extends Tower {
+  update(dt) {
+    super.update(dt); this.active = false;
+    const mul = Math.max(.25, this.def.slow - .1 * (this.lvl - 1));
+    for (const e of enemies) {
+      if (e.dead || dist(this, e) > this.range) continue;
+      this.active = true;
+      e.slowT = .2; e.slowMul = Math.min(e.slowMul, e.boss ? Math.max(mul, .7) : mul);
+      e.hit(this.dmg * dt, false);
+      if (R() < dt * 2) parts.push(new Part(e.x, e.y + 2, rnd(-4, 4), rnd(2, 8), '#e8c24a', .5, 1));
+    }
+  }
+  draw() { this.drawBase(TSPR.glue.base); }
+  drawFx() {
+    if (!this.active) return;
+    ctx.strokeStyle = `rgba(232,194,74,${.18 + .08 * Math.sin(G.time * 4)})`; ctx.lineWidth = 1;
+    ctx.beginPath(); ctx.ellipse(this.x, this.y, this.range, this.range * .8, 0, 0, 7); ctx.stroke();
+  }
+}
+
+// 모기향: 범위 안 모두에게 지속 독 피해, 모기에게는 3배
+class Coil extends Tower {
+  update(dt) {
+    super.update(dt); this.active = false;
+    for (const e of enemies) {
+      if (e.dead || dist(this, e) > this.range) continue;
+      this.active = true;
+      e.hit(this.dmg * (e.d.fly ? 3 : 1) * (1 + .6 * (this.lvl - 1)) * dt, false);
+      if (R() < dt * 3) parts.push(new Part(e.x + rnd(-3, 3), e.y - 3, rnd(-3, 3), rnd(-14, -6), '#8ad06a', .5, 1));
+    }
+    if (R() < dt * 6) parts.push(new Part(this.x + 6 + rnd(-1, 1), this.y - 3, rnd(-4, 4), rnd(-16, -9), 'rgba(220,225,215,.6)', 1.1, 1));
+  }
+  draw() { this.drawBase(TSPR.coil.base); }
+  drawFx() {
+    if (!this.active) return;
+    ctx.fillStyle = `rgba(110,200,80,${.06 + .03 * Math.sin(G.time * 3)})`;
+    ctx.beginPath(); ctx.arc(this.x, this.y, this.range, 0, 7); ctx.fill();
+  }
+}
+
+// 전기 파리채: 강한 단일 타격, 모기는 즉사
+class Swatter extends Tower {
+  update(dt) {
+    super.update(dt); this.aim(dt, 14); this.anim = Math.max(0, this.anim - dt * 5);
+    if (this.cd <= 0 && this.target) {
+      this.cd = this.def.rate; this.anim = 1;
+      const e = this.target, tip = { x: this.x + Math.cos(this.ang) * 14, y: this.y + Math.sin(this.ang) * 14 };
+      e.hit(e.d.fly ? e.hp + 1 : this.dmg);
+      fx.push(new Zap([tip, { x: e.x, y: e.y }], true));
+      for (let i = 0; i < 8; i++) { const a = R() * 6.28; parts.push(new Part(e.x, e.y, Math.cos(a) * 50, Math.sin(a) * 50, R() < .5 ? '#fff6b0' : '#f5c623', .2, 1)); }
+      floats.push(new Floater(e.x, e.y - 10, 'ZAP', '#fff6b0', .5));
+    }
+  }
+  draw() { this.drawBase(TSPR.swatter.base); this.drawRot(TSPR.swatter.barrel, 1, 4, -this.anim * 4); }
+}
+
+// 고무줄 새총: 초장거리 저격, 남은 체력이 가장 많은 적을 노린다
+class Sling extends Tower {
+  findTarget() {
+    let best = null, bh = -1;
+    for (const e of enemies) { if (e.dead || dist(this, e) > this.range) continue; if (e.hp > bh) { bh = e.hp; best = e; } }
+    return best;
+  }
+  update(dt) {
+    super.update(dt); this.aim(dt, 7); this.anim = Math.max(0, this.anim - dt * 3);
+    if (this.cd <= 0 && this.target && Math.abs(angDiff(this.ang, Math.atan2(this.target.y - this.y, this.target.x - this.x))) < .2) {
+      this.cd = this.def.rate; this.anim = 1;
+      shells.push(new Pebble(this.x + Math.cos(this.ang) * 10, this.y + Math.sin(this.ang) * 10, this.target, this.dmg));
+    }
+  }
+  draw() { this.drawBase(TSPR.sling.base); this.drawRot(TSPR.sling.barrel, 3, 5, this.anim * 3); }
+}
+class Pebble {
+  constructor(x, y, target, dmg) { Object.assign(this, { x, y, target, dmg, dead: false, tx: target.x, ty: target.y }); }
+  update(dt) {
+    if (!this.target.dead) { this.tx = this.target.x; this.ty = this.target.y; }
+    const dx = this.tx - this.x, dy = this.ty - this.y, d = Math.hypot(dx, dy), s = 380 * dt;
+    if (d <= s) {
+      this.dead = true;
+      if (!this.target.dead) { this.target.hit(this.dmg); floats.push(new Floater(this.tx, this.ty - 10, '' + Math.round(this.dmg), '#f1e8d6', .6)); }
+      for (let i = 0; i < 6; i++) { const a = R() * 6.28; parts.push(new Part(this.tx, this.ty, Math.cos(a) * 40, Math.sin(a) * 40, '#a8a49a', .3, 1)); }
+      return;
+    }
+    this.x += dx / d * s; this.y += dy / d * s;
+    if (R() < .5) parts.push(new Part(this.x, this.y, 0, 0, 'rgba(241,232,214,.5)', .12, 1));
+  }
+  draw() { ctx.fillStyle = '#120d0a'; ctx.fillRect(Math.round(this.x) - 1, Math.round(this.y) - 1, 3, 3); ctx.fillStyle = '#cfc3ae'; ctx.fillRect(Math.round(this.x), Math.round(this.y), 1, 1); }
+}
+const TCLASS = { fan: Fan, glue: Glue, laser: Laser, coil: Coil, hammer: Hammer, swatter: Swatter, tesla: Tesla, sling: Sling, cannon: Cannon };
+
+// ───────── 발사체 & 이펙트 ─────────
+class Shell {
+  constructor(x, y, tx, ty, dmg, splash) { Object.assign(this, { x, y, tx, ty, dmg, splash, dead: false }); }
+  update(dt) {
+    const dx = this.tx - this.x, dy = this.ty - this.y, d = Math.hypot(dx, dy), s = 170 * dt;
+    if (d <= s) { this.explode(); return; }
+    this.x += dx / d * s; this.y += dy / d * s;
+    if (R() < .6) parts.push(new Part(this.x, this.y, rnd(-6, 6), rnd(-6, 6), 'rgba(160,160,150,.7)', .3, 1));
+  }
+  explode() {
+    this.dead = true;
+    for (const e of enemies) { if (e.dead) continue; const d = dist(this, e); if (d <= this.splash) e.hit(this.dmg * (1 - d / this.splash * .5)); }
+    for (let i = 0; i < 22; i++) { const a = R() * 6.28, s = rnd(20, 90); parts.push(new Part(this.x, this.y, Math.cos(a) * s, Math.sin(a) * s, ['#ffd27a', '#f5a623', '#e0412f', '#5a5652'][(R() * 4) | 0], rnd(.2, .5), R() < .4 ? 2 : 1)); }
+    fx.push(new Ring(this.x, this.y, this.splash, '#ffd27a', .25));
+    fx.push(new Flash(this.x, this.y, 10));
+    oval(gg, this.x, this.y, 4, 3, 'rgba(40,28,18,.35)');
+    G.shake = Math.max(G.shake, 2.5);
+  }
+  draw() { ctx.fillStyle = '#120d0a'; ctx.fillRect(Math.round(this.x) - 2, Math.round(this.y) - 2, 4, 4); ctx.fillStyle = '#4a4a52'; ctx.fillRect(Math.round(this.x) - 1, Math.round(this.y) - 1, 2, 2); }
+}
+class Part {
+  constructor(x, y, vx, vy, c, life, size = 1, streak = false) { Object.assign(this, { x, y, vx, vy, c, life, max: life, size, streak, dead: false }); }
+  update(dt) { this.x += this.vx * dt; this.y += this.vy * dt; this.vx *= .92; this.vy *= .92; this.life -= dt; if (this.life <= 0) this.dead = true; }
+  draw() {
+    ctx.globalAlpha = Math.min(1, this.life / this.max * 1.5); ctx.fillStyle = this.c;
+    if (this.streak) { ctx.fillRect(Math.round(this.x), Math.round(this.y), 3, 1); }
+    else ctx.fillRect(Math.round(this.x), Math.round(this.y), this.size, this.size);
+    ctx.globalAlpha = 1;
+  }
+}
+class Ring {
+  constructor(x, y, r, c, life) { Object.assign(this, { x, y, r, c, life, max: life, dead: false }); }
+  update(dt) { this.life -= dt; if (this.life <= 0) this.dead = true; }
+  draw() { const k = 1 - this.life / this.max; ctx.globalAlpha = 1 - k; ctx.strokeStyle = this.c; ctx.lineWidth = 1.5; ctx.beginPath(); ctx.ellipse(this.x, this.y, this.r * k, this.r * k * .6, 0, 0, 7); ctx.stroke(); ctx.globalAlpha = 1; }
+}
+class Flash {
+  constructor(x, y, r) { Object.assign(this, { x, y, r, life: .12, dead: false }); }
+  update(dt) { this.life -= dt; if (this.life <= 0) this.dead = true; }
+  draw() { ctx.save(); ctx.globalCompositeOperation = 'lighter'; ctx.fillStyle = `rgba(255,220,140,${this.life * 6})`; ctx.beginPath(); ctx.arc(this.x, this.y, this.r, 0, 7); ctx.fill(); ctx.restore(); }
+}
+class Zap {
+  constructor(pts, yellow = false) { this.pts = pts; this.yellow = yellow; this.life = .16; this.dead = false; }
+  update(dt) { this.life -= dt; if (this.life <= 0) this.dead = true; }
+  draw() {
+    ctx.save(); ctx.globalCompositeOperation = 'lighter'; ctx.lineJoin = 'bevel';
+    const path = [];
+    for (let i = 0; i < this.pts.length - 1; i++) {
+      const a = this.pts[i], b = this.pts[i + 1];
+      for (let k = 0; k <= 5; k++) { const t = k / 5, j = (k === 0 || k === 5) ? 0 : 4; path.push([a.x + (b.x - a.x) * t + rnd(-j, j), a.y + (b.y - a.y) * t + rnd(-j, j)]); }
+    }
+    (this.yellow ? [[3.5, 'rgba(255,200,60,.35)'], [1.6, 'rgba(255,230,120,.9)'], [.7, '#ffffff']] : [[3.5, 'rgba(80,190,255,.35)'], [1.6, 'rgba(140,225,255,.9)'], [.7, '#ffffff']]).forEach(([w, c]) => {
+      ctx.strokeStyle = c; ctx.lineWidth = w; ctx.beginPath(); path.forEach(([x, y], i) => i ? ctx.lineTo(x, y) : ctx.moveTo(x, y)); ctx.stroke();
+    });
+    ctx.restore();
+  }
+}
+class Floater {
+  constructor(x, y, text, c, life = 0.9) { Object.assign(this, { x, y, text, c, life, max: life, dead: false }); }
+  update(dt) { this.y -= 16 * dt; this.life -= dt; if (this.life <= 0) this.dead = true; }
+  draw() {
+    ctx.globalAlpha = Math.min(1, this.life / this.max * 2);
+    ctx.font = '8px "Press Start 2P"'; ctx.textAlign = 'center';
+    ctx.fillStyle = '#120d0a'; ctx.fillText(this.text, Math.round(this.x) + 1, Math.round(this.y) + 1);
+    ctx.fillStyle = this.c; ctx.fillText(this.text, Math.round(this.x), Math.round(this.y));
+    ctx.globalAlpha = 1;
+  }
+}
+
+// ───────── 웨이브 (큐로 스폰 관리) ─────────
+function makeWave(n) {
+  const q = [], pool = [['ant', 1]];
+  if (n >= 2) pool.push(['mosq', .7]);
+  if (n >= 3) pool.push(['rat', .45]);
+  if (n >= 4) pool.push(['roach', .3]);
+  const tw = pool.reduce((s, p) => s + p[1], 0);
+  // 스폰 간격: 초반엔 여유 있게, 웨이브가 오를수록 촘촘하게 (최소 0.5배)
+  const f = Math.max(.5, 1 - .06 * (n - 1)) * (G.demo ? .75 : 1);
+  let count = Math.min(Math.round((8 + n * 4) * (G.demo ? 1.5 : 1)), 180), t = 0;
+  while (count > 0) {                           // 같은 방향에서 무리 지어 몰려온다
+    const g = Math.min(count, Math.floor(rnd(4, 10))), ang = rnd(0, Math.PI * 2);
+    for (let i = 0; i < g; i++) {
+      let r = R() * tw, type = 'ant';
+      for (const [p, w] of pool) { if ((r -= w) <= 0) { type = p; break; } }
+      q.push({ t, type, ang: ang + rnd(-.2, .2) }); t += rnd(.25, .45) * f;
+    }
+    t += rnd(1.6, 2.8) * f; count -= g;
+  }
+  if (n % 5 === 0) q.push({ t: t + .5, type: 'roach', ang: rnd(0, 6.28), boss: true });
+  return q;
+}
+function startWave() {
+  G.wave++; G.phase = 'wave'; G.queue = makeWave(G.wave); G.waveT = 0;
+  G.banner = 2; G.bannerText = 'WAVE ' + G.wave;
+}
+
+// ───────── 설치 / 업그레이드 ─────────
+let selType = 'laser';
+const isUnlocked = k => TDEF[k].unlock <= G.cleared;
+function place(slot, type) {
+  const d = TDEF[type];
+  if (!isUnlocked(type)) { floats.push(new Floater(slot.x, slot.y - 10, 'LOCKED', '#8a7e6c', .8)); return false; }
+  if (G.scrap < d.cost) { floats.push(new Floater(slot.x, slot.y - 10, 'NO SCRAP', '#e0412f', .8)); return false; }
+  G.scrap -= d.cost;
+  const t = new TCLASS[type](type, slot); slot.tower = t; towers.push(t);
+  fx.push(new Ring(slot.x, slot.y + 4, 14, '#f1e8d6', .3));
+  for (let i = 0; i < 8; i++) { const a = R() * 6.28; parts.push(new Part(slot.x, slot.y + 5, Math.cos(a) * 30, Math.sin(a) * 12, '#c9a77a', .35, 1)); }
+  return true;
+}
+const sellValue = t => Math.round(t.spent * .7);          // 쓴 돈의 70% 환불
+function sell(t) {
+  const v = sellValue(t);
+  G.scrap += v; t.slot.tower = null; towers = towers.filter(x => x !== t);
+  for (let i = 0; i < 10; i++) { const a = R() * 6.28; parts.push(new Part(t.x, t.y, Math.cos(a) * 35, Math.sin(a) * 25, R() < .5 ? '#8a8e96' : '#c9a77a', .4, R() < .3 ? 2 : 1)); }
+  fx.push(new Ring(t.x, t.y + 4, 14, '#8fd06a', .3));
+  floats.push(new Floater(t.x, t.y - 12, '+' + v, '#8fd06a', .9));
+}
+function upgrade(t) {
+  if (t.lvl >= 3) return false;
+  if (G.scrap < t.upCost) { floats.push(new Floater(t.x, t.y - 14, 'NO SCRAP', '#e0412f', .8)); return false; }
+  G.scrap -= t.upCost; t.spent += t.upCost; t.lvl++; t.pop = .25;
+  fx.push(new Ring(t.x, t.y, 18, '#f5c623', .4));
+  floats.push(new Floater(t.x, t.y - 14, 'LV' + t.lvl, '#f5c623', .9));
+  return true;
+}
+
+// ───────── 데모 모드 (영상 촬영용 자동 플레이) ─────────
+function demoAI(dt) {
+  G.demoT -= dt; if (G.demoT > 0) return; G.demoT = .5;
+  const empty = SLOTS.filter(s => !s.tower);
+  const types = Object.keys(TDEF).filter(isUnlocked);
+  if (G.fence < 4 && G.scrap >= FENCE_LV[G.fence + 1].cost && R() < .25) { upgradeFence(); return; }
+  if (empty.length && R() < .75) {
+    const ty = types[(R() * types.length) | 0];
+    if (G.scrap >= TDEF[ty].cost) place(empty[(R() * empty.length) | 0], ty);
+  } else if (towers.length) {
+    const t = towers[(R() * towers.length) | 0];
+    if (t.lvl < 3 && G.scrap >= t.upCost) upgrade(t);
+  }
+}
+
+// ───────── 업데이트 ─────────
+function update(dt) {
+  if (G.over) return;
+  G.time += dt;
+  if (G.phase === 'title') {                   // 타이틀 화면: 벌레들이 방을 포위하는 배경 연출
+    G.ambT -= dt;
+    if (G.ambT <= 0 && enemies.length < 36) { G.ambT = .3; const ty = ['ant', 'ant', 'ant', 'mosq', 'rat', 'roach'][(R() * 6) | 0]; enemies.push(new Enemy(ty, rnd(0, 6.28), 1)); }
+    enemies.forEach(e => e.update(dt)); parts.forEach(p => p.update(dt)); parts = parts.filter(p => !p.dead);
+    return;
+  }
+  G.shake = Math.max(0, G.shake - dt * 12); G.baseFlash -= dt; G.banner -= dt;
+  if (G.phase === 'break') {
+    G.breakT -= dt;
+    if (G.breakT <= 0) startWave();
+  } else {
+    G.waveT += dt;
+    while (G.queue.length && G.queue[0].t <= G.waveT) { const s = G.queue.shift(); enemies.push(new Enemy(s.type, s.ang, G.wave, !!s.boss)); }
+    if (!G.queue.length && !enemies.length) {
+      G.phase = 'break'; G.breakT = G.demo ? 2.5 : 6;
+      const bonus = 25 + G.wave * 8; G.scrap += bonus;   // 웨이브 클리어 보상
+      G.banner = 1.6; G.bannerText = 'CLEAR +' + bonus;
+      G.cleared = G.wave;
+      const fresh = Object.keys(TDEF).filter(k => TDEF[k].unlock === G.cleared);   // 이번에 새로 풀린 타워
+      if (fresh.length) {
+        showToast('새 타워 해금! ' + fresh.map(k => TDEF[k].name).join(', '), 2600);
+        fresh.forEach(k => { const el = palEls[k]; el.classList.remove('new'); void el.offsetWidth; el.classList.add('new'); });
+        floats.push(new Floater(CX, 165, 'NEW TOWER!', '#f1e8d6', 1.5));
+      }
+    }
+  }
+  enemies.forEach(e => e.update(dt));
+  towers.forEach(t => { if (t !== drag?.tower || !drag.active) t.update(dt); });   // 들고 있는 타워는 잠시 멈춘다
+  shells.forEach(s => s.update(dt));
+  parts.forEach(p => p.update(dt)); fx.forEach(f => f.update(dt)); floats.forEach(f => f.update(dt));
+  enemies = enemies.filter(e => !e.dead); shells = shells.filter(s => !s.dead);
+  parts = parts.filter(p => !p.dead); fx = fx.filter(f => !f.dead); floats = floats.filter(f => !f.dead);
+  if (parts.length > 900) parts.splice(0, parts.length - 900);
+  // 바닥 얼룩은 천천히 사라진다
+  if (Math.floor(G.time * 2) !== Math.floor((G.time - dt) * 2)) { gg.globalAlpha = .06; gg.drawImage(bg, 0, 0); gg.globalAlpha = 1; }
+  if (G.demo) { demoAI(dt); if (G.hp < 30) G.hp = G.maxHp; }
+  if (G.hp <= 0) { G.hp = 0; G.over = true; document.getElementById('overWave').textContent = 'WAVE ' + G.wave + ' 까지 버팀'; document.getElementById('over').classList.add('show'); }
+}
+
+// ───────── 그리기 ─────────
+let mouse = { x: -99, y: -99, in: false };
+function hoverSlot() { let best = null, bd = 10; for (const s of SLOTS) { const d = dist(s, mouse); if (d < bd) { bd = d; best = s; } } return best; }
+function render() {
+  ctx.save();
+  if (G.shake > 0) ctx.translate(Math.round(rnd(-G.shake, G.shake)), Math.round(rnd(-G.shake, G.shake)));
+  ctx.drawImage(ground, 0, 0);
+  ctx.drawImage(FENCE_IMG[G.fence], 0, 0);
+  if (G.fence === 4 && R() < .25) {                       // 전기 펜스 스파크
+    const t = R() * 6.28, x = CX + Math.cos(t) * FENCE.rx, y = CY + Math.sin(t) * FENCE.ry - 3;
+    ctx.save(); ctx.globalCompositeOperation = 'lighter'; ctx.strokeStyle = 'rgba(160,235,255,.8)'; ctx.lineWidth = 1;
+    ctx.beginPath(); ctx.moveTo(x, y); ctx.lineTo(x + rnd(-4, 4), y + rnd(-3, 3)); ctx.lineTo(x + rnd(-6, 6), y + rnd(-4, 4)); ctx.stroke(); ctx.restore();
+  }
+  ctx.drawImage(room, ROOM_X, ROOM_Y);
+  // 폰 화면 불빛
+  const ph = ['#7fd0f0', '#a0f0ff', '#f5a623', '#e8fbff'][Math.floor(G.time * 3) % 4];
+  ctx.fillStyle = ph; ctx.fillRect(ROOM_X + 93, ROOM_Y + 43, 1, 2);
+  ctx.save(); ctx.globalCompositeOperation = 'lighter'; ctx.fillStyle = 'rgba(120,200,255,.18)'; ctx.beginPath(); ctx.arc(ROOM_X + 93.5, ROOM_Y + 44, 5, 0, 7); ctx.fill(); ctx.restore();
+  if (G.baseFlash > 0) { ctx.strokeStyle = `rgba(224,65,47,${G.baseFlash * 5})`; ctx.lineWidth = 2; ctx.strokeRect(ROOM_X, ROOM_Y, ROOM.w, ROOM.h); }
+  const ui = !document.getElementById('stage').classList.contains('hide-ui');
+  if (ui) for (const s of SLOTS) if (!s.tower) {
+    ctx.fillStyle = 'rgba(0,0,0,.28)'; ctx.beginPath(); ctx.ellipse(s.x, s.y + 3, 7, 3.5, 0, 0, 7); ctx.fill();
+    ctx.fillStyle = 'rgba(241,232,214,.5)'; [[-7, 0], [6, 0], [-7, 5], [6, 5]].forEach(([dx, dy]) => ctx.fillRect(s.x + dx, s.y + dy, 1, 1));
+  }
+  // 엔티티를 y 순서대로 (아래 있는 게 앞에 보이게)
+  const ents = [...towers.filter(t => !(drag && drag.active && drag.tower === t)), ...enemies].sort((a, b) => a.y - b.y);
+  ents.forEach(e => e.draw());
+  shells.forEach(s => s.draw());
+  towers.forEach(t => t.drawFx());
+  fx.forEach(f => f.draw());
+  parts.forEach(p => p.draw());
+  floats.forEach(f => f.draw());
+  // 타워 옮기는 중: 원래 자리 표시 + 놓을 칸 강조 + 마우스를 따라오는 타워
+  if (drag && drag.active) {
+    const t = drag.tower, o = t.slot, tg = dropSlot();
+    ctx.strokeStyle = 'rgba(241,232,214,.5)'; ctx.setLineDash([2, 2]); ctx.beginPath(); ctx.ellipse(o.x, o.y + 3, 8, 4, 0, 0, 7); ctx.stroke(); ctx.setLineDash([]);
+    for (const sl of SLOTS) if (sl !== o) { ctx.strokeStyle = sl === tg ? '#f5a623' : 'rgba(241,232,214,.25)'; ctx.lineWidth = sl === tg ? 2 : 1; ctx.beginPath(); ctx.ellipse(sl.x, sl.y + 3, 9, 5, 0, 0, 7); ctx.stroke(); }
+    const px = tg ? tg.x : mouse.x, py = tg ? tg.y : mouse.y;
+    ctx.fillStyle = 'rgba(241,232,214,.06)'; ctx.strokeStyle = 'rgba(241,232,214,.4)'; ctx.lineWidth = 1;
+    ctx.beginPath(); ctx.arc(px, py, t.range, 0, 7); ctx.fill(); ctx.stroke();
+    const ox = t.x, oy = t.y; t.x = px; t.y = py; ctx.globalAlpha = .8; t.draw(); ctx.globalAlpha = 1; t.x = ox; t.y = oy;
+    if (tg && tg.tower) { ctx.font = '8px "Press Start 2P"'; ctx.textAlign = 'center'; ctx.fillStyle = '#120d0a'; ctx.fillText('SWAP', tg.x + 1, tg.y - 15); ctx.fillStyle = '#f5a623'; ctx.fillText('SWAP', tg.x, tg.y - 16); }
+  }
+  // 마우스 미리보기
+  if (ui && mouse.in && !G.over && !(drag && drag.active)) {
+    const s = hoverSlot();
+    if (s) {
+      const r = s.tower ? s.tower.range : TDEF[selType].range;
+      ctx.fillStyle = 'rgba(241,232,214,.07)'; ctx.strokeStyle = 'rgba(241,232,214,.45)'; ctx.lineWidth = 1;
+      ctx.beginPath(); ctx.arc(s.x, s.y, r, 0, 7); ctx.fill(); ctx.stroke();
+      ctx.font = '8px "Press Start 2P"'; ctx.textAlign = 'center';
+      const label = s.tower ? 'LV' + s.tower.lvl : '' + TDEF[selType].cost;
+      ctx.fillStyle = '#120d0a'; ctx.fillText(label, s.x + 1, s.y - 13);
+      ctx.fillStyle = '#f5a623'; ctx.fillText(label, s.x, s.y - 14);
+    }
+  }
+  if (menuT && ui) {                                    // 메뉴가 열린 타워의 사거리
+    ctx.strokeStyle = 'rgba(245,166,35,.7)'; ctx.fillStyle = 'rgba(245,166,35,.07)'; ctx.lineWidth = 1;
+    ctx.beginPath(); ctx.arc(menuT.x, menuT.y, menuT.range, 0, 7); ctx.fill(); ctx.stroke();
+  }
+  // 웨이브 배너
+  if (G.banner > 0) {
+    const a = Math.min(1, G.banner * 2), y = 128 - (1 - Math.min(1, (2 - G.banner) * 4)) * 10;
+    ctx.globalAlpha = a; ctx.font = '16px "Press Start 2P"'; ctx.textAlign = 'center';
+    ctx.fillStyle = '#120d0a'; ctx.fillText(G.bannerText, CX + 2, y + 2);
+    ctx.fillStyle = '#f5a623'; ctx.fillText(G.bannerText, CX, y);
+    ctx.globalAlpha = 1;
+  }
+  ctx.restore();
+}
+
+// ───────── HUD ─────────
+const $ = id => document.getElementById(id);
+const pal = $('palette');
+const palEls = {};
+Object.entries(TDEF).forEach(([k, d]) => {
+  const el = document.createElement('div'); el.className = 'tw';
+  const ic = document.createElement('canvas'); ic.width = 20; ic.height = 22;
+  const g = ic.getContext('2d'); g.imageSmoothingEnabled = false;
+  g.drawImage(TSPR[k].base, 1, 3);
+  if (TSPR[k].barrel) { g.save(); g.translate(10, 12); g.rotate(-.6); g.drawImage(TSPR[k].barrel, -2, -3); g.restore(); }
+  if (k === 'fan') g.drawImage(TSPR.fan.blades[0], 4, 4);
+  if (k === 'hammer') g.drawImage(TSPR.hammer.head, 3, 0);
+  el.appendChild(ic);
+  const tx = document.createElement('div'); tx.className = 'nm'; tx.textContent = d.name; el.appendChild(tx);
+  const ct = document.createElement('div'); ct.className = 'ct2'; ct.textContent = d.cost; el.appendChild(ct); el.ct = ct;
+  el.onclick = () => { selType = k; };
+  el.title = d.desc;
+  pal.appendChild(el); palEls[k] = el;
+});
+let lastHud = '';
+function hud() {
+  const sub = G.phase === 'break' ? (G.wave === 0 ? `타워를 배치하세요 · ${Math.ceil(G.breakT)}초 후 시작` : `다음 웨이브까지 ${Math.ceil(G.breakT)}초 · SPACE 바로 시작`) : `남은 적 ${enemies.length + G.queue.length}`;
+  refreshMenu();
+  const key = [G.hp | 0, G.maxHp, G.scrap, G.wave, sub, selType, G.cleared, G.fence].join('|');
+  if (key === lastHud) return; lastHud = key;
+  const fl = FENCE_LV[G.fence], fn = FENCE_LV[G.fence + 1];
+  $('fenceName').textContent = `${fl.name} Lv${G.fence + 1}`;
+  $('fenceInfo').textContent = G.fence === 0 ? '받는 피해 그대로' : `받는 피해 -${fl.reduce * 100}%` + (fl.thorns ? ` · 가시 ${fl.thorns}` : '');
+  $('bFence').textContent = fn ? 'UP ' + fn.cost : 'MAX';
+  $('bFence').classList.toggle('max', !fn); $('bFence').classList.toggle('poor', !!fn && G.scrap < fn.cost);
+  const sd = TDEF[selType];
+  $('in1').textContent = sd.name; $('in2').textContent = sd.desc;
+  $('in3').textContent = isUnlocked(selType) ? `사거리 ${sd.range} · 비용 ${sd.cost}` : `잠김 · 웨이브 ${sd.unlock} 클리어 시 해금`;
+  const nxt = Object.keys(TDEF).filter(k => !isUnlocked(k)).sort((a, b) => TDEF[a].unlock - TDEF[b].unlock)[0];
+  $('next').innerHTML = nxt ? `다음 해금 <b>${TDEF[nxt].name}</b><br>웨이브 ${TDEF[nxt].unlock} 클리어 시` : '<b>모든 타워 해금 완료!</b>';
+  $('hpfill').style.width = Math.max(0, G.hp / G.maxHp * 100) + '%';
+  $('scrap').textContent = G.scrap; $('wave').textContent = 'WAVE ' + G.wave; $('sub').textContent = sub;
+  for (const [k, el] of Object.entries(palEls)) {
+    const lock = !isUnlocked(k);
+    el.classList.toggle('sel', k === selType); el.classList.toggle('locked', lock); el.classList.toggle('poor', !lock && G.scrap < TDEF[k].cost);
+    el.ct.textContent = lock ? 'W' + TDEF[k].unlock : TDEF[k].cost;
+  }
+}
+
+// ───────── 입력 ─────────
+function toLocal(e) { const r = cv.getBoundingClientRect(); return { x: (e.clientX - r.left) / r.width * W, y: (e.clientY - r.top) / r.height * H }; }
+// 타워 끌어서 옮기기: 누르고 4px 이상 움직이면 드래그, 그냥 떼면 클릭(설치/업그레이드)
+let drag = null;
+function dropSlot() { let best = null, bd = 16; for (const sl of SLOTS) { const d = dist(sl, mouse); if (d < bd) { bd = d; best = sl; } } return best; }
+function moveTower(t, to) {
+  const from = t.slot; if (to === from) return;
+  const other = to.tower;
+  to.tower = t; t.slot = to; t.x = to.x; t.y = to.y; t.pop = .25;
+  from.tower = other; if (other) { other.slot = from; other.x = from.x; other.y = from.y; other.pop = .25; }
+  for (const sl of other ? [to, from] : [to]) { fx.push(new Ring(sl.x, sl.y + 4, 14, '#f1e8d6', .3)); for (let i = 0; i < 6; i++) { const a = R() * 6.28; parts.push(new Part(sl.x, sl.y + 5, Math.cos(a) * 28, Math.sin(a) * 10, '#c9a77a', .3, 1)); } }
+  floats.push(new Floater(to.x, to.y - 14, other ? 'SWAP' : 'MOVE', '#f1e8d6', .7));
+}
+// ───────── 타워 메뉴 (클릭하면 업그레이드 / 판매) ─────────
+let menuT = null;
+function openMenu(t) { menuT = t; refreshMenu(); $('tmenu').classList.add('show'); }
+function closeMenu() { menuT = null; $('tmenu').classList.remove('show'); }
+function refreshMenu() {
+  const t = menuT; if (!t) return;
+  if (!towers.includes(t)) { closeMenu(); return; }
+  const m = $('tmenu');
+  m.style.left = Math.min(960 - 80, Math.max(80, t.x * 2)) + 'px';
+  m.style.top = Math.max(110, t.y * 2 - 30) + 'px';
+  $('tmName').textContent = t.def.name; $('tmLv').textContent = 'LV' + t.lvl;
+  const max = t.lvl >= 3;
+  $('tmUpC').textContent = max ? 'MAX' : t.upCost;
+  $('tmUp').classList.toggle('max', max); $('tmUp').classList.toggle('poor', !max && G.scrap < t.upCost);
+  $('tmSellC').textContent = '+' + sellValue(t);
+}
+$('tmUp').onclick = () => { if (menuT && upgrade(menuT)) refreshMenu(); };
+$('tmSell').onclick = () => { if (menuT) { sell(menuT); closeMenu(); } };
+const blocked = () => G.over || G.paused || G.phase === 'title';
+cv.addEventListener('pointerdown', e => {
+  if (blocked()) return;
+  Object.assign(mouse, toLocal(e), { in: true });
+  const s = hoverSlot(); if (!s) { closeMenu(); return; }
+  drag = { slot: s, tower: s.tower, sx: mouse.x, sy: mouse.y, active: false };
+  cv.setPointerCapture(e.pointerId);
+});
+cv.addEventListener('pointermove', e => {
+  Object.assign(mouse, toLocal(e), { in: true });
+  if (drag && drag.tower && !drag.active && Math.hypot(mouse.x - drag.sx, mouse.y - drag.sy) > 4) { drag.active = true; closeMenu(); }
+  const over = hoverSlot();
+  cv.style.cursor = drag && drag.active ? 'grabbing' : over && over.tower ? 'grab' : 'crosshair';
+});
+cv.addEventListener('pointerup', e => {
+  if (!drag) return;
+  Object.assign(mouse, toLocal(e));
+  const d = drag; drag = null;
+  if (blocked()) return;
+  if (!d.slot.tower || d.active) closeMenu();
+  if (d.active) { const to = dropSlot(); if (to && to.tower !== d.tower && towers.includes(d.tower)) moveTower(d.tower, to); }
+  else if (d.slot.tower) { if (menuT === d.slot.tower) closeMenu(); else openMenu(d.slot.tower); }
+  else place(d.slot, selType);
+});
+cv.addEventListener('pointercancel', () => drag = null);
+cv.addEventListener('pointerleave', () => { mouse.in = false; });
+let speed = 1;
+function cycleSpeed() { speed = speed === 1 ? 2 : speed === 2 ? 3 : 1; $('bSpeed').textContent = 'x' + speed; $('bSpeed').classList.toggle('on', speed > 1); }
+function toggleDemo() { G.demo = !G.demo; $('bDemo').classList.toggle('on', G.demo); if (G.demo && G.scrap < 400) G.scrap = 400; }
+function upgradeFence() {
+  if (blocked() || G.fence >= FENCE_LV.length - 1) return false;
+  const nx = FENCE_LV[G.fence + 1];
+  if (G.scrap < nx.cost) { floats.push(new Floater(CX, CY - FENCE.ry - 6, 'NO SCRAP', '#e0412f', .8)); return false; }
+  G.scrap -= nx.cost; G.fence++;
+  const gain = nx.maxHp - G.maxHp; G.maxHp = nx.maxHp; G.hp = Math.min(G.maxHp, G.hp + gain);
+  for (let i = 0; i < 16; i++) { const t = i / 16 * 6.28; fx.push(new Ring(CX + Math.cos(t) * FENCE.rx, CY + Math.sin(t) * FENCE.ry, 12, '#f5c623', .4)); }
+  G.shake = Math.max(G.shake, 2);
+  showToast('울타리 강화! ' + nx.name, 2000);
+  return true;
+}
+let toastT;
+function showToast(msg, ms = 2200) { const t = $('toast'); t.textContent = msg; t.classList.add('show'); clearTimeout(toastT); toastT = setTimeout(() => t.classList.remove('show'), ms); }
+function toggleHide() {
+  const hidden = $('stage').classList.toggle('hide-ui'); fit();
+  $('bHide').textContent = hidden ? 'SHOW' : 'HIDE';
+  $('bHide').classList.toggle('on', hidden);
+  if (hidden) showToast('H 키, 또는 오른쪽 위에 마우스를 올리면 UI가 다시 보여요'); else { clearTimeout(toastT); $('toast').classList.remove('show'); }
+}
+$('bSpeed').onclick = cycleSpeed; $('bDemo').onclick = toggleDemo; $('bHide').onclick = toggleHide;
+$('bRetry').onclick = () => reset(true);
+function setPause(on) {
+  if (G.phase === 'title' || G.over) on = false;
+  G.paused = on; $('pause').classList.toggle('show', on); $('bPause').classList.toggle('on', on);
+}
+function goTitle() { setPause(false); if (G.demo) toggleDemo(); reset(false, true); $('stage').classList.add('in-title'); fit(); }
+$('bPause').onclick = () => setPause(!G.paused);
+$('bFence').onclick = () => upgradeFence();
+$('bResume').onclick = () => setPause(false);
+$('bRestart').onclick = () => { const d = G.demo; setPause(false); reset(false); if (d) toggleDemo(); };
+$('bTitle').onclick = goTitle;
+document.addEventListener('visibilitychange', () => { if (document.hidden) setPause(true); });
+function startGame(demo) {
+  $('stage').classList.remove('in-title'); fit();
+  reset(false);
+  if (demo !== G.demo) toggleDemo();
+}
+$('bStart').onclick = () => startGame(false);
+$('bStartDemo').onclick = () => startGame(true);
+addEventListener('keydown', e => {
+  const k = e.key.toLowerCase();
+  if (G.phase === 'title') {
+    if (k === 'enter' || k === ' ') { e.preventDefault(); startGame(false); }
+    if (k === 'd') startGame(true);
+    return;
+  }
+  if (k === 'escape' && menuT) { closeMenu(); return; }
+  if (k === 'escape' || k === 'p') { e.preventDefault(); setPause(!G.paused); return; }
+  if (G.paused) return;
+  const byKey = Object.entries(TDEF).find(([, d]) => d.key === k); if (byKey) selType = byKey[0];
+  if (k === ' ') { e.preventDefault(); if (G.phase === 'break' && !G.over) G.breakT = 0; }
+  if (k === 'h') toggleHide();
+  if (k === 'd') toggleDemo();
+  if (k === 'f') cycleSpeed();
+  if (k === 'u') upgradeFence();
+  if (k === 'r' && G.over) reset(true);
+});
+function fit() { const w = $('stage').offsetWidth || 960, s = Math.min(innerWidth / w, innerHeight / 540); $('stage').style.transform = `scale(${s})`; }
+addEventListener('resize', fit); fit();
+
+document.getElementById('ver').textContent = VERSION;
+// ───────── 메인 루프 ─────────
+reset(false, true);
+let last = performance.now();
+function loop(now) {
+  const dt = Math.min(.05, (now - last) / 1000); last = now;
+  if (!G.paused) for (let i = 0; i < speed; i++) update(dt);
+  render(); hud();
+  requestAnimationFrame(loop);
+}
+requestAnimationFrame(loop);
+</script>
+</body>
+</html>
