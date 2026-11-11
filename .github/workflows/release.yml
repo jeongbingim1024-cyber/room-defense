@@ -1,0 +1,35 @@
+# 태그(v0.17 등)를 올리면 자동으로:
+#  1) zip을 만들어 GitHub Release에 첨부
+#  2) BUTLER_API_KEY 비밀값과 ITCH_USER 변수가 있으면 itch.io에도 자동 업로드
+name: release
+on:
+  push:
+    tags: ['v*']
+permissions:
+  contents: write
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    env:
+      BUTLER_API_KEY: ${{ secrets.BUTLER_API_KEY }}
+      ITCH_USER: ${{ vars.ITCH_USER }}
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build zip
+        id: build
+        run: |
+          ZIP=$(./build.sh)
+          VER=$(basename "$ZIP" .zip | sed 's/room-defense_//')
+          if [ "$VER" != "${GITHUB_REF_NAME}" ]; then echo "index.html VERSION($VER)과 태그(${GITHUB_REF_NAME})가 달라요"; exit 1; fi
+          echo "zip=$ZIP" >> "$GITHUB_OUTPUT"
+      - name: GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: ${{ steps.build.outputs.zip }}
+          body_path: CHANGELOG.md
+      - name: Upload to itch.io
+        if: env.BUTLER_API_KEY != '' && env.ITCH_USER != ''
+        run: |
+          curl -sSL -o butler.zip https://broth.itch.zone/butler/linux-amd64/LATEST/archive/default
+          unzip -q butler.zip -d butler && chmod +x butler/butler
+          ./butler/butler push "${{ steps.build.outputs.zip }}" "$ITCH_USER/room-defense:html5" --userversion "${GITHUB_REF_NAME}"
