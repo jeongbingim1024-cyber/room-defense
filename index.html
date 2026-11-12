@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
-<title>룸 디펜스 프로토타입 v0.28.1</title>
+<title>룸 디펜스 프로토타입 v0.29</title>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Do+Hyeon&display=swap">
 <style>
   html,body{margin:0;height:100%;background:#0f0d0b;overflow:hidden;user-select:none;-webkit-user-select:none;-webkit-touch-callout:none;touch-action:none;overscroll-behavior:none}
@@ -207,12 +207,12 @@
   .prob{font-family:'Do Hyeon',sans-serif;font-size:15px;text-align:center}
   .pinfo{font-family:'Do Hyeon',sans-serif;font-size:14px;color:#8a7e6c;line-height:1.3}
   .presult{flex:1;display:flex;flex-wrap:wrap;align-content:flex-start;gap:8px;background:#151210;border:2px solid #2c2620;padding:10px;overflow-y:auto}
-  .pcard{width:150px;display:flex;flex-direction:column;align-items:center;gap:2px;background:#2c2620;border:3px solid var(--rc);padding:8px 4px;animation:pflip .35s both}
-  .presult.many .pcard{width:96px;padding:5px 2px}
-  .pcard img{width:56px;height:56px;image-rendering:pixelated}
-  .presult.many .pcard img{width:40px;height:40px}
-  .pcard.r3{box-shadow:0 0 14px #f5a623}
-  .pcard.r2{box-shadow:0 0 8px #b07ae8}
+  .gpc{width:150px;display:flex;flex-direction:column;align-items:center;gap:2px;background:#2c2620;border:3px solid var(--rc);padding:8px 4px;animation:pflip .35s both}
+  .presult.many .gpc{width:96px;padding:5px 2px}
+  .gpc img{width:56px;height:56px;image-rendering:pixelated}
+  .presult.many .gpc img{width:40px;height:40px}
+  .gpc.r3{box-shadow:0 0 14px #f5a623}
+  .gpc.r2{box-shadow:0 0 8px #b07ae8}
   .pn{font-family:'Do Hyeon',sans-serif;font-size:16px;text-align:center;line-height:1.1;color:var(--rc)}
   .presult.many .pn{font-size:13px}
   .pr{font-family:'Do Hyeon',sans-serif;font-size:13px;color:#8a7e6c}
@@ -421,7 +421,7 @@
 
 <script>
 'use strict';
-const VERSION = 'v0.28.1';
+const VERSION = 'v0.29';
 // 터치 기기인지 (휴대폰·태블릿이면 터치 UI로)
 const TOUCH = matchMedia('(pointer: coarse)').matches || navigator.maxTouchPoints > 0;
 
@@ -657,12 +657,24 @@ SPR.roach = sprite(18, 14, (g, f) => {
   P(g, 16, 6, '#3a1a08'); P(g, 16, 7, '#3a1a08');
   P(g, 17, 5, k); P(g, 17, 4, k); P(g, 17, 8, k); P(g, 17, 9, k);
 });
+// 폭탄먼지벌레: 원거리. 주황 무늬 딱정벌레, 꽁무니에서 산성액을 쏜다
+SPR.spit = sprite(15, 11, (g, f) => {
+  const k = '#1a1208';
+  [5, 8, 11].forEach((x, i) => { const d = ((i + f) % 2) ? 1 : -1; P(g, x, 1, k); P(g, x + d, 0, k); P(g, x, 9, k); P(g, x - d, 10, k); });
+  oval(g, 6.5, 5, 5, 3.6, '#1d1915');
+  oval(g, 6, 3.6, 3.2, 1.2, '#e8903a'); oval(g, 6, 6.4, 3.2, 1.2, '#e8903a');
+  RC(g, 2, 5, 9, 1, '#2a1d17');
+  oval(g, 11.6, 5, 2, 2, '#c8653a');
+  P(g, 13, 4, '#1d1915'); P(g, 13, 6, '#1d1915'); P(g, 14, 3, k); P(g, 14, 7, k);
+  P(g, 1, 4, '#9be04a'); P(g, 1, 6, '#9be04a');
+});
 
 const EDEF = {
   ant:   { spr: SPR.ant,   hp: 8,  speed: 24, dmg: 1, reward: 3,  blood: ['#3a2a1a', '#5a4a2a', '#2a1d17'] },
   mosq:  { spr: SPR.mosq,  hp: 5,  speed: 36, dmg: 1, reward: 3,  blood: ['#b0302a', '#6a2a22', '#e0412f'], fly: true },
   rat:   { spr: SPR.rat,   hp: 30, speed: 17, dmg: 3, reward: 8,  blood: ['#8a2a22', '#6e6a6a', '#b0302a'] },
   roach: { spr: SPR.roach, hp: 85, speed: 11, dmg: 5, reward: 15, blood: ['#7aa83a', '#4e6a22', '#a35a2a'] },
+  spit:  { spr: SPR.spit,  hp: 24, speed: 20, dmg: 2, reward: 8,  blood: ['#9be04a', '#e8903a', '#1d1915'], ranged: true, rate: 2.4 },
 };
 
 // ───────── 타워 스프라이트 ─────────
@@ -864,8 +876,9 @@ class Enemy {
     this.scale = boss ? 1.8 : 1;
     this.x = CX + Math.cos(ang) * 290; this.y = CY + Math.sin(ang) * 185;
     // 목표 지점: 울타리 바로 바깥. 여기서 울타리를 갉아 침대에 피해를 준다
-    const ta = ang + rnd(-.22, .22), k = rnd(1, 1.1);
+    const ta = ang + rnd(-.22, .22), k = d.ranged ? rnd(1.38, 1.55) : rnd(1, 1.1);   // 원거리 적은 울타리에서 떨어진 곳에 멈춘다
     this.tx = CX + Math.cos(ta) * STOP.rx * k; this.ty = CY + Math.sin(ta) * STOP.ry * k;
+    if (d.ranged) { this.tx = Math.max(12, Math.min(W - 12, this.tx)); this.ty = Math.max(14, Math.min(H - 10, this.ty)); }
     this.state = 'move'; this.slowT = 0; this.slowMul = 1; this.anim = R() * 2; this.flash = 0; this.atkT = rnd(.3, 1); this.wob = R() * 9; this.dead = false;
     this.ang = Math.atan2(this.ty - this.y, this.tx - this.x);
     this.vx = 0; this.vy = 0;
@@ -882,6 +895,15 @@ class Enemy {
       this.x += this.vx * dt; this.y += this.vy * dt;
       if (this.d.fly) { const s = Math.sin(G.time * 7 + this.wob) * 14 * dt; this.x += -this.vy / this.speed * s; this.y += this.vx / this.speed * s; }
       this.ang = Math.atan2(this.vy, this.vx);
+    } else if (this.d.ranged) {                // 원거리 공격: 울타리 너머 침대로 산성액을 쏜다 (울타리로 못 막음)
+      this.ang = Math.atan2(CY - this.y, CX - this.x);
+      this.atkT -= dt;
+      if (this.atkT <= 0 && G.phase !== 'title') {
+        this.atkT = this.d.rate * rnd(.9, 1.1);
+        const bx = this.x - Math.cos(this.ang) * 6, by = this.y - Math.sin(this.ang) * 6;   // 꽁무니에서 발사
+        fx.push(new Spit(bx, by, CX + rnd(-22, 22), CY + rnd(-14, 14), this.d.dmg * (this.boss ? 4 : 1)));
+        for (let i = 0; i < 4; i++) parts.push(new Part(bx, by, rnd(-25, 25), rnd(-25, 25), '#9be04a', .25, 1));
+      }
     } else {                                   // 공격 상태: 울타리에 붙어서 깨문다
       this.ang = Math.atan2(CY - this.y, CX - this.x);
       const fl = FENCE_LV[G.fence];
@@ -1309,6 +1331,29 @@ class Shell {
   }
   draw() { ctx.fillStyle = '#120d0a'; ctx.fillRect(Math.round(this.x) - 2, Math.round(this.y) - 2, 4, 4); ctx.fillStyle = '#4a4a52'; ctx.fillRect(Math.round(this.x) - 1, Math.round(this.y) - 1, 2, 2); }
 }
+// 산성액: 포물선으로 날아가 침대 근처에 떨어지면 피해
+class Spit {
+  constructor(x, y, tx, ty, dmg) { Object.assign(this, { x0: x, y0: y, tx, ty, dmg, t: 0, dur: .75, dead: false, x, y, h: 0 }); }
+  update(dt) {
+    this.t += dt; const k = Math.min(1, this.t / this.dur);
+    this.x = this.x0 + (this.tx - this.x0) * k; this.y = this.y0 + (this.ty - this.y0) * k; this.h = Math.sin(k * Math.PI) * 26;
+    if (R() < dt * 40) parts.push(new Part(this.x, this.y - this.h, rnd(-6, 6), rnd(-6, 6), 'rgba(155,224,74,.7)', .25, 1));
+    if (k >= 1) {
+      this.dead = true;
+      if (G.phase === 'title' || G.over) return;
+      const ramp = Math.min(1, .35 + .13 * (G.wave - 1));
+      G.hp -= this.dmg * ramp * (1 - BON.def / 100); G.tookDmg = true; G.baseFlash = .15;
+      for (let i = 0; i < 10; i++) { const a = R() * 6.28, sp = rnd(15, 45); parts.push(new Part(this.tx, this.ty, Math.cos(a) * sp, Math.sin(a) * sp * .6, i % 2 ? '#9be04a' : '#c8f07a', rnd(.3, .5), R() < .3 ? 2 : 1)); }
+      for (let i = 0; i < 5; i++) P(gg, (this.tx + rnd(-3, 3)) | 0, (this.ty + rnd(-2, 2)) | 0, '#7ab03a');
+    }
+  }
+  draw() {
+    ctx.fillStyle = 'rgba(0,0,0,.25)'; ctx.beginPath(); ctx.ellipse(this.x, this.y + 1, 2.5, 1.2, 0, 0, 7); ctx.fill();
+    ctx.fillStyle = '#4e7a1a'; ctx.beginPath(); ctx.arc(this.x, this.y - this.h, 2.6, 0, 7); ctx.fill();
+    ctx.fillStyle = '#9be04a'; ctx.beginPath(); ctx.arc(this.x, this.y - this.h, 1.8, 0, 7); ctx.fill();
+    ctx.fillStyle = '#e8ffc0'; ctx.fillRect(Math.round(this.x - 1), Math.round(this.y - this.h - 1), 1, 1);
+  }
+}
 class Part {
   constructor(x, y, vx, vy, c, life, size = 1, streak = false) { Object.assign(this, { x, y, vx, vy, c, life, max: life, size, streak, dead: false }); }
   update(dt) { this.x += this.vx * dt; this.y += this.vy * dt; this.vx *= .92; this.vy *= .92; this.life -= dt; if (this.life <= 0) this.dead = true; }
@@ -1363,6 +1408,7 @@ function makeWave(n) {
   if (n >= 2) pool.push(['mosq', .7]);
   if (n >= 3) pool.push(['rat', .45]);
   if (n >= 4) pool.push(['roach', .3]);
+  if (n >= 5) pool.push(['spit', Math.min(.45, .2 + .03 * (n - 5))]);   // 웨이브 5부터 원거리 벌레
   const tw = pool.reduce((s, p) => s + p[1], 0);
   // 스폰 간격: 초반엔 여유 있게, 웨이브가 오를수록 촘촘하게 (최소 0.5배)
   const f = Math.max(.5, 1 - .06 * (n - 1)) * (G.demo ? .75 : 1);
@@ -1383,6 +1429,7 @@ function startWave() {
   G.wave++; G.phase = 'wave'; G.queue = makeWave(G.wave); G.waveT = 0; G.tookDmg = false;
   if (G.demo && G.wave >= 20) unlockAch('lazy');
   G.banner = 2; G.bannerText = 'WAVE ' + G.wave;
+  if (G.wave === 5 && !G.demo) setTimeout(() => showToast('새 벌레: 폭탄먼지벌레! 울타리 밖에서 산성액을 쏴요. 사거리 긴 타워로 잡으세요', 3600), 600);
 }
 
 // ───────── 설치 / 업그레이드 ─────────
@@ -1915,7 +1962,7 @@ let lastPull = null;
 function renderPull() {
   const res = lastPull ? lastPull.map((x, i) => {
     const tag = x.kind === 'new' ? '<span class="pnew">NEW</span>' : x.kind === 'up' ? `<span class="pup">+${x.lv} 강화</span>` : `<span class="pref">MAX · <span class="bat"></span>+${x.refund}</span>`;
-    return `<div class="pcard r${x.r}" style="--rc:${RAR[x.r].c};animation-delay:${i * .08}s"><img src="${itImg(x.s.id, x.r)}"><div class="pn">${x.s.names[x.r]}</div><div class="pr">${RAR[x.r].name} ${x.s.part}</div>${tag}</div>`;
+    return `<div class="gpc r${x.r}" style="--rc:${RAR[x.r].c};animation-delay:${i * .08}s"><img src="${itImg(x.s.id, x.r)}"><div class="pn">${x.s.names[x.r]}</div><div class="pr">${RAR[x.r].name} ${x.s.part}</div>${tag}</div>`;
   }).join('') : '<div class="bnote" style="margin:auto">고철 상자를 열어 장비를 얻어요</div>';
   $('bp-pull').innerHTML = `<div class="pleft"><img class="pcrate" src="${crateImg()}"><div class="pcount">고철 상자 <b>${SAVE.crate}</b>개</div>
     <button class="btn main" id="bPull1"${SAVE.crate < 1 ? ' disabled' : ''}>1번 열기 (상자 1)</button>
