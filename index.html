@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
-<title>룸 디펜스 프로토타입 v0.35</title>
+<title>룸 디펜스 프로토타입 v0.36</title>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Do+Hyeon&display=swap">
 <style>
   html,body{margin:0;height:100%;background:#0f0d0b;overflow:hidden;user-select:none;-webkit-user-select:none;-webkit-touch-callout:none;touch-action:none;overscroll-behavior:none}
@@ -180,7 +180,10 @@
   .uprow .btn{margin-left:auto;font-family:'Do Hyeon',sans-serif;font-size:18px;padding:4px 12px;display:flex;align-items:center;gap:8px;min-width:116px;justify-content:center}
   .uprow .btn.poor,.uprow .btn.max{opacity:.45}
   .crt{display:inline-block;width:14px;height:12px;background:#c8ccd2;border:2px solid #0f0d0b;box-shadow:inset 0 0 0 2px #8a8f98;vertical-align:middle;margin:0 6px 0 4px}
-  .tcard .row3{grid-template-columns:1fr 1fr 1fr} #title #bBag,#title #bDex{color:#f5a623}
+  .tcard .row3{grid-template-columns:1fr 1fr 1fr} #title #bBag{grid-column:span 3;color:#f5a623;display:flex;align-items:baseline;justify-content:center;gap:10px} #title #bBag small{font-size:14px;color:#cfc3ae}
+  .gtabs .btab{padding:5px 11px;font-size:17px}
+  .dexinfo{display:flex;align-items:center;gap:12px} .dexinfo2{flex:1;display:flex;align-items:center;gap:12px}
+  .dexlist{display:flex;flex-direction:column;gap:10px}
   .bagbox{height:516px}
   .bpage{flex:1;min-height:0;overflow-y:auto;touch-action:pan-y;display:flex;flex-direction:column;gap:10px}
   .bnote{font-family:'Do Hyeon',sans-serif;font-size:16px;color:#8a7e6c}
@@ -415,6 +418,11 @@
   .stog.on{background:#3a6a3a;color:#cff0c0}
   .sseg{display:flex;gap:4px} .sseg .btn.on{background:#f5a623;color:#1d1915}
   #setNick{font-family:'Do Hyeon',sans-serif;font-size:16px;background:#0f0d0b;color:#f1e8d6;border:2px solid #4a3f33;padding:4px 8px;width:160px;user-select:text;-webkit-user-select:text}
+  .snote{font-style:normal;font-size:13px;color:#8a7e6c}
+  .skey{min-width:90px;font-family:'Press Start 2P',monospace !important;font-size:10px !important}
+  .skey.wait{background:#f5a623;color:#1d1915;animation:blink 1s steps(1) infinite}
+  .cb .istat .up,.cb .pkd,.cb .strow b,.cb .chtx .t3,.cb .ach .prev,.cb .gpc .pup{color:#6ab8ff !important}
+  .cb .stog.on{background:#2f5a8a;color:#d8ecff} .cb .ach.done .abar b{background:#6ab8ff}
   .ssec.soon{opacity:.7} .ssec.soon em{font-style:normal;font-size:13px;color:#1d1915;background:#8a7e6c;padding:1px 8px}
   .sver{font-family:'Press Start 2P',monospace;font-size:9px;color:#8a7e6c;text-align:center;padding:6px}
   .perkrow{display:flex;align-items:center;gap:6px;flex-wrap:wrap}
@@ -478,7 +486,7 @@
     <div class="tag">세상은 망했다. 내 방만 빼고.</div>
     <div class="card tcard">
       <button class="btn" id="bStart">START</button>
-      <div class="row3"><button class="btn" id="bHelp">게임 방법</button><button class="btn" id="bRank">순위</button><button class="btn" id="bAch">업적</button><button class="btn" id="bUp">강화</button><button class="btn" id="bDex">도감</button><button class="btn" id="bBag">캐릭터·장비</button></div>
+      <div class="row3"><button class="btn" id="bHelp">게임 방법</button><button class="btn" id="bRank">순위</button><button class="btn" id="bAch">업적</button><button class="btn" id="bBag">성장 <small>강화 · 캐릭터 · 장비 · 뽑기 · 도감</small></button></div>
       <div class="cfoot"><span>보유</span><span class="batbox"><span class="bat"></span><span id="batT">0</span><span class="crt"></span><span id="crateT">0</span></span></div>
       <div class="grid2 tbot"><button class="btn" id="bSet">설정</button><a class="btn fbbtn" href="#" target="_blank" rel="noopener">피드백 보내기</a></div>
     </div>
@@ -510,12 +518,11 @@
     <a class="btn fbbtn" href="#" target="_blank" rel="noopener">피드백 보내기</a>
   </div></div>
   <div id="achPanel" class="mpanel"><div class="mbox"><div class="mhead"><span>업적</span><span id="achCount"></span><button class="btn mclose">닫기</button></div><div class="alist" id="achList"></div></div></div>
-  <div id="upPanel" class="mpanel"><div class="mbox"><div class="mhead"><span>영구 강화</span><span class="batbox"><span class="bat"></span><span id="upBat">0</span></span><button class="btn mclose">닫기</button></div><div class="ulist" id="upList"></div><div class="mfoot"><span>배터리는 업적 달성과 판이 끝날 때(클리어한 웨이브 수만큼) 얻어요.</span><button class="btn" id="bCode">기록 옮기기</button><button class="btn" id="bWipe">기록 초기화</button></div></div></div>
-  <div id="bagPanel" class="mpanel"><div class="mbox bagbox"><div class="mhead"><span>캐릭터·장비</span><div class="htabs"><button class="btn btab on" data-t="char">캐릭터</button><button class="btn btab" data-t="gear">장비</button><button class="btn btab" data-t="pull">뽑기</button></div>
-    <span class="batbox"><span class="bat"></span><span id="bagBat">0</span><span class="crt"></span><span id="bagCrate">0</span></span><button class="btn mclose">닫기</button></div>
-    <div class="bpage" id="bp-char"></div><div class="bpage" id="bp-gear"></div><div class="bpage" id="bp-pull"></div></div></div>
-  <div id="dexPanel" class="mpanel"><div class="mbox bagbox"><div class="mhead"><span>보스 도감</span><span id="dexCount" class="dexcount"></span><button class="btn mclose">닫기</button></div>
-    <div class="dexinfo" id="dexInfo"></div><div class="bpage" id="dexList"></div></div></div>
+  <div id="bagPanel" class="mpanel"><div class="mbox bagbox"><div class="mhead"><span>성장</span><div class="htabs gtabs"><button class="btn btab" data-t="up">강화</button><button class="btn btab on" data-t="char">캐릭터</button><button class="btn btab" data-t="gear">장비</button><button class="btn btab" data-t="pull">뽑기</button><button class="btn btab" data-t="dex">도감</button></div>
+    <span class="batbox"><span class="bat"></span><span id="bagBat">0</span><span class="crt"></span><span id="bagCrate">0</span><span id="upBat" hidden></span></span><button class="btn mclose">닫기</button></div>
+    <div class="bpage" id="bp-up"><div class="ulist" id="upList"></div><div class="mfoot"><span>배터리는 업적 달성과 판이 끝날 때(클리어한 웨이브 수만큼) 얻어요.</span><button class="btn" id="bCode">기록 옮기기</button><button class="btn" id="bWipe">기록 초기화</button></div></div>
+    <div class="bpage" id="bp-char"></div><div class="bpage" id="bp-gear"></div><div class="bpage" id="bp-pull"></div>
+    <div class="bpage" id="bp-dex"><div class="dexinfo"><span class="dexcount" id="dexCount"></span><span id="dexInfo" class="dexinfo2"></span></div><div id="dexList" class="dexlist"></div></div></div></div>
   <div id="setPanel" class="mpanel"><div class="mbox bagbox"><div class="mhead"><span>설정</span><button class="btn mclose">닫기</button></div><div class="bpage" id="setBody"></div></div></div>
   <div id="codePanel" class="mpanel"><div class="mbox"><div class="mhead"><span>기록 옮기기</span><button class="btn mclose">닫기</button></div>
     <div class="cdesc">다른 기기나 브라우저로 옮기거나 백업할 때 써요. 업적·배터리·강화·캐릭터·장비가 코드 하나에 들어 있어요.</div>
@@ -533,7 +540,7 @@
         <div class="hr"><span>능력 고르기</span><span>10웨이브마다 3개 중 하나<em class="pcOnly2"> · 1·2·3</em></span></div>
         <div class="hr"><span>울타리 강화</span><span>왼쪽 위 UP 버튼<em class="pcOnly2"> · U</em></span></div>
         <div class="hr"><span>웨이브 바로 시작</span><span>NEXT 버튼<em class="pcOnly2"> · SPACE</em></span></div>
-        <div class="hr"><span>캐릭터 · 장비 · 뽑기 · 도감</span><span>시작 화면의 캐릭터·장비 / 도감 버튼</span></div>
+        <div class="hr"><span>캐릭터 · 장비 · 뽑기 · 도감</span><span>시작 화면의 성장 버튼 (강화·캐릭터·장비·뽑기·도감 탭)</span></div>
         <div class="hr"><span>속도 · 일시정지</span><span>x1 · II 버튼<em class="pcOnly2"> · F · ESC</em></span></div></div></div>
   </div></div>
   <div id="rankPanel" class="mpanel"><div class="mbox"><div class="mhead"><span>순위</span><span id="rankSub"></span><button class="btn mclose">닫기</button></div>
@@ -566,7 +573,7 @@
 
 <script>
 'use strict';
-const VERSION = 'v0.35';
+const VERSION = 'v0.36';
 // 터치 기기인지 (휴대폰·태블릿이면 터치 UI로)
 const TOUCH = matchMedia('(pointer: coarse)').matches || navigator.maxTouchPoints > 0;
 
@@ -1295,7 +1302,7 @@ class Enemy {
     if (this.hp < this.maxHp) {
       const w = Math.round(10 * sc), x = Math.round(this.x - w / 2), y = Math.round(this.y - s.H * .5 * sc - 4), r = Math.max(0, this.hp / this.maxHp);
       ctx.fillStyle = '#120d0a'; ctx.fillRect(x - 1, y - 1, w + 2, 4);
-      ctx.fillStyle = r > .5 ? '#6cd04a' : r > .25 ? '#f5c623' : '#e0412f'; ctx.fillRect(x, y, Math.ceil(w * r), 2);
+      ctx.fillStyle = hpColor(r); ctx.fillRect(x, y, Math.ceil(w * r), 2);
     }
     if (this.v && G.phase !== 'title') {                            // 정예·보스 이름표
       ctx.font = '9px "Do Hyeon"'; ctx.textAlign = 'center';
@@ -1982,6 +1989,7 @@ function update(dt) {
   G.shake = Math.max(0, G.shake - dt * 12); G.baseFlash -= dt; G.banner -= dt;
   if (G.phase === 'break') {
     if (!TUT.on) G.breakT -= dt;                 // 튜토리얼 중에는 NEXT를 누를 때까지 기다린다
+    if (SET.autoWave && G.wave > 0 && !TUT.on) G.breakT = Math.min(G.breakT, 1);   // 설정: 자동 웨이브 시작 (쉬는 시간 1초)
     if (G.breakT <= 0) startWave();
   } else {
     G.waveT += dt;
@@ -2375,7 +2383,7 @@ function startGame(demo) {
 // ───────── 업적 / 강화 화면 ─────────
 function refreshTitleBat() { $('batT').textContent = SAVE.bat; $('crateT').textContent = SAVE.crate; }
 const panelOpen = () => !!document.querySelector('.mpanel.show');
-function openPanel(id) { closeMenu(); $(id).classList.add('show'); if (id === 'achPanel') renderAch(); if (id === 'upPanel') renderUp(); }
+function openPanel(id) { closeMenu(); if (id === 'upPanel') { openBag('up'); return; } $(id).classList.add('show'); if (id === 'achPanel') renderAch(); }
 function closePanels() { document.querySelectorAll('.mpanel').forEach(p => p.classList.remove('show')); refreshTitleBat(); }
 function renderAch() {
   const done = CHAINS.reduce((a, c) => a + chainStep(c), 0);
@@ -2393,7 +2401,7 @@ function renderAch() {
   }).join('');
 }
 function renderUp() {
-  $('upBat').textContent = SAVE.bat;
+  $('upBat').textContent = SAVE.bat; if ($('bagBat')) bagHead();
   $('upList').innerHTML = UPS.map(u => {
     const lv = upLv(u.id), max = lv >= u.max, price = upPrice(u);
     const pips = Array.from({ length: u.max }, (_, i) => `<i class="${i < lv ? 'on' : ''}"></i>`).join('');
@@ -2462,8 +2470,8 @@ function bagHead() { $('bagBat').textContent = SAVE.bat; $('bagCrate').textConte
 function renderBag() {
   bagHead();
   document.querySelectorAll('.btab').forEach(b => b.classList.toggle('on', b.dataset.t === bagTab));
-  document.querySelectorAll('.bpage').forEach(p => p.style.display = p.id === 'bp-' + bagTab ? '' : 'none');
-  if (bagTab === 'char') renderChars(); else if (bagTab === 'gear') renderGear(); else renderPull();
+  document.querySelectorAll('#bagPanel .bpage').forEach(p => p.style.display = p.id === 'bp-' + bagTab ? '' : 'none');
+  ({ up: renderUp, char: renderChars, gear: renderGear, pull: renderPull, dex: renderDex })[bagTab]();
 }
 function afterChange() { persist(); recalcBon(); checkAch(); if (G.phase === 'title') reset(false, true); }
 function renderChars() {
@@ -2542,9 +2550,38 @@ function doPull(n) {
 document.querySelectorAll('.btab').forEach(b => b.onclick = () => { bagTab = b.dataset.t; renderBag(); });
 // ───────── 설정 (이 브라우저에 저장) ─────────
 const SET_KEY = 'roomdef_set';
-const SET = Object.assign({ bgm: 50, sfx: 70, mute: false, shake: true, dmgNum: true, fx: 2, warn: true, speed: 1 },
+const SET = Object.assign({ bgm: 50, sfx: 70, mute: false, shake: true, dmgNum: true, fx: 2, warn: true, speed: 1, autoWave: false, cb: false, keys: {} },
   (() => { try { return JSON.parse(localStorage.getItem(SET_KEY)) || {}; } catch (e) { return {}; } })());
 const saveSet = () => { try { localStorage.setItem(SET_KEY, JSON.stringify(SET)); } catch (e) {} };
+// 단축키 (설정에서 바꿀 수 있음). 1~9 타워, ESC·P 일시정지, Enter, D는 고정
+const KEYDEF = [
+  { id: 'next', name: '웨이브 바로 시작', def: ' ' }, { id: 'speed', name: '게임 속도', def: 'f' }, { id: 'fence', name: '울타리 강화', def: 'u' },
+  { id: 'repair', name: '침대 수리', def: 'r' }, { id: 'stats', name: '이번 판 능력치', def: 's' }, { id: 'hide', name: 'UI 숨기기', def: 'h' },
+];
+const KEY_RESERVED = ['escape', 'p', 'enter', 'd', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'tab', 'shift', 'control', 'alt', 'meta'];
+const keyOf = id => SET.keys[id] || KEYDEF.find(k => k.id === id).def;
+const keyLabel = k => k === ' ' ? 'SPACE' : k.length === 1 ? k.toUpperCase() : k.replace(/^arrow/, '').toUpperCase();
+let waitKey = null;
+addEventListener('keydown', e => {                  // 단축키 바꾸기: 다음에 누른 키를 잡는다
+  if (!waitKey) return;
+  e.preventDefault(); e.stopImmediatePropagation();
+  const k = e.key.toLowerCase(), id = waitKey; waitKey = null;
+  if (k === 'escape') { renderSettings(); return; }
+  if (KEY_RESERVED.includes(k)) { showToast(`${keyLabel(k)} 키는 쓸 수 없어요`, 1600); renderSettings(); return; }
+  const other = KEYDEF.find(d => d.id !== id && keyOf(d.id) === k);
+  if (other) SET.keys[other.id] = keyOf(id);           // 이미 쓰는 키면 서로 바꾼다
+  SET.keys[id] = k; saveSet(); renderSettings(); sfx('click');
+}, true);
+// 색약 모드: 빨강·초록 대신 파랑·주황 계열로 구별
+const CB_RAR = ['#b8b0a0', '#3fd0e0', '#3a6ae8', '#d070e8', '#f5a623'], BASE_RAR = ['#b8b0a0', '#6ad06a', '#5aa0e8', '#b07ae8', '#f5a623'];
+function applyCB() {
+  document.body.classList.toggle('cb', !!SET.cb);
+  RAR.forEach((r, i) => r.c = (SET.cb ? CB_RAR : BASE_RAR)[i]);
+  for (const k in pxCache) if (k.startsWith('it_')) delete pxCache[k];
+  ROLE_C.범위 = SET.cb ? '#6ab8ff' : '#8fd06a'; ROLE_C.단일 = SET.cb ? '#ffb060' : '#f19a8a';
+  for (const k in palEls) palEls[k].querySelector('.role').innerHTML = roleHTML(k);
+}
+const hpColor = r => SET.cb ? (r > .5 ? '#4aa8ff' : r > .25 ? '#f5c623' : '#ff8a1a') : (r > .5 ? '#6cd04a' : r > .25 ? '#f5c623' : '#e0412f');
 // ───────── 소리: 배경음악 + 효과음 (Web Audio로 직접 만든 8비트 소리, 파일 없음) ─────────
 const SND = { ac: null, bgmG: null, sfxG: null, last: {}, step: 0, nextT: 0, timer: null };
 function audioInit() {
@@ -2627,8 +2664,14 @@ function renderSettings() {
       <div class="srow"><span>화면 흔들림</span>${tog('shake', '켜짐', '꺼짐')}</div>
       <div class="srow"><span>피해 숫자 표시</span>${tog('dmgNum', '켜짐', '꺼짐')}</div>
       <div class="srow"><span>벌레 많음 경고</span>${tog('warn', '켜짐', '꺼짐')}</div>
+      <div class="srow"><span>색약 모드</span>${tog('cb', '켜짐', '꺼짐')}<em class="snote">빨강·초록 대신 파랑·주황으로 구별</em></div>
       <div class="srow"><span>효과(파티클)</span><div class="sseg">${['적게', '보통', '많이'].map((t, i) => `<button class="btn${SET.fx === i ? ' on' : ''}" data-fx="${i}">${t}</button>`).join('')}</div></div>
       <div class="srow"><span>시작 속도</span><div class="sseg">${[1, 2, 3].map(v => `<button class="btn${SET.speed === v ? ' on' : ''}" data-sp="${v}">x${v}</button>`).join('')}</div></div></div>
+    <div class="ssec"><div class="sh">게임</div>
+      <div class="srow"><span>자동 웨이브 시작</span>${tog('autoWave', '켜짐', '꺼짐')}<em class="snote">켜면 쉬는 시간 없이 다음 웨이브 (첫 웨이브 제외)</em></div></div>
+    <div class="ssec"><div class="sh">단축키 <small>버튼을 누르고 쓸 키를 누르세요 · 1~9 타워, ESC·P 일시정지는 고정</small></div>
+      ${KEYDEF.map(d => `<div class="srow"><span>${d.name}</span><button class="btn skey${waitKey === d.id ? ' wait' : ''}" data-key="${d.id}">${waitKey === d.id ? '키를 누르세요…' : keyLabel(keyOf(d.id))}</button></div>`).join('')}
+      <div class="srow"><span></span><button class="btn" id="keyReset">기본값으로</button></div></div>
     <div class="ssec"><div class="sh">계정 · 기록</div>
       <div class="srow"><span>닉네임 (순위표)</span><input id="setNick" maxlength="12" value="${esc(nick)}" placeholder="닉네임"><button class="btn" id="setNickOk">저장</button></div>
       <div class="srow"><span>기록 불러오기 · 백업</span><button class="btn" id="setCode">기록 옮기기 코드</button></div>
@@ -2637,11 +2680,11 @@ function renderSettings() {
     <div class="ssec soon"><div class="sh">준비 중 <small>다음 업데이트에서 추가할 예정</small></div>
       <div class="srow"><span>클라우드 계정 연동 (구글 로그인)</span><em>준비 중</em></div>
       <div class="srow"><span>언어 (English)</span><em>준비 중</em></div>
-      <div class="srow"><span>색약 모드</span><em>준비 중</em></div>
-      <div class="srow"><span>단축키 바꾸기</span><em>준비 중</em></div>
-      <div class="srow"><span>자동 웨이브 시작</span><em>준비 중</em></div></div>
+      </div>
     <div class="sver">룸 디펜스 ${VERSION}</div>`;
-  $('setBody').querySelectorAll('[data-tog]').forEach(b => b.onclick = () => { const k = b.dataset.tog; SET[k] = !SET[k]; saveSet(); applyVolume(); renderSettings(); sfx('click'); });
+  $('setBody').querySelectorAll('[data-tog]').forEach(b => b.onclick = () => { const k = b.dataset.tog; SET[k] = !SET[k]; saveSet(); applyVolume(); if (k === 'cb') applyCB(); renderSettings(); sfx('click'); });
+  $('setBody').querySelectorAll('[data-key]').forEach(b => b.onclick = () => { waitKey = b.dataset.key; renderSettings(); });
+  $('keyReset').onclick = () => { SET.keys = {}; saveSet(); renderSettings(); showToast('단축키를 기본값으로 돌렸어요', 1400); };
   $('setBody').querySelectorAll('[data-sl]').forEach(r => r.oninput = () => { const k = r.dataset.sl; SET[k] = +r.value; $('sv_' + k).textContent = r.value; saveSet(); applyVolume(); });
   $('setBody').querySelectorAll('[data-sl]').forEach(r => r.onchange = () => sfx('click'));
   $('setBody').querySelectorAll('[data-fx]').forEach(b => b.onclick = () => { SET.fx = +b.dataset.fx; saveSet(); renderSettings(); });
@@ -2686,7 +2729,7 @@ const TUT_STEPS = [
   { t: '타워가 알아서 벌레를 공격해요. 이번 웨이브를 막아 보세요!', done: () => G.cleared >= 1 },
   { t: '설치한 <b>타워를 누르면</b> 업그레이드·판매·정보를 볼 수 있어요.', tower: true, done: () => !!menuT, next: true },
   { t: '<b>울타리 강화</b>(UP)를 하면 침대가 덜 아프고, 나중엔 가시가 생겨요.', hi: '#bFence', next: true },
-  { t: '끝! 웨이브를 깰수록 새 타워가 풀려요. 시작 화면에서 강화·캐릭터·장비·도감도 확인해 보세요.', next: true, last: true },
+  { t: '끝! 웨이브를 깰수록 새 타워가 풀려요. 시작 화면의 성장 버튼에서 강화·캐릭터·장비·도감도 확인해 보세요.', next: true, last: true },
 ];
 const TUT = { on: false, i: 0 };
 function startTut() { TUT.on = true; TUT.i = 0; $('tut').classList.add('show'); $('stage').classList.add('tutting'); showTutStep(); }
@@ -2917,11 +2960,11 @@ $('bAch').onclick = () => openPanel('achPanel');
 $('bBag').onclick = () => openBag();
 $('bSet').onclick = openSettings; $('bSet2').onclick = () => { setPause(false); openSettings(); };
 $('bStat').onclick = () => toggleStats(); $('statClose').onclick = () => toggleStats(false);
-$('bDex').onclick = () => { closeMenu(); renderDex(); $('dexPanel').classList.add('show'); };
-$('bUp').onclick = () => openPanel('upPanel');
+
 $('bAch2').onclick = () => openPanel('achPanel');
 document.querySelectorAll('.mclose').forEach(b => b.onclick = closePanels);
 refreshTitleBat();
+if (SET.cb) applyCB();
 $('bStart').onclick = () => startGame(false);
 $('bHelp').onclick = () => { showHelpTab('rules'); openPanel('helpPanel'); };
 function showHelpTab(t) {
@@ -2942,13 +2985,13 @@ addEventListener('keydown', e => {
   if (k === 'escape' || k === 'p') { e.preventDefault(); setPause(!G.paused); return; }
   if (G.paused) return;
   const byKey = Object.entries(TDEF).find(([, d]) => d.key === k); if (byKey) { if (!isUnlocked(byKey[0])) { openLock(byKey[0]); return; } selType = byKey[0]; }
-  if (k === ' ') { e.preventDefault(); skipWait(); }
-  if (k === 'h') toggleHide();
-  if (k === 's') toggleStats();
+  if (k === keyOf('next')) { e.preventDefault(); skipWait(); }
+  if (k === keyOf('hide')) toggleHide();
+  if (k === keyOf('stats')) toggleStats();
   if (k === 'd') toggleDemo();
-  if (k === 'f') cycleSpeed();
-  if (k === 'u') upgradeFence();
-  if (k === 'r') { if (G.over) reset(true); else repairBed(); }
+  if (k === keyOf('speed')) cycleSpeed();
+  if (k === keyOf('fence')) upgradeFence();
+  if (k === keyOf('repair')) { if (G.over) reset(true); else repairBed(); }
 });
 function fit() {
   const st = $('stage');
