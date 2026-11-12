@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
-<title>룸 디펜스 프로토타입 v0.24</title>
+<title>룸 디펜스 프로토타입 v0.25</title>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Do+Hyeon&display=swap">
 <style>
   html,body{margin:0;height:100%;background:#0f0d0b;overflow:hidden;user-select:none;-webkit-user-select:none;-webkit-touch-callout:none;touch-action:none;overscroll-behavior:none}
@@ -210,7 +210,22 @@
   .rrow.me{box-shadow:inset 0 0 0 2px #f5a623}
   .rrow .sm{font-size:15px;color:#8a7e6c}
   .rmsg{font-family:'Do Hyeon',sans-serif;font-size:19px;color:#8a7e6c;text-align:center;padding:30px 0}
-  #infoIc{width:40px;height:44px;image-rendering:pixelated}
+  .ibox{width:900px}
+  #infoTags{display:flex;gap:6px}
+  .itag{font-family:'Do Hyeon',sans-serif;font-size:15px;color:#1d1915;background:#cfc3ae;padding:2px 8px}
+  .itag.t0{background:#f5a623}
+  .iunl{display:block;font-size:15px;color:#8a7e6c;margin-top:2px}
+  .icards{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+  .icard{background:#2c2620;border:3px solid #0f0d0b;box-shadow:inset 0 0 0 2px #4a3f33;padding:8px 10px;display:flex;flex-direction:column;gap:6px}
+  .icard.now{box-shadow:inset 0 0 0 2px #f5a623;background:#33291f}
+  .ichead{display:flex;align-items:center;gap:10px}
+  .ichead img{width:72px;height:72px;image-rendering:pixelated;background:#1d2a1a;border:2px solid #0f0d0b;flex:none}
+  .iclv{font-family:'Press Start 2P',monospace;font-size:13px;color:#f5a623}
+  .icnow{font-family:'Do Hyeon',sans-serif;font-size:14px;color:#1d1915;background:#f5a623;padding:1px 6px;margin-top:4px;display:inline-block}
+  .icost{font-family:'Do Hyeon',sans-serif;font-size:15px;color:#cfc3ae;margin-top:4px}
+  .istat{display:flex;justify-content:space-between;gap:8px;font-family:'Do Hyeon',sans-serif;font-size:17px;border-top:1px solid #1d1915;padding-top:3px}
+  .istat span:first-child{color:#cfc3ae} .istat span:last-child{color:#f1e8d6;text-align:right}
+  .istat .up{color:#8fd06a !important}
   #infoTag{font-family:'Do Hyeon',sans-serif;font-size:17px;color:#8a7e6c}
   .idesc{font-family:'Do Hyeon',sans-serif;font-size:19px;color:#f1e8d6;background:#2c2620;border-left:6px solid #f5a623;padding:8px 12px;line-height:1.35}
   .itbl{border-collapse:collapse;width:100%;font-family:'Do Hyeon',sans-serif;font-size:19px}
@@ -294,6 +309,16 @@
         <div class="hr"><span>웨이브 바로 시작</span><span>NEXT 버튼<em class="pcOnly2"> · SPACE</em></span></div>
         <div class="hr"><span>속도 · 일시정지</span><span>x1 · II 버튼<em class="pcOnly2"> · F · ESC</em></span></div></div></div>
   </div></div>
+  <div id="rankPanel" class="mpanel"><div class="mbox"><div class="mhead"><span>순위</span><span id="rankSub"></span><button class="btn mclose">닫기</button></div>
+    <div class="rhead"><span>#</span><span>닉네임</span><span>웨이브</span><span>처치</span><span>버전</span></div>
+    <div id="rankList"></div>
+  </div></div>
+  <div id="infoPanel" class="mpanel"><div class="mbox ibox">
+    <div class="mhead"><span id="infoName"></span><span id="infoTags"></span><button class="btn mclose">닫기</button></div>
+    <div class="idesc"><span id="infoDesc"></span><span class="iunl" id="infoUnlock"></span></div>
+    <div class="icards" id="infoCards"></div>
+    <div class="inote" id="infoNote"></div>
+  </div></div>
   <div id="achPop"></div>
 </div>
 <div id="side">
@@ -307,7 +332,7 @@
 
 <script>
 'use strict';
-const VERSION = 'v0.24';
+const VERSION = 'v0.25';
 // 터치 기기인지 (휴대폰·태블릿이면 터치 UI로)
 const TOUCH = matchMedia('(pointer: coarse)').matches || navigator.maxTouchPoints > 0;
 
@@ -791,7 +816,9 @@ class Tower {
   drawBase(img) {
     const sy = 1 + this.pop * 1.4;
     ctx.fillStyle = 'rgba(0,0,0,0.3)'; ctx.beginPath(); ctx.ellipse(this.x, this.y + 6, 8, 3, 0, 0, 7); ctx.fill();
+    if (this.lvl > 1) { ctx.strokeStyle = this.lvl === 2 ? '#c0c6d0' : '#f5c623'; ctx.lineWidth = this.lvl === 2 ? 1 : 2; ctx.beginPath(); ctx.ellipse(this.x, this.y + 6, 10, 4, 0, 0, 7); ctx.stroke(); }   // 레벨 표시 받침 (LV2 은색, LV3 금색)
     ctx.save(); ctx.translate(this.x, this.y); ctx.scale(1, sy); ctx.drawImage(img, -9, -9); ctx.restore();
+    if (this.lvl === 3 && Math.floor(G.time * 3 + this.x) % 4 === 0) { ctx.fillStyle = '#fff6b0'; ctx.fillRect(this.x + 6, this.y - 8, 1, 1); ctx.fillRect(this.x - 7, this.y - 2, 1, 1); }
     for (let i = 0; i < this.lvl - 1; i++) { ctx.fillStyle = '#120d0a'; ctx.fillRect(this.x - 5 + i * 5, this.y + 9, 4, 4); ctx.fillStyle = '#f5c623'; ctx.fillRect(this.x - 4 + i * 5, this.y + 10, 2, 2); }
   }
   drawRot(img, ox, oy, recoil = 0) {
@@ -1351,36 +1378,63 @@ $('tmSell').onclick = () => { if (menuT) { sell(menuT); closeMenu(); } };
 $('tmInfo').onclick = () => { if (menuT) { const t = menuT; openInfo(t.type, t.lvl); } };
 // ───────── 타워 정보: 레벨별 수치 (영구 강화까지 반영한 실제 값) ─────────
 function towerAt(type, lvl) { const t = Object.create(TCLASS[type].prototype); t.def = TDEF[type]; t.type = type; t.lvl = lvl; return t; }
-function infoRows(type) {
-  const L = [1, 2, 3].map(l => towerAt(type, l)), d = TDEF[type];
-  const row = (label, f) => [label, ...L.map(f)];
-  const one = v => Math.round(v), dec = v => v.toFixed(1), sec = v => v + '초';
-  const rows = [row('사거리', t => one(t.range))];
+function towerIcon(type, lvl) {
+  const [c, g] = mk(40, 40); const T = TSPR[type];
+  g.fillStyle = 'rgba(0,0,0,.3)'; g.beginPath(); g.ellipse(20, 28, 9, 3, 0, 0, 7); g.fill();
+  if (lvl > 1) { g.strokeStyle = lvl === 2 ? '#c0c6d0' : '#f5c623'; g.lineWidth = lvl === 2 ? 1 : 2; g.beginPath(); g.ellipse(20, 28, 11, 4, 0, 0, 7); g.stroke(); }
+  g.drawImage(T.base, 11, 13);
+  if (T.barrel) { g.save(); g.translate(20, 22); g.rotate(-.5); g.drawImage(T.barrel, -2, -Math.floor(T.barrel.height / 2)); g.restore(); }
+  if (type === 'fan') g.drawImage(T.blades[0], 14, 14);
+  if (type === 'hammer') g.drawImage(T.head, 14, 6);
+  for (let i = 0; i < lvl - 1; i++) { g.fillStyle = '#120d0a'; g.fillRect(15 + i * 6, 32, 5, 5); g.fillStyle = '#f5c623'; g.fillRect(16 + i * 6, 33, 3, 3); }
+  if (lvl === 3) { g.fillStyle = '#fff6b0'; [[31, 10], [8, 16], [30, 20]].forEach(([x, y]) => g.fillRect(x, y, 1, 1)); }
+  return c.toDataURL();
+}
+const TINFO = {
+  fan:     { tags: ['지속 피해', '밀어내기', '부채꼴'], tip: '앞쪽 벌레를 바람으로 밀어내 울타리에서 떼어놔요. 피해는 약하니 다른 타워와 함께 쓰세요.' },
+  glue:    { tags: ['감속', '범위'], tip: '범위 안 벌레의 발을 묶어요. 레이저·대포 옆에 두면 맞는 시간이 늘어나요. 보스는 덜 느려져요.' },
+  laser:   { tags: ['단일', '지속 빔'], tip: '침대에 가장 가까운 한 마리를 끊김 없이 지져요. 초반 주력 타워예요.' },
+  coil:    { tags: ['범위', '지속 독', '모기 특효'], tip: '연기 범위 안 모두에게 독 피해. 모기에게는 3배라 모기 떼에 강해요.' },
+  hammer:  { tags: ['범위', '근거리', '강타'], tip: '근처 벌레 전부를 한 번에 내려찍어요. 사거리가 짧아서 벌레가 몰리는 곳에 두세요.' },
+  swatter: { tags: ['단일', '강타', '모기 즉사'], tip: '한 마리에게 강한 전기 한 방. 모기는 체력과 상관없이 바로 죽어요.' },
+  tesla:   { tags: ['연쇄', '다수 공격'], tip: '번개가 가까운 벌레들 사이를 튀어요. 레벨이 오를수록 더 많이 이어져요.' },
+  cannon:  { tags: ['범위', '폭발', '장거리'], tip: '포탄이 떨어진 자리 주변에 폭발 피해. 뭉쳐 있는 무리에 가장 강해요.' },
+  sling:   { tags: ['단일', '저격', '초장거리'], tip: '맵 거의 끝까지 닿고, 체력이 가장 많은 적부터 노려요. 보스 잡기 담당.' },
+};
+function infoStats(type, lvl) {
+  const t = towerAt(type, lvl), d = TDEF[type], one = v => Math.round(v), dec = v => v.toFixed(1);
+  const st = [['사거리', one(t.range)]];
   switch (type) {
-    case 'fan':     rows.push(row('초당 피해', t => dec(t.dmg)), row('밀어내는 힘', t => one(46 * (1 + .25 * (t.lvl - 1)))), row('공격 범위', () => '앞쪽 부채꼴')); break;
-    case 'glue':    rows.push(row('적 이동 속도', t => one(Math.max(.25, d.slow - .1 * (t.lvl - 1)) * 100) + '%'), row('초당 피해', t => dec(t.dmg)), row('보스', () => '최대 30% 감속')); break;
-    case 'laser':   rows.push(row('초당 피해', t => dec(t.dmg)), row('공격', () => '끊김 없는 빔')); break;
-    case 'coil':    rows.push(row('초당 독 피해', t => dec(t.dmg)), row('모기에게', t => dec(t.dmg * 3)), row('대상', () => '범위 안 전부')); break;
-    case 'hammer':  rows.push(row('한 번 피해', t => one(t.dmg)), row('공격 간격', () => sec(d.rate)), row('대상', () => '범위 안 전부')); break;
-    case 'swatter': rows.push(row('한 방 피해', t => one(t.dmg)), row('공격 간격', () => sec(d.rate)), row('모기', () => '즉사')); break;
-    case 'tesla':   rows.push(row('번개 피해', t => one(t.dmg)), row('연쇄', t => (d.chain + t.lvl - 1) + '마리'), row('공격 간격', () => sec(d.rate))); break;
-    case 'cannon':  rows.push(row('포탄 피해', t => one(t.dmg)), row('폭발 반경', () => d.splash), row('공격 간격', () => sec(d.rate))); break;
-    case 'sling':   rows.push(row('한 방 피해', t => one(t.dmg)), row('공격 간격', () => sec(d.rate)), row('노리는 적', () => '체력 높은 순')); break;
+    case 'fan':     st.push(['초당 피해', dec(t.dmg)], ['밀어내는 힘', one(46 * (1 + .25 * (lvl - 1)))]); break;
+    case 'glue':    st.push(['적 이동 속도', one(Math.max(.25, d.slow - .1 * (lvl - 1)) * 100) + '%'], ['초당 피해', dec(t.dmg)]); break;
+    case 'laser':   st.push(['초당 피해', dec(t.dmg)]); break;
+    case 'coil':    st.push(['초당 독 피해', dec(t.dmg)], ['모기에게', dec(t.dmg * 3) + '/초']); break;
+    case 'hammer':  st.push(['한 번 피해', one(t.dmg)], ['공격 간격', d.rate + '초'], ['초당 피해(1마리)', dec(t.dmg / d.rate)]); break;
+    case 'swatter': st.push(['한 방 피해', one(t.dmg)], ['공격 간격', d.rate + '초'], ['초당 피해', dec(t.dmg / d.rate)]); break;
+    case 'tesla':   st.push(['번개 피해', one(t.dmg)], ['연쇄', (d.chain + lvl - 1) + '마리'], ['공격 간격', d.rate + '초']); break;
+    case 'cannon':  st.push(['포탄 피해', one(t.dmg)], ['폭발 반경', d.splash], ['공격 간격', d.rate + '초']); break;
+    case 'sling':   st.push(['한 방 피해', one(t.dmg)], ['공격 간격', d.rate + '초'], ['초당 피해', dec(t.dmg / d.rate)]); break;
   }
-  rows.push(['비용', '설치 ' + d.cost, '+' + Math.round(d.cost * .8), '+' + Math.round(d.cost * 1.6)]);
-  return rows;
+  const spent = d.cost + (lvl >= 2 ? Math.round(d.cost * .8) : 0) + (lvl >= 3 ? Math.round(d.cost * 1.6) : 0);
+  st.push(['누적 비용', spent], ['판매 시', '+' + Math.round(spent * .7)]);
+  return st;
 }
 function openInfo(type, lvl = 0) {
   closeMenu();
-  const d = TDEF[type], ic = $('infoIc').getContext('2d');
-  ic.imageSmoothingEnabled = false; ic.clearRect(0, 0, 20, 22); ic.drawImage(palEls[type].querySelector('canvas'), 0, 0);
-  $('infoName').textContent = d.name + (lvl ? ` · 지금 LV${lvl}` : '');
-  $('infoTag').textContent = d.unlock ? `웨이브 ${d.unlock} 클리어 시 해금` : '처음부터 사용 가능';
-  $('infoDesc').textContent = d.desc;
-  const head = `<tr><th></th>${[1, 2, 3].map(l => `<th class="${l === lvl ? 'now' : ''}">LV${l}</th>`).join('')}</tr>`;
-  $('infoTbl').innerHTML = head + infoRows(type).map(r => `<tr><td>${r[0]}</td>${r.slice(1).map((v, i) => `<td class="${i + 1 === lvl ? 'now' : ''}">${v}</td>`).join('')}</tr>`).join('');
+  const d = TDEF[type], inf = TINFO[type];
+  $('infoName').textContent = d.name;
+  $('infoTags').innerHTML = inf.tags.map((t, i) => `<span class="itag t${i}">${t}</span>`).join('');
+  $('infoDesc').textContent = inf.tip;
+  $('infoUnlock').textContent = (d.unlock ? `웨이브 ${d.unlock} 클리어 시 해금` : '처음부터 사용 가능') + ` · 설치 비용 ${d.cost}`;
+  const base = infoStats(type, 1);
+  $('infoCards').innerHTML = [1, 2, 3].map(l => {
+    const st = infoStats(type, l);
+    const cost = l === 1 ? `설치 ${d.cost}` : `업그레이드 +${Math.round(d.cost * .8 * (l - 1))}`;
+    return `<div class="icard${l === lvl ? ' now' : ''}"><div class="ichead"><img src="${towerIcon(type, l)}" alt="${d.name} LV${l}"><div><div class="iclv">LV${l}</div>${l === lvl ? '<div class="icnow">지금 레벨</div>' : `<div class="icost">${cost}</div>`}</div></div>` +
+      st.map(([k, v], i) => `<div class="istat"><span>${k}</span><span class="${l > 1 && String(v) !== String(base[i][1]) && i < st.length - 2 ? 'up' : ''}">${v}</span></div>`).join('') + '</div>';
+  }).join('');
   const bonus = [upEff('dmg') && `공격력 +${upEff('dmg')}%`, upEff('range') && `사거리 +${upEff('range')}%`].filter(Boolean).join(', ');
-  $('infoNote').textContent = '업그레이드할 때마다 공격력 +60%, 사거리 +12% (최대 LV3) · 판매하면 쓴 스크랩의 70% 환불' + (bonus ? ` · 영구 강화(${bonus}) 반영된 수치` : '');
+  $('infoNote').textContent = '레벨업마다 공격력 +60%, 사거리 +12% · 초록색은 LV1보다 좋아진 수치' + (bonus ? ` · 영구 강화(${bonus}) 반영` : '');
   $('infoPanel').classList.add('show');
 }
 const blocked = () => G.over || G.paused || G.phase === 'title';
