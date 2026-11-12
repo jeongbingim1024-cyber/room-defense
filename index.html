@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
-<title>룸 디펜스 프로토타입 v0.30</title>
+<title>룸 디펜스 프로토타입 v0.30.1</title>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Do+Hyeon&display=swap">
 <style>
   html,body{margin:0;height:100%;background:#0f0d0b;overflow:hidden;user-select:none;-webkit-user-select:none;-webkit-touch-callout:none;touch-action:none;overscroll-behavior:none}
@@ -460,7 +460,7 @@
 
 <script>
 'use strict';
-const VERSION = 'v0.30';
+const VERSION = 'v0.30.1';
 // 터치 기기인지 (휴대폰·태블릿이면 터치 UI로)
 const TOUCH = matchMedia('(pointer: coarse)').matches || navigator.maxTouchPoints > 0;
 
@@ -992,7 +992,8 @@ class Enemy {
     this.sumT = v && v.summon ? v.summon[1] : 0;
     this.x = CX + Math.cos(ang) * 290; this.y = CY + Math.sin(ang) * 185;
     // 목표 지점: 울타리 바로 바깥. 여기서 울타리를 갉아 침대에 피해를 준다
-    const ta = ang + rnd(-.22, .22), k = d.ranged ? rnd(1.38, 1.55) : rnd(1, 1.1);   // 원거리 적은 울타리에서 떨어진 곳에 멈춘다
+    const ta = ang + rnd(-.22, .22), k = d.ranged ? rnd(1.3, 1.45) : rnd(1, 1.1);   // 원거리 적은 울타리에서 떨어진 곳에 멈춘다
+    this.ta = ta; this.rk = k;
     this.tx = CX + Math.cos(ta) * STOP.rx * k; this.ty = CY + Math.sin(ta) * STOP.ry * k;
     if (d.ranged) { this.tx = Math.max(12, Math.min(W - 12, this.tx)); this.ty = Math.max(14, Math.min(H - 10, this.ty)); }
     this.state = 'move'; this.slowT = 0; this.slowMul = 1; this.anim = R() * 2; this.flash = 0; this.atkT = rnd(.3, 1); this.wob = R() * 9; this.dead = false;
@@ -1025,6 +1026,11 @@ class Enemy {
         const sn = this.v && this.v.spitN || 1;
         for (let q = 0; q < sn; q++) fx.push(new Spit(bx, by, CX + rnd(-22, 22), CY + rnd(-14, 14), this.d.dmg * (this.boss ? 4 : 1) * this.dmgMul));
         for (let i = 0; i < 4; i++) parts.push(new Part(bx, by, rnd(-25, 25), rnd(-25, 25), '#9be04a', .25, 1));
+        if (this.rk > 1.06) {                    // 쏠 때마다 조금씩 다가온다 (사거리 짧은 타워로도 결국 잡을 수 있게)
+          this.rk = Math.max(1.06, this.rk - .06);
+          this.tx = CX + Math.cos(this.ta) * STOP.rx * this.rk; this.ty = CY + Math.sin(this.ta) * STOP.ry * this.rk;
+          this.tx = Math.max(12, Math.min(W - 12, this.tx)); this.ty = Math.max(14, Math.min(H - 10, this.ty)); this.state = 'move';
+        }
       }
     } else {                                   // 공격 상태: 울타리에 붙어서 깨문다
       this.ang = Math.atan2(CY - this.y, CX - this.x);
@@ -1195,7 +1201,7 @@ class Fan extends Tower {
   // 켜졌다(2초) 꺼졌다 반복. 쉬는 시간은 레벨이 오를수록 짧아진다 (LV1 4초 → LV2 3초 → LV3 2초)
   get offT() { return FAN_OFF[this.lvl - 1]; }
   get cone() { return FAN_CONE[this.lvl - 1]; }                     // 부채꼴 반각: 레벨마다 넓어진다
-  get range() { return this.def.range * (1 + .22 * (this.lvl - 1)) * (1 + upEff('range') / 100); }   // 사거리도 레벨마다 +22%
+  get range() { return this.def.range * (1 + .15 * (this.lvl - 1)) * (1 + upEff('range') / 100); }   // 사거리도 레벨마다 +15%
   update(dt) {
     super.update(dt); this.aim(dt, 5);
     if (this.wind === undefined) { this.wind = 0; this.wcd = 0; }
@@ -1207,13 +1213,13 @@ class Fan extends Tower {
       if (this.wcd <= 0 && this.target && Math.abs(angDiff(this.ang, Math.atan2(this.target.y - this.y, this.target.x - this.x))) < .35) this.gust();
       return;
     }
-    const pw = 1 + .25 * (this.lvl - 1);
+    const pw = 1 + .2 * (this.lvl - 1);
     for (const e of enemies) {
       if (e.dead) continue;
       const d = dist(this, e); if (d > this.range) continue;
       const a = Math.atan2(e.y - this.y, e.x - this.x);
       if (Math.abs(angDiff(this.ang, a)) > this.cone) continue;
-      const push = (e.boss ? 10 : 46) * pw * dt;
+      const push = (e.boss ? 5 : 32) * pw * dt;
       e.x += Math.cos(a) * push; e.y += Math.sin(a) * push; e.state = 'move';
       e.hit(this.dmg * dt * spdMul(), false);
     }
@@ -1222,13 +1228,13 @@ class Fan extends Tower {
   // 돌풍: 켜지는 순간 앞쪽 적을 한 번 크게 날려 보내고 순간 피해
   gust() {
     this.wind = FAN_ON; this.wcd = this.offT;
-    const pw = 1 + .25 * (this.lvl - 1), R2 = this.range * 1.15;
+    const pw = 1 + .2 * (this.lvl - 1), R2 = this.range * 1.15;
     for (const e of enemies) {
       if (e.dead) continue;
       const d = dist(this, e); if (d > R2) continue;
       const a = Math.atan2(e.y - this.y, e.x - this.x);
       if (Math.abs(angDiff(this.ang, a)) > this.cone + .1) continue;
-      const kb = (e.boss ? 6 : 24) * pw;
+      const kb = (e.boss ? 3 : 14) * pw;
       e.x += Math.cos(a) * kb; e.y += Math.sin(a) * kb; e.state = 'move'; e.flash = .1;
       e.hit(this.dmg * FAN_BURST);
       parts.push(new Part(e.x, e.y, Math.cos(a) * 60, Math.sin(a) * 60, '#e1f2ff', .3, 2));
@@ -1260,7 +1266,7 @@ class Fan extends Tower {
     ctx.restore();
   }
 }
-const FAN_ON = 2, FAN_OFF = [4, 3, 2], FAN_BURST = 4, FAN_CONE = [.8, 1.0, 1.2];   // 부채꼴 반각(라디안): 약 90° → 115° → 140°   // 바람 켜짐 2초, 레벨별 쉬는 시간, 돌풍 순간 피해 = 초당 피해 × 4
+const FAN_ON = 2, FAN_OFF = [5, 4, 3], FAN_BURST = 3, FAN_CONE = [.6, .72, .85];   // 부채꼴 반각(라디안): 약 69° → 83° → 97°   // 바람 켜짐 2초, 레벨별 쉬는 시간, 돌풍 순간 피해 = 초당 피해 × 4
 // 돌풍 이펙트: 부채꼴로 퍼지는 바람 물결
 class Gust {
   constructor(x, y, ang, r, lvl, cone) { Object.assign(this, { x, y, ang, r, lvl, cone, life: .45, max: .45, dead: false }); }
@@ -1618,17 +1624,26 @@ function upgrade(t) {
 }
 
 // ───────── 데모 모드 (영상 촬영용 자동 플레이) ─────────
+// 자동 데모: 해금된 타워 중 상위 3종 위주로 설치하고, 상위 타워가 풀리면 하위 타워를 팔고 바꿔 단다
 function demoAI(dt) {
   G.demoT -= dt; if (G.demoT > 0) return; G.demoT = .5;
+  const order = Object.keys(TDEF), tier = k => order.indexOf(k);
   const empty = SLOTS.filter(s => !s.tower);
-  const types = Object.keys(TDEF).filter(isUnlocked);
+  const types = order.filter(isUnlocked), top = types.slice(-3);   // 해금 순서 = 상위 순서
+  const pick = budget => { const ok = top.filter(k => TDEF[k].cost <= budget); return ok.length ? ok[(R() * ok.length) | 0] : null; };
   if (G.fence < 4 && G.scrap >= fenceCost(G.fence + 1) && R() < .25) { upgradeFence(); return; }
+  // 교체: 상위 3종에 못 드는 타워 중 가장 낮은 것을 팔고 그 자리에 상위 타워 설치
+  const old = towers.filter(t => !top.includes(t.type)).sort((a, b) => tier(a.type) - tier(b.type))[0];
+  if (old && (!empty.length || G.phase === 'break') && R() < .6) {
+    const ty = pick(G.scrap + sellValue(old));
+    if (ty) { const slot = old.slot; sell(old); place(slot, ty); floats.push(new Floater(slot.x, slot.y - 18, 'SWAP', '#9fe8ff', .8)); return; }
+  }
   if (empty.length && R() < .75) {
-    const ty = types[(R() * types.length) | 0];
-    if (G.scrap >= TDEF[ty].cost) place(empty[(R() * empty.length) | 0], ty);
+    const ty = pick(G.scrap);
+    if (ty) place(empty[(R() * empty.length) | 0], ty);
   } else if (towers.length) {
-    const t = towers[(R() * towers.length) | 0];
-    if (t.lvl < 3 && G.scrap >= t.upCost) upgrade(t);
+    const ups = towers.filter(t => t.lvl < 3 && G.scrap >= t.upCost).sort((a, b) => tier(b.type) - tier(a.type));   // 상위 타워부터 업그레이드
+    if (ups.length) upgrade(ups[0]);
   }
 }
 
@@ -1885,7 +1900,7 @@ function infoStats(type, lvl) {
   const t = towerAt(type, lvl), d = TDEF[type], one = v => Math.round(v), dec = v => v.toFixed(1);
   const st = [['사거리', one(t.range)]];
   switch (type) {
-    case 'fan':     st.push(['바람 각도 · 쉬는 시간', `${Math.round(FAN_CONE[lvl - 1] * 2 * 180 / Math.PI)}° · ${FAN_OFF[lvl - 1]}초`], ['피해 (돌풍 / 초당)', `${one(t.dmg * FAN_BURST)} / ${dec(t.dmg)}`], ['밀어내는 힘', one(46 * (1 + .25 * (lvl - 1)))]); break;
+    case 'fan':     st.push(['바람 각도 · 쉬는 시간', `${Math.round(FAN_CONE[lvl - 1] * 2 * 180 / Math.PI)}° · ${FAN_OFF[lvl - 1]}초`], ['피해 (돌풍 / 초당)', `${one(t.dmg * FAN_BURST)} / ${dec(t.dmg)}`], ['밀어내는 힘', one(32 * (1 + .2 * (lvl - 1)))]); break;
     case 'glue':    st.push(['적 이동 속도', one(Math.max(.25, d.slow - .1 * (lvl - 1)) * 100) + '%'], ['초당 피해', dec(t.dmg)]); break;
     case 'laser':   st.push(['초당 피해', dec(t.dmg)]); break;
     case 'coil':    st.push(['초당 독 피해', dec(t.dmg)], ['모기에게', dec(t.dmg * 3) + '/초']); break;
@@ -1915,7 +1930,7 @@ function openInfo(type, lvl = 0) {
   }).join('');
   const bonus = [upEff('dmg') && `공격력 +${upEff('dmg')}%`, upEff('range') && `사거리 +${upEff('range')}%`].filter(Boolean).join(', ')
     + ((BON.dmg || BON.spd) ? ` / 캐릭터·장비: ${[BON.dmg && `공격력 +${Math.round(BON.dmg * 10) / 10}%`, BON.spd && `공격 속도 +${Math.round(BON.spd * 10) / 10}%`].filter(Boolean).join(', ')}` : '');
-  $('infoNote').textContent = '레벨업마다 공격력 +60%, 사거리 +12% · 초록색은 LV1보다 좋아진 수치' + (bonus ? ` · 영구 강화(${bonus}) 반영` : '') + (type === 'fan' ? ' (강풍기는 사거리 +22%)' : '');
+  $('infoNote').textContent = '레벨업마다 공격력 +60%, 사거리 +12% · 초록색은 LV1보다 좋아진 수치' + (bonus ? ` · 영구 강화(${bonus}) 반영` : '') + (type === 'fan' ? ' (강풍기는 사거리 +15%)' : '');
   $('infoPanel').classList.add('show');
 }
 const blocked = () => G.over || G.paused || G.phase === 'title';
