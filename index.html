@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
-<title>룸 디펜스 프로토타입 v0.27</title>
+<title>룸 디펜스 프로토타입 v0.27.1</title>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Do+Hyeon&display=swap">
 <style>
   html,body{margin:0;height:100%;background:#0f0d0b;overflow:hidden;user-select:none;-webkit-user-select:none;-webkit-touch-callout:none;touch-action:none;overscroll-behavior:none}
@@ -202,6 +202,9 @@
   #nick{font-family:'Do Hyeon',sans-serif;font-size:20px;color:#f1e8d6;background:#0f0d0b;border:2px solid #4a3f33;padding:8px 10px;user-select:text;-webkit-user-select:text;touch-action:auto;min-width:0}
   #nick:focus{outline:none;border-color:#f5a623}
   #bSubmit[disabled]{opacity:.5;cursor:default}
+  #myBest{font-family:'Do Hyeon',sans-serif;font-size:17px;color:#8a7e6c;margin:-4px 0 8px}
+  #myBest b{color:#f1e8d6;font-weight:400}
+  #myBest .nb{color:#f5a623;margin-left:6px}
   #rankSub{font-family:'Do Hyeon',sans-serif;font-size:16px;color:#8a7e6c}
   .rhead,.rrow{display:grid;grid-template-columns:56px 1fr 110px 110px 90px;gap:8px;align-items:center;padding:4px 12px}
   .rhead{font-family:'Press Start 2P',monospace;font-size:9px;color:#f5a623}
@@ -306,6 +309,7 @@
     <h1>침대가 함락됐다...</h1>
     <p id="overWave">WAVE 0</p>
     <div id="overBat"></div>
+    <div id="myBest"></div>
     <div id="submitRow"><input id="nick" maxlength="12" placeholder="닉네임 (최대 12자)" autocomplete="off"><button class="btn" id="bSubmit">순위 등록</button></div>
     <div class="grid2"><button class="btn main" id="bRetry">다시 하기</button><button class="btn" id="bOverTitle">타이틀로</button></div>
     <a class="btn fbbtn" href="#" target="_blank" rel="noopener">피드백 보내기</a>
@@ -357,7 +361,7 @@
 
 <script>
 'use strict';
-const VERSION = 'v0.27';
+const VERSION = 'v0.27.1';
 // 터치 기기인지 (휴대폰·태블릿이면 터치 UI로)
 const TOUCH = matchMedia('(pointer: coarse)').matches || navigator.maxTouchPoints > 0;
 
@@ -1286,7 +1290,8 @@ function update(dt) {
     document.getElementById('overBat').innerHTML = !r ? '' : r.demo ? '자동 데모를 쓴 판은 배터리를 얻지 않아요' : `<span class="bat"></span>배터리 +${r.gain} · 보유 ${SAVE.bat}`;
     const canSubmit = !G.usedDemo && G.wave >= 1;
     $('submitRow').classList.toggle('hide', !canSubmit);
-    $('bSubmit').disabled = false; $('bSubmit').textContent = '순위 등록';
+    showBest(canSubmit);
+    if (canSubmit && myUid()) myBest().then(b => { if (b) { setBestCache(b); if (!G.submitted) showBest(true); } }).catch(() => {});
     try { $('nick').value = localStorage.getItem('roomdef_nick') || ''; } catch (e) {}
     document.getElementById('over').classList.add('show');
   }
@@ -1669,15 +1674,32 @@ async function myBest() {
   if (!r.ok) throw new Error('get ' + r.status);
   return parseRow(await r.json());
 }
+// 내 최고 기록을 이 브라우저에도 기억해 둔다 (게임 오버 화면에서 바로 보여 주려고)
+const BEST_KEY = 'roomdef_best';
+const getBestCache = () => { try { return JSON.parse(localStorage.getItem(BEST_KEY)) || null; } catch (e) { return null; } };
+const setBestCache = b => { try { localStorage.setItem(BEST_KEY, JSON.stringify({ wave: b.wave, kills: b.kills })); } catch (e) {} };
+const beats = b => !b || G.wave > b.wave || (G.wave === b.wave && G.runKills > b.kills);
+function showBest(canSubmit) {
+  const b = getBestCache(), btn = $('bSubmit');
+  btn.disabled = false;
+  if (!canSubmit) { $('myBest').innerHTML = ''; return; }
+  if (!b) { $('myBest').innerHTML = ''; btn.textContent = '순위 등록'; return; }
+  const better = beats(b);
+  $('myBest').innerHTML = `내 최고 기록 <b>WAVE ${b.wave} · ${b.kills}마리</b>` + (better ? '<span class="nb">NEW BEST!</span>' : '');
+  if (better) btn.textContent = '기록 갱신';
+  else { btn.textContent = '최고 기록 유지'; btn.disabled = true; }
+}
 // 결과: 'new'(첫 등록) · 'up'(최고 기록 갱신) · 'low'(기존 최고 기록이 더 높아서 그대로)
 async function submitScore(name) {
   const tok = await idToken(), best = await myBest();
+  if (best) setBestCache(best);
   if (best && (best.wave > G.wave || (best.wave === G.wave && best.kills >= G.runKills))) return { kind: 'low', best };
   const body = { fields: {
     name: { stringValue: name }, wave: { integerValue: String(G.wave) }, kills: { integerValue: String(G.runKills) },
     ts: { timestampValue: new Date().toISOString() }, ver: { stringValue: VERSION } } };
   const r = await fetch(`${FS_URL}/ranking/${myUid()}?key=${FB.apiKey}`, { method: 'PATCH', headers: { 'Content-Type': 'application/json', Authorization: 'Bearer ' + tok }, body: JSON.stringify(body) });
   if (!r.ok) throw new Error('submit ' + r.status);
+  setBestCache({ wave: G.wave, kills: G.runKills });
   return { kind: best ? 'up' : 'new', best };
 }
 async function fetchTop() {
@@ -1713,8 +1735,8 @@ $('bSubmit').onclick = async () => {
   $('nick').blur();
   try {
     const res = await submitScore(name); G.submitted = true;
-    if (res.kind === 'low') { $('bSubmit').textContent = '기록 유지'; showToast(`내 최고 기록 WAVE ${res.best.wave}보다 낮아서 그대로 둘게요`, 2800); }
-    else { $('bSubmit').textContent = res.kind === 'up' ? '최고 기록 갱신!' : '등록 완료!'; }
+    if (res.kind === 'low') { $('bSubmit').textContent = '최고 기록 유지'; showBest(true); showToast(`내 최고 기록 WAVE ${res.best.wave}보다 낮아서 그대로 둘게요`, 2800); }
+    else { $('bSubmit').textContent = res.kind === 'up' ? '갱신 완료!' : '등록 완료!'; $('myBest').innerHTML = `내 최고 기록 <b>WAVE ${G.wave} · ${G.runKills}마리</b>`; }
     openRank();
   } catch (e) {
     $('bSubmit').disabled = false; $('bSubmit').textContent = '다시 시도';
