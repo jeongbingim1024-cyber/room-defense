@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
-<title>룸 디펜스 프로토타입 v0.26.3</title>
+<title>룸 디펜스 프로토타입 v0.27</title>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Do+Hyeon&display=swap">
 <style>
   html,body{margin:0;height:100%;background:#0f0d0b;overflow:hidden;user-select:none;-webkit-user-select:none;-webkit-touch-callout:none;touch-action:none;overscroll-behavior:none}
@@ -357,7 +357,7 @@
 
 <script>
 'use strict';
-const VERSION = 'v0.26.3';
+const VERSION = 'v0.27';
 // 터치 기기인지 (휴대폰·태블릿이면 터치 UI로)
 const TOUCH = matchMedia('(pointer: coarse)').matches || navigator.maxTouchPoints > 0;
 
@@ -1644,35 +1644,59 @@ $('bWipe').onclick = () => {
 // apiKey는 공개돼도 되는 값이고, 아무나 기록을 고치지 못하게 막는 건 Firestore 보안 규칙이 한다.
 const FB = { apiKey: 'AIzaSyD2aPHmBuH_RARc0btJeKoWyhNe616PKDI', projectId: 'room-defense' };
 const FS_URL = `https://firestore.googleapis.com/v1/projects/${FB.projectId}/databases/(default)/documents`;
-let myLastId = null;
+// 익명 로그인: 브라우저마다 Firebase가 보이지 않는 출입증(uid)을 발급한다. 순위는 출입증 하나에 한 줄.
+const AUTH_KEY = 'roomdef_auth';
+let AUTH = (() => { try { return JSON.parse(localStorage.getItem(AUTH_KEY)) || null; } catch (e) { return null; } })();
+const myUid = () => AUTH && AUTH.uid;
+function saveAuth(a) { AUTH = a; try { localStorage.setItem(AUTH_KEY, JSON.stringify(a)); } catch (e) {} }
+async function idToken() {
+  if (AUTH && AUTH.idToken && Date.now() < AUTH.exp - 60000) return AUTH.idToken;
+  if (AUTH && AUTH.refresh) {                                   // 출입증 연장
+    const r = await fetch(`https://securetoken.googleapis.com/v1/token?key=${FB.apiKey}`, { method: 'POST', headers: { 'Content-Type': 'application/x-www-form-urlencoded' }, body: 'grant_type=refresh_token&refresh_token=' + encodeURIComponent(AUTH.refresh) });
+    if (r.ok) { const d = await r.json(); saveAuth({ uid: d.user_id, idToken: d.id_token, refresh: d.refresh_token, exp: Date.now() + d.expires_in * 1000 }); return AUTH.idToken; }
+  }
+  const r = await fetch(`https://identitytoolkit.googleapis.com/v1/accounts:signUp?key=${FB.apiKey}`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ returnSecureToken: true }) });
+  if (!r.ok) { const t = await r.text(); throw new Error('auth ' + r.status + ' ' + (/OPERATION_NOT_ALLOWED|ADMIN_ONLY/.test(t) ? 'anon-off' : '')); }
+  const d = await r.json(); saveAuth({ uid: d.localId, idToken: d.idToken, refresh: d.refreshToken, exp: Date.now() + d.expiresIn * 1000 });
+  return AUTH.idToken;
+}
 const esc = t => String(t).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+const parseRow = doc => { const f = doc.fields || {}; return { id: doc.name.split('/').pop(), name: f.name?.stringValue || '?', wave: +(f.wave?.integerValue || 0), kills: +(f.kills?.integerValue || 0), ts: f.ts?.timestampValue || '', ver: f.ver?.stringValue || '' }; };
+async function myBest() {
+  if (!myUid()) return null;
+  const r = await fetch(`${FS_URL}/ranking/${myUid()}?key=${FB.apiKey}`);
+  if (r.status === 404) return null;
+  if (!r.ok) throw new Error('get ' + r.status);
+  return parseRow(await r.json());
+}
+// 결과: 'new'(첫 등록) · 'up'(최고 기록 갱신) · 'low'(기존 최고 기록이 더 높아서 그대로)
 async function submitScore(name) {
+  const tok = await idToken(), best = await myBest();
+  if (best && (best.wave > G.wave || (best.wave === G.wave && best.kills >= G.runKills))) return { kind: 'low', best };
   const body = { fields: {
     name: { stringValue: name }, wave: { integerValue: String(G.wave) }, kills: { integerValue: String(G.runKills) },
     ts: { timestampValue: new Date().toISOString() }, ver: { stringValue: VERSION } } };
-  const r = await fetch(`${FS_URL}/scores?key=${FB.apiKey}`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) });
+  const r = await fetch(`${FS_URL}/ranking/${myUid()}?key=${FB.apiKey}`, { method: 'PATCH', headers: { 'Content-Type': 'application/json', Authorization: 'Bearer ' + tok }, body: JSON.stringify(body) });
   if (!r.ok) throw new Error('submit ' + r.status);
-  const d = await r.json(); return d.name ? d.name.split('/').pop() : null;
+  return { kind: best ? 'up' : 'new', best };
 }
 async function fetchTop() {
-  const q = { structuredQuery: { from: [{ collectionId: 'scores' }], orderBy: [{ field: { fieldPath: 'wave' }, direction: 'DESCENDING' }], limit: 50 } };
+  const q = { structuredQuery: { from: [{ collectionId: 'ranking' }], orderBy: [{ field: { fieldPath: 'wave' }, direction: 'DESCENDING' }], limit: 50 } };
   const r = await fetch(`${FS_URL}:runQuery?key=${FB.apiKey}`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(q) });
   if (!r.ok) throw new Error('query ' + r.status);
-  const rows = (await r.json()).filter(x => x.document).map(x => {
-    const f = x.document.fields;
-    return { id: x.document.name.split('/').pop(), name: f.name?.stringValue || '?', wave: +(f.wave?.integerValue || 0), kills: +(f.kills?.integerValue || 0), ts: f.ts?.timestampValue || '', ver: f.ver?.stringValue || '' };
-  });
+  const rows = (await r.json()).filter(x => x.document).map(x => parseRow(x.document));
   rows.sort((a, b) => b.wave - a.wave || b.kills - a.kills || (a.ts < b.ts ? -1 : 1));   // 같은 웨이브면 처치 수, 그다음 먼저 달성한 순
-  return rows.slice(0, 20);
+  return rows;
 }
 async function openRank() {
   closeMenu(); $('rankPanel').classList.add('show');
-  $('rankSub').textContent = 'TOP 20';
+  $('rankSub').textContent = 'TOP 20 · 한 사람당 최고 기록 1개';
   $('rankList').innerHTML = '<div class="rmsg">불러오는 중...</div>';
   try {
-    const rows = await fetchTop();
-    $('rankList').innerHTML = rows.length ? rows.map((r, i) =>
-      `<div class="rrow${i < 3 ? ' top' + (i + 1) : ''}${r.id === myLastId ? ' me' : ''}"><span class="rk">${i + 1}</span><span>${esc(r.name)}</span><span>WAVE ${r.wave}</span><span class="sm">${r.kills}마리</span><span class="sm">${esc(r.ver)}</span></div>`).join('')
+    const all = await fetchTop(), rows = all.slice(0, 20);
+    const meIdx = all.findIndex(r => r.id === myUid());
+    const row = (r, i) => `<div class="rrow${i < 3 ? ' top' + (i + 1) : ''}${r.id === myUid() ? ' me' : ''}"><span class="rk">${i + 1}</span><span>${esc(r.name)}${r.id === myUid() ? ' (나)' : ''}</span><span>WAVE ${r.wave}</span><span class="sm">${r.kills}마리</span><span class="sm">${esc(r.ver)}</span></div>`;
+    $('rankList').innerHTML = rows.length ? rows.map(row).join('') + (meIdx >= 20 ? '<div class="rmsg" style="padding:6px 0">···</div>' + row(all[meIdx], meIdx) : '')
       : '<div class="rmsg">아직 기록이 없어요. 첫 번째 주인공이 되어 보세요!</div>';
   } catch (e) {
     $('rankList').innerHTML = /403/.test(e.message)
@@ -1687,8 +1711,15 @@ $('bSubmit').onclick = async () => {
   try { localStorage.setItem('roomdef_nick', name); } catch (e) {}
   $('bSubmit').disabled = true; $('bSubmit').textContent = '등록 중...';
   $('nick').blur();
-  try { myLastId = await submitScore(name); G.submitted = true; $('bSubmit').textContent = '등록 완료!'; openRank(); }
-  catch (e) { $('bSubmit').disabled = false; $('bSubmit').textContent = '다시 시도'; showToast(/403/.test(e.message) ? '순위 서버가 아직 준비 중이에요 (오류 403)' : '등록하지 못했어요. 인터넷 연결을 확인해 주세요', 2600); }
+  try {
+    const res = await submitScore(name); G.submitted = true;
+    if (res.kind === 'low') { $('bSubmit').textContent = '기록 유지'; showToast(`내 최고 기록 WAVE ${res.best.wave}보다 낮아서 그대로 둘게요`, 2800); }
+    else { $('bSubmit').textContent = res.kind === 'up' ? '최고 기록 갱신!' : '등록 완료!'; }
+    openRank();
+  } catch (e) {
+    $('bSubmit').disabled = false; $('bSubmit').textContent = '다시 시도';
+    showToast(/anon-off/.test(e.message) ? '순위 서버 로그인 설정이 아직 안 됐어요' : /403/.test(e.message) ? '순위 서버가 아직 준비 중이에요 (오류 403)' : '등록하지 못했어요. 인터넷 연결을 확인해 주세요', 2600);
+  }
 };
 $('nick').addEventListener('keydown', e => { if (e.key === 'Escape') { $('nick').blur(); return; } e.stopPropagation(); if (e.key === 'Enter') $('bSubmit').click(); });   // 닉네임 칠 때 게임 단축키가 눌리지 않게
 $('bRank').onclick = openRank;

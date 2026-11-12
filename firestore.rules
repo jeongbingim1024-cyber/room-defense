@@ -1,25 +1,27 @@
 rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
-    // 순위표: 누구나 읽기 가능, 새 기록 추가만 가능 (수정·삭제 불가)
-    match /scores/{id} {
-      allow read: if true;
-      allow create: if request.resource.data.keys().hasAll(['name', 'wave', 'kills', 'ts', 'ver'])
-        && request.resource.data.keys().hasOnly(['name', 'wave', 'kills', 'ts', 'ver'])
-        && request.resource.data.name is string
-        && request.resource.data.name.size() >= 1 && request.resource.data.name.size() <= 12
-        && request.resource.data.wave is int
-        && request.resource.data.wave >= 1 && request.resource.data.wave <= 200
-        && request.resource.data.kills is int
-        && request.resource.data.kills >= 0 && request.resource.data.kills <= 20000
-        && request.resource.data.kills <= request.resource.data.wave * 200
-        && request.resource.data.ts is timestamp
-        && request.resource.data.ts > request.time - duration.value(10, 'm')
-        && request.resource.data.ts < request.time + duration.value(10, 'm')
-        && request.resource.data.ver is string && request.resource.data.ver.size() <= 10;
-      allow update, delete: if false;
+    function validScore(d) {
+      return d.keys().hasAll(['name', 'wave', 'kills', 'ts', 'ver'])
+        && d.keys().hasOnly(['name', 'wave', 'kills', 'ts', 'ver'])
+        && d.name is string && d.name.size() >= 1 && d.name.size() <= 12
+        && d.wave is int && d.wave >= 1 && d.wave <= 200
+        && d.kills is int && d.kills >= 0 && d.kills <= 20000 && d.kills <= d.wave * 200
+        && d.ts is timestamp
+        && d.ts > request.time - duration.value(10, 'm')
+        && d.ts < request.time + duration.value(10, 'm')
+        && d.ver is string && d.ver.size() <= 10;
     }
-    // 그 밖의 모든 데이터는 접근 금지
+    // 순위표: 문서 이름 = 익명 로그인 uid. 한 사람(브라우저)당 한 줄, 자기 줄만, 더 좋은 기록일 때만 갱신
+    match /ranking/{uid} {
+      allow read: if true;
+      allow create: if request.auth != null && request.auth.uid == uid && validScore(request.resource.data);
+      allow update: if request.auth != null && request.auth.uid == uid && validScore(request.resource.data)
+        && (request.resource.data.wave > resource.data.wave
+            || (request.resource.data.wave == resource.data.wave && request.resource.data.kills > resource.data.kills));
+      allow delete: if false;
+    }
+    // 그 밖의 모든 데이터는 접근 금지 (예전 scores 순위표 포함)
     match /{document=**} {
       allow read, write: if false;
     }
