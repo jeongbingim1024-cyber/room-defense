@@ -2,6 +2,7 @@
 #  1) index.html의 VERSION(vX.XX)을 읽고, 그 태그가 아직 없으면
 #  2) zip을 만들어 같은 이름의 태그 + GitHub Release를 생성 (zip 첨부)
 #  3) BUTLER_API_KEY 비밀값과 ITCH_USER 변수가 있으면 itch.io에도 업로드
+#  (Actions 탭에서 Run workflow로 수동 실행하면, 태그가 이미 있어도 itch.io 업로드는 다시 한다)
 # 태그는 GitHub가 직접 만들기 때문에, 커밋만 올리면 된다.
 name: release
 on:
@@ -28,7 +29,7 @@ jobs:
           echo "ver=$VER" >> "$GITHUB_OUTPUT"
           if git rev-parse -q --verify "refs/tags/$VER" >/dev/null; then echo "new=false" >> "$GITHUB_OUTPUT"; else echo "new=true" >> "$GITHUB_OUTPUT"; fi
       - name: Build zip
-        if: steps.v.outputs.new == 'true'
+        if: steps.v.outputs.new == 'true' || github.event_name == 'workflow_dispatch'
         id: build
         run: echo "zip=$(./build.sh)" >> "$GITHUB_OUTPUT"
       - name: Tag + GitHub Release
@@ -41,7 +42,7 @@ jobs:
           body_path: CHANGELOG.md
           files: ${{ steps.build.outputs.zip }}
       - name: Upload to itch.io
-        if: steps.v.outputs.new == 'true' && env.BUTLER_API_KEY != '' && env.ITCH_USER != ''
+        if: (steps.v.outputs.new == 'true' || github.event_name == 'workflow_dispatch') && env.BUTLER_API_KEY != '' && env.ITCH_USER != ''
         run: |
           curl -sSL -o butler.zip https://broth.itch.zone/butler/linux-amd64/LATEST/archive/default
           unzip -q butler.zip -d butler && chmod +x butler/butler
