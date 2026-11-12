@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
-<title>룸 디펜스 프로토타입 v0.32.2</title>
+<title>룸 디펜스 프로토타입 v0.33</title>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Do+Hyeon&display=swap">
 <style>
   html,body{margin:0;height:100%;background:#0f0d0b;overflow:hidden;user-select:none;-webkit-user-select:none;-webkit-touch-callout:none;touch-action:none;overscroll-behavior:none}
@@ -212,8 +212,37 @@
   .gchip.no{border-color:#2c2620;cursor:default;opacity:.6}
   .gchip.on{box-shadow:0 0 0 2px #f1e8d6;opacity:1}
   #bp-pull{flex-direction:row;gap:14px}
+  .gwrap{display:flex;gap:12px;flex:1;min-height:0}
+  .gslots{width:300px;flex:none;display:flex;flex-direction:column;gap:5px}
+  .gslot{display:flex;align-items:center;gap:8px;background:#2c2620;border:3px solid #0f0d0b;box-shadow:inset 0 0 0 2px #4a3f33;padding:4px 8px;cursor:pointer;color:#f1e8d6;text-align:left;font:inherit}
+  .gslot.sel{box-shadow:inset 0 0 0 2px #f5a623;background:#3d3226}
+  .gslot .gpart{font-family:'Do Hyeon',sans-serif;font-size:16px;color:#f5a623;width:30px;flex:none}
+  .gslot .gimg{width:36px;height:36px}
+  .gslot .gtx{display:flex;flex-direction:column;flex:1;min-width:0}
+  .gslot .t1{font-size:16px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .gslot .t2{font-size:13px}
+  .gcnt{font-family:'Press Start 2P',monospace;font-size:8px;color:#8a7e6c}
+  .gcol{flex:1;display:flex;flex-direction:column;gap:6px;min-width:0}
+  .ghead{display:flex;justify-content:space-between;font-family:'Do Hyeon',sans-serif;font-size:18px;color:#f1e8d6}
+  .gown{color:#8a7e6c;font-size:15px}
+  .gcells{display:flex;flex-direction:column;gap:5px}
+  .grow{display:grid;grid-template-columns:40px repeat(4,1fr);gap:5px;align-items:center}
+  .glab{font-family:'Do Hyeon',sans-serif;font-size:15px}
+  .gcell{position:relative;height:50px;padding:0;background:#0f0d0b;border:2px solid var(--rc);cursor:pointer;display:flex;align-items:center;justify-content:center}
+  .gcell img{width:34px;height:34px;image-rendering:pixelated}
+  .gcell.no{border-color:#2c2620;cursor:default}
+  .gcell.on{box-shadow:0 0 0 2px #f1e8d6,inset 0 0 10px var(--rc)}
+  .gst{position:absolute;left:3px;bottom:1px;font-size:9px;color:var(--rc);letter-spacing:-1px}
+  .gst.dim{color:#4a3f33}
+  .glv{position:absolute;right:3px;top:1px;font-family:'Press Start 2P',monospace;font-size:7px;color:#8fd06a}
+  .gq{font-family:'Press Start 2P',monospace;font-size:10px;color:#4a3f33}
+  .gfoot{display:flex;align-items:center;gap:10px;font-family:'Do Hyeon',sans-serif;font-size:14px;color:#8a7e6c}
+  .gfoot .btn{font-family:'Do Hyeon',sans-serif;font-size:16px;padding:5px 10px}
+  .gpc.r4{box-shadow:0 0 14px #f5a623}
+  .gpc.r3{box-shadow:0 0 8px #b07ae8}
+  .portrait .gwrap{flex-direction:column} .portrait .gslots{width:auto}
   .pleft{width:250px;flex:none;display:flex;flex-direction:column;gap:8px;align-items:stretch}
-  .pcrate{width:96px;height:96px;image-rendering:pixelated;align-self:center}
+  .pcrate{width:72px;height:72px;image-rendering:pixelated;align-self:center}
   .pcount{font-family:'Do Hyeon',sans-serif;font-size:20px;text-align:center} .pcount b{color:#f5a623;font-weight:400}
   .pleft .btn{font-family:'Do Hyeon',sans-serif;font-size:19px;padding:8px}
   .pleft .btn[disabled]{opacity:.4;cursor:default}
@@ -224,8 +253,6 @@
   .presult.many .gpc{width:96px;padding:5px 2px}
   .gpc img{width:56px;height:56px;image-rendering:pixelated}
   .presult.many .gpc img{width:40px;height:40px}
-  .gpc.r3{box-shadow:0 0 14px #f5a623}
-  .gpc.r2{box-shadow:0 0 8px #b07ae8}
   .pn{font-family:'Do Hyeon',sans-serif;font-size:16px;text-align:center;line-height:1.1;color:var(--rc)}
   .presult.many .pn{font-size:13px}
   .pr{font-family:'Do Hyeon',sans-serif;font-size:13px;color:#8a7e6c}
@@ -501,7 +528,7 @@
 
 <script>
 'use strict';
-const VERSION = 'v0.32.2';
+const VERSION = 'v0.33';
 // 터치 기기인지 (휴대폰·태블릿이면 터치 UI로)
 const TOUCH = matchMedia('(pointer: coarse)').matches || navigator.maxTouchPoints > 0;
 
@@ -533,6 +560,7 @@ const CHAINS = [
   { id: 'fence',   names: ['가시 돋친 집', '철벽 방어'],                           n: [2, 4],                 bat: [15, 30],          desc: n => n === 2 ? '울타리를 철조망까지 강화' : '울타리를 전기 펜스까지 강화', v: () => ST().fenceMax },
   { id: 'full',    names: ['풀 세팅'],                                             n: [1],                    bat: [50],              desc: () => '8칸 모두 3레벨 타워로 채우기', v: () => ST().full },
   { id: 'pulls',   names: ['첫 개봉', '뽑기 중독', '상자 수집가'],                 n: [1, 50, 200],           bat: [10, 30, 60],      desc: n => `고철 상자 누적 ${n}개 열기`, v: () => ST().pulls },
+  { id: 'gear',    names: ['장비 수집가', '옷장 정리', '명품 옷장'],              n: [10, 40, 80],           bat: [20, 50, 120],     desc: n => `서로 다른 장비 ${n}종 모으기 (전체 120종)`, v: () => Object.keys(SAVE.inv).length },
   { id: 'chars',   names: ['동료 영입', '대가족'],                                 n: [1, 6],                 bat: [10, 50],          desc: n => n === 1 ? '캐릭터 1명 영입' : `캐릭터 ${n}명 모두 영입`, v: () => Object.keys(SAVE.ch).length },
   { id: 'runs',    names: ['또 한 판', '멈출 수 없어'],                            n: [10, 50],               bat: [15, 40],          desc: n => `게임 ${n}판 플레이`, v: () => ST().runs },
 ];
@@ -549,6 +577,10 @@ function migrateSave() {
   if (A.boss_0) st.boss = Math.max(st.boss, 1); if (A.place_0) st.placed = Math.max(st.placed, 1); if (A.perfect_0) st.perfect = Math.max(st.perfect, 3);
   if (A.minimal_0) st.minimal = Math.max(st.minimal, 10); if (A.fence_1) st.fenceMax = 4; if (A.full_0) st.full = 1;
   SAVE.dex = SAVE.dex || {};
+  // v0.32까지 장비(부위+등급 숫자 하나, 예: helm2) → 등급·별 체계로 (비슷한 수치가 되게)
+  const OLD = [[0, 3], [1, 3], [2, 4], [4, 3]], conv = id => { const m = /^(helm|top|pants|shoes|lid|broom)(\d)$/.exec(id); return m ? `${m[1]}_${OLD[+m[2]][0]}_${OLD[+m[2]][1]}` : id; };
+  const inv = {}; for (const k in SAVE.inv || {}) { const n = conv(k); inv[n] = Math.max(inv[n] ?? -1, SAVE.inv[k]); } SAVE.inv = inv;
+  for (const k in SAVE.eq || {}) if (SAVE.eq[k]) SAVE.eq[k] = conv(SAVE.eq[k]);
 }
 migrateSave();
 // 한 단계 효과는 작게, 최대 레벨은 높게 (per = 한 단계 효과, 가격은 base × 다음 레벨)
@@ -602,31 +634,38 @@ const CHARS = [
   { id: 'guard', name: '경비원 아저씨', desc: '밤샘 경비 30년 차',          eff: '침대가 받는 피해 -12%', price: 70, b: { def: 12 } },
   { id: 'squir', name: '행운의 다람쥐', desc: '반짝이는 건 다 주워 온다',    eff: '고철 상자 나올 확률 2배', price: 80, b: { crate: 1 } },
 ];
+// 장비: 부위 6 × 등급 5 × 별 4단계 = 120종 (메이플 키우기처럼 같은 등급 안에서도 ★1~★4)
 const RAR = [
-  { name: '일반', c: '#b8b0a0', p: 60, refund: 3 },
-  { name: '희귀', c: '#5aa0e8', p: 28, refund: 8 },
-  { name: '영웅', c: '#b07ae8', p: 10, refund: 20 },
-  { name: '전설', c: '#f5a623', p: 2,  refund: 50 },
+  { name: '일반', c: '#b8b0a0', p: 50, refund: 2 },
+  { name: '고급', c: '#6ad06a', p: 30, refund: 4 },
+  { name: '희귀', c: '#5aa0e8', p: 14, refund: 8 },
+  { name: '영웅', c: '#b07ae8', p: 5,  refund: 20 },
+  { name: '전설', c: '#f5a623', p: 1,  refund: 50 },
 ];
+const STAR_P = [45, 30, 18, 7];   // 같은 등급 안에서 ★1~★4 확률
 const EQ_MAX = 5;   // 강화 최대 +5 (효과 2배)
-// stat: 효과 종류, base: 등급별 기본 수치, unit: 표시 단위
+// stat: 효과 종류, u: 점수 1점당 수치 (점수 = 등급×4 + 별, 1~20), unit: 표시 단위, names: 등급별 이름
 const EQS = [
-  { id: 'helm',  part: '투구', stat: 'hp',    what: '침대 최대 HP',     unit: '',  base: [8, 16, 28, 45],  names: ['양은 냄비', '스텐 냄비', '뚝배기 투구', '무쇠 가마솥'] },
-  { id: 'top',   part: '상의', stat: 'def',   what: '받는 피해 감소',    unit: '%', base: [2, 4, 7, 11],    names: ['늘어난 티셔츠', '수면 잠옷', '극세사 잠옷', '왕실 실크 가운'] },
-  { id: 'pants', part: '하의', stat: 'scrap', what: '시작 스크랩',      unit: '',  base: [15, 30, 50, 80], names: ['무릎 나온 츄리닝', '수면 바지', '극세사 바지', '황금 잠옷 바지'] },
-  { id: 'shoes', part: '신발', stat: 'spd',   what: '타워 공격 속도',    unit: '%', base: [2, 4, 7, 11],    names: ['삼선 슬리퍼', '털 슬리퍼', '곰돌이 실내화', '로켓 슬리퍼'] },
-  { id: 'lid',   part: '방패', stat: 'heal',  what: '웨이브 클리어 시 HP 회복', unit: '', base: [2, 4, 7, 12], names: ['라면 냄비뚜껑', '프라이팬 뚜껑', '스텐 솥뚜껑', '전설의 솥뚜껑'] },
-  { id: 'broom', part: '무기', stat: 'dmg',   what: '타워 공격력',      unit: '%', base: [3, 6, 10, 16],   names: ['수수 빗자루', '플라스틱 빗자루', '대걸레', '청소기 엑스칼리버'] },
+  { id: 'helm',  part: '투구', stat: 'hp',    what: '침대 최대 HP',     unit: '',  u: 2.4, names: ['양은 냄비', '스텐 냄비', '압력솥', '뚝배기 투구', '무쇠 가마솥'] },
+  { id: 'top',   part: '상의', stat: 'def',   what: '받는 피해 감소',    unit: '%', u: .55, names: ['늘어난 티셔츠', '면 잠옷', '수면 잠옷', '극세사 잠옷', '왕실 실크 가운'] },
+  { id: 'pants', part: '하의', stat: 'scrap', what: '시작 스크랩',      unit: '',  u: 4,   names: ['무릎 나온 츄리닝', '고무줄 반바지', '수면 바지', '극세사 바지', '황금 잠옷 바지'] },
+  { id: 'shoes', part: '신발', stat: 'spd',   what: '타워 공격 속도',    unit: '%', u: .55, names: ['삼선 슬리퍼', '고무 슬리퍼', '털 슬리퍼', '곰돌이 실내화', '로켓 슬리퍼'] },
+  { id: 'lid',   part: '방패', stat: 'heal',  what: '웨이브 클리어 시 HP 회복', unit: '', u: .6, names: ['라면 냄비뚜껑', '양은 뚜껑', '프라이팬 뚜껑', '스텐 솥뚜껑', '전설의 솥뚜껑'] },
+  { id: 'broom', part: '무기', stat: 'dmg',   what: '타워 공격력',      unit: '%', u: .8,  names: ['수수 빗자루', '먼지떨이', '플라스틱 빗자루', '대걸레', '청소기 엑스칼리버'] },
 ];
-const itemId = (s, r) => s + r;                                    // 예: 'helm3' = 전설 투구
-const itemOf = id => { const s = EQS.find(e => id.startsWith(e.id) && /^\d$/.test(id.slice(e.id.length))); return s ? { s, r: +id.slice(s.id.length) } : null; };
-const itemVal = (s, r, lv) => { const v = s.base[r] * (1 + .2 * lv); return s.unit === '%' ? Math.round(v * 10) / 10 : Math.round(v); };
+const itemId = (s, g, t) => `${s}_${g}_${t}`;                        // 예: 'helm_4_3' = 전설 투구 ★3
+const itemOf = id => { const m = /^([a-z]+)_(\d)_(\d)$/.exec(id || ''); const s = m && EQS.find(e => e.id === m[1]); return s ? { s, g: +m[2], t: +m[3], r: +m[2] } : null; };
+const itemScore = (g, t) => g * 4 + t;
+const itemVal = (s, g, t, lv) => { const v = s.u * itemScore(g, t) * (1 + .2 * lv); return s.unit === '%' ? Math.round(v * 10) / 10 : Math.max(1, Math.round(v)); };
+const itemName = it => `${it.s.names[it.g]} ★${it.t}`;
+const stars = t => '★'.repeat(t);
+const eqVal = sid => { const id = SAVE.eq[sid], it = itemOf(id); return it && SAVE.inv[id] !== undefined ? itemVal(it.s, it.g, it.t, SAVE.inv[id]) : 0; };
 let BON = {};
 function recalcBon() {
   const b = { hp: 0, dmg: 0, spd: 0, loot: 0, def: 0, scrap: 0, heal: 0, crate: 0 };
   const ch = CHARS.find(c => c.id === SAVE.chEq);
   if (ch) for (const k in ch.b) b[k] += ch.b[k];
-  for (const s of EQS) { const id = SAVE.eq[s.id]; if (id && SAVE.inv[id] !== undefined) { const it = itemOf(id); b[s.stat] += itemVal(s, it.r, SAVE.inv[id]); } }
+  for (const s of EQS) b[s.stat] += eqVal(s.id);
   b.def = Math.min(60, b.def);
   BON = b;
 }
@@ -653,16 +692,22 @@ function rollCrateDrop(e) {
   if (e.vid) { if (R() < .3) giveCrate(1, e.x, e.y); return; }
   if (R() < .012 * (BON.crate ? 2 : 1)) giveCrate(1, e.x, e.y);
 }
-// 뽑기 1회: 등급 → 부위 순으로 고른다
+// 뽑기 1회: 등급 → 별 → 부위 순으로 고른다
+const rollIdx = ps => { let x = R() * ps.reduce((a, b) => a + b, 0), i = 0; for (; i < ps.length - 1; i++) { if (x < ps[i]) break; x -= ps[i]; } return i; };
 function pullOnce() {
-  let x = R() * 100, r = 0;
-  for (; r < RAR.length - 1; r++) { if (x < RAR[r].p) break; x -= RAR[r].p; }
-  const s = EQS[(R() * EQS.length) | 0], id = itemId(s.id, r);
+  const g = rollIdx(RAR.map(r => r.p)), t = rollIdx(STAR_P) + 1, s = EQS[(R() * EQS.length) | 0], id = itemId(s.id, g, t);
   let kind, refund = 0;
-  if (SAVE.inv[id] === undefined) { SAVE.inv[id] = 0; kind = 'new'; if (!SAVE.eq[s.id] || itemOf(SAVE.eq[s.id]).r < r) SAVE.eq[s.id] = id; }
+  if (SAVE.inv[id] === undefined) { SAVE.inv[id] = 0; kind = 'new'; if (itemVal(s, g, t, 0) > eqVal(s.id)) SAVE.eq[s.id] = id; }   // 지금 것보다 좋으면 바로 장착
   else if (SAVE.inv[id] < EQ_MAX) { SAVE.inv[id]++; kind = 'up'; }
-  else { refund = RAR[r].refund; SAVE.bat += refund; kind = 'refund'; }
-  return { id, s, r, kind, refund, lv: SAVE.inv[id] };
+  else { refund = RAR[g].refund; SAVE.bat += refund; kind = 'refund'; }
+  return { id, s, g, t, r: g, kind, refund, lv: SAVE.inv[id] };
+}
+function autoEquip() {                       // 부위마다 가장 좋은 장비로
+  for (const s of EQS) {
+    let best = SAVE.eq[s.id], bv = eqVal(s.id);
+    for (const id in SAVE.inv) { const it = itemOf(id); if (!it || it.s !== s) continue; const v = itemVal(s, it.g, it.t, SAVE.inv[id]); if (v > bv) { bv = v; best = id; } }
+    if (best) SAVE.eq[s.id] = best;
+  }
 }
 function pull(n) {
   if (SAVE.crate < n) return null;
@@ -2324,30 +2369,44 @@ function bonusText() {
     BON.heal && `클리어 회복 +${BON.heal}`, BON.crate && '상자 확률 2배'].filter(Boolean);
   return parts.length ? parts.join(' · ') : '아직 효과 없음';
 }
+let gearSel = 'helm';
 function renderGear() {
-  $('bp-gear').innerHTML = '<div class="ggrid">' + EQS.map(s => {
-    const id = SAVE.eq[s.id], it = id && SAVE.inv[id] !== undefined ? itemOf(id) : null, lv = it ? SAVE.inv[id] : 0;
-    const main = it ? `<img class="gimg" src="${itImg(s.id, it.r)}" style="border-color:${RAR[it.r].c}"><div class="gtx"><div class="t1" style="color:${RAR[it.r].c}">${s.names[it.r]}${lv ? ` +${lv}` : ''}</div><div class="t2">${RAR[it.r].name} · ${fmtVal(s, itemVal(s, it.r, lv))}</div><div class="pips">${Array.from({ length: EQ_MAX }, (_, i) => `<i class="${i < lv ? 'on' : ''}"></i>`).join('')}</div></div>`
-      : `<div class="gimg empty"></div><div class="gtx"><div class="t1 dim">비어 있음</div><div class="t2">뽑기에서 ${s.part}를 얻어요</div></div>`;
-    const owned = RAR.map((r, ri) => { const iid = itemId(s.id, ri), has = SAVE.inv[iid] !== undefined;
-      return `<button class="gchip${has ? '' : ' no'}${iid === id ? ' on' : ''}" data-eq="${iid}" style="--rc:${r.c}" title="${has ? s.names[ri] : '미획득'}"${has ? '' : ' disabled'}>${has ? `<img src="${itImg(s.id, ri)}">` : '?'}</button>`; }).join('');
-    return `<div class="gcard"><div class="gpart">${s.part}</div><div class="gmain">${main}</div><div class="gchips">${owned}</div></div>`;
-  }).join('') + `</div><div class="bnote">합계: <b>${bonusText()}</b></div>`;
+  const owned = Object.keys(SAVE.inv).length;
+  const slotRow = s => {
+    const id = SAVE.eq[s.id], it = itemOf(id), has = it && SAVE.inv[id] !== undefined, lv = has ? SAVE.inv[id] : 0;
+    const cnt = Object.keys(SAVE.inv).filter(k => k.startsWith(s.id + '_')).length;
+    return `<button class="gslot${s.id === gearSel ? ' sel' : ''}" data-gs="${s.id}"><span class="gpart">${s.part}</span>` +
+      (has ? `<img class="gimg" src="${itImg(s.id, it.g)}" style="border-color:${RAR[it.g].c}"><span class="gtx"><span class="t1" style="color:${RAR[it.g].c}">${itemName(it)}${lv ? ` +${lv}` : ''}</span><span class="t2">${fmtVal(s, itemVal(s, it.g, it.t, lv))}</span></span>`
+        : `<span class="gimg empty"></span><span class="gtx"><span class="t1 dim">비어 있음</span><span class="t2">${s.what}</span></span>`) +
+      `<span class="gcnt">${cnt}/20</span></button>`;
+  };
+  const S = EQS.find(e => e.id === gearSel);
+  const cells = RAR.map((r, g) => `<div class="grow"><span class="glab" style="color:${r.c}">${r.name}</span>` + [1, 2, 3, 4].map(t => {
+    const id = itemId(S.id, g, t), has = SAVE.inv[id] !== undefined, lv = has ? SAVE.inv[id] : 0, on = SAVE.eq[S.id] === id;
+    return `<button class="gcell${has ? '' : ' no'}${on ? ' on' : ''}" data-eq="${id}" style="--rc:${r.c}"${has ? '' : ' disabled'} title="${has ? `${S.names[g]} ★${t}${lv ? ' +' + lv : ''} · ${fmtVal(S, itemVal(S, g, t, lv))}` : '미획득'}">` +
+      (has ? `<img src="${itImg(S.id, g)}"><span class="gst">${stars(t)}</span>${lv ? `<span class="glv">+${lv}</span>` : ''}` : `<span class="gq">?</span><span class="gst dim">${stars(t)}</span>`) + '</button>';
+  }).join('') + '</div>').join('');
+  $('bp-gear').innerHTML = `<div class="gwrap"><div class="gslots">${EQS.map(slotRow).join('')}</div>` +
+    `<div class="gcol"><div class="ghead"><span>${S.part} · ${S.what}</span><span class="gown">모은 장비 ${owned}/120</span></div><div class="gcells">${cells}</div>` +
+    `<div class="gfoot"><button class="btn" id="bAutoEq">가장 좋은 걸로 장착</button><span>칸을 눌러 장착 · 장착 중을 다시 누르면 해제</span></div></div></div>` +
+    `<div class="bnote">합계: <b>${bonusText()}</b></div>`;
+  $('bp-gear').querySelectorAll('[data-gs]').forEach(b => b.onclick = () => { gearSel = b.dataset.gs; renderGear(); });
   $('bp-gear').querySelectorAll('[data-eq]').forEach(b => b.onclick = () => {
     const it = itemOf(b.dataset.eq); SAVE.eq[it.s.id] = SAVE.eq[it.s.id] === b.dataset.eq ? '' : b.dataset.eq; afterChange(); renderBag();
   });
+  $('bAutoEq').onclick = () => { autoEquip(); afterChange(); renderBag(); showToast('부위마다 가장 좋은 장비로 바꿨어요', 1600); };
 }
 let lastPull = null;
 function renderPull() {
   const res = lastPull ? lastPull.map((x, i) => {
     const tag = x.kind === 'new' ? '<span class="pnew">NEW</span>' : x.kind === 'up' ? `<span class="pup">+${x.lv} 강화</span>` : `<span class="pref">MAX · <span class="bat"></span>+${x.refund}</span>`;
-    return `<div class="gpc r${x.r}" style="--rc:${RAR[x.r].c};animation-delay:${i * .08}s"><img src="${itImg(x.s.id, x.r)}"><div class="pn">${x.s.names[x.r]}</div><div class="pr">${RAR[x.r].name} ${x.s.part}</div>${tag}</div>`;
+    return `<div class="gpc r${x.g}" style="--rc:${RAR[x.g].c};animation-delay:${i * .08}s"><img src="${itImg(x.s.id, x.g)}"><div class="pn">${x.s.names[x.g]}</div><div class="pr">${RAR[x.g].name} ${x.s.part} <span style="color:${RAR[x.g].c}">${stars(x.t)}</span></div>${tag}</div>`;
   }).join('') : '<div class="bnote" style="margin:auto">고철 상자를 열어 장비를 얻어요</div>';
   $('bp-pull').innerHTML = `<div class="pleft"><img class="pcrate" src="${crateImg()}"><div class="pcount">고철 상자 <b>${SAVE.crate}</b>개</div>
     <button class="btn main" id="bPull1"${SAVE.crate < 1 ? ' disabled' : ''}>1번 열기 (상자 1)</button>
     <button class="btn" id="bPull10"${SAVE.crate < 10 ? ' disabled' : ''}>10번 열기 (상자 10)</button>
-    <div class="prob">${RAR.map(r => `<span style="color:${r.c}">${r.name} ${r.p}%</span>`).join(' · ')}</div>
-    <div class="pinfo">같은 장비가 또 나오면 +1 강화 (최대 +${EQ_MAX}).<br>+${EQ_MAX} 장비가 또 나오면 배터리로 돌려받아요.<br>상자는 벌레 처치(가끔), 보스(2개), 웨이브 3·6·9…클리어 때 얻어요.</div></div>
+    <div class="prob">${RAR.map(r => `<span style="color:${r.c}">${r.name} ${r.p}%</span>`).join(' · ')}<br><span>등급 안에서 ★1 ${STAR_P[0]}% · ★2 ${STAR_P[1]}% · ★3 ${STAR_P[2]}% · ★4 ${STAR_P[3]}%</span></div>
+    <div class="pinfo">장비 120종 (부위 6 × 등급 5 × ★4). 중복은 +1 강화(최대 +${EQ_MAX}), 그 뒤엔 배터리로 환급.</div></div>
     <div class="presult${lastPull && lastPull.length > 1 ? ' many' : ''}">${res}</div>`;
   $('bPull1').onclick = () => doPull(1); $('bPull10').onclick = () => doPull(10);
 }
@@ -2356,7 +2415,7 @@ function doPull(n) {
   if (!r) { showToast('고철 상자가 모자라요. 게임에서 벌레를 잡으면 가끔 떨어져요', 2400); return; }
   lastPull = r;
   const best = Math.max(...r.map(x => x.r));
-  if (best === 3) showToast('전설 장비 획득!', 2000);
+  if (best === 4) showToast('전설 장비 획득!', 2000); else if (best === 3) showToast('영웅 장비 획득!', 1600);
   if (G.phase === 'title') reset(false, true);
   renderBag();
 }
