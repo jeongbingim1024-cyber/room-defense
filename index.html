@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
-<title>룸 디펜스 프로토타입 v0.18</title>
+<title>룸 디펜스 프로토타입 v0.19</title>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Do+Hyeon&display=swap">
 <style>
   html,body{margin:0;height:100%;background:#0f0d0b;overflow:hidden;user-select:none;-webkit-user-select:none;-webkit-touch-callout:none;touch-action:none;overscroll-behavior:none}
@@ -25,7 +25,18 @@
   #info .in1{font-family:'Do Hyeon',sans-serif;font-size:18px;color:#f5a623}
   #info .in2{font-family:'Do Hyeon',sans-serif;font-size:14px;line-height:1.3;color:#f1e8d6;white-space:normal}
   #info .in3{font-family:'Do Hyeon',sans-serif;font-size:14px;color:#8a7e6c}
-  #pause .keys2{font-family:'Do Hyeon',sans-serif;font-size:16px;line-height:1.6;color:#cfc3ae;text-align:center}
+  /* ───── 메뉴 카드 (시작·일시정지·게임오버 공통) ───── */
+  .card{background:rgba(29,25,21,.96);border:3px solid #0f0d0b;box-shadow:inset 0 0 0 2px #4a3f33,0 8px 0 rgba(15,13,11,.6);padding:20px 22px;display:flex;flex-direction:column;align-items:stretch;gap:12px;box-sizing:border-box}
+  .card .btn{font-family:'Do Hyeon',sans-serif;font-size:20px;padding:10px 12px}
+  .card .btn.main{background:#f5a623;color:#1d1915;box-shadow:inset 0 0 0 3px #ffd27a,0 4px 0 #0f0d0b}
+  .card .grid2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+  .card .ttl{font-family:'Press Start 2P',monospace;font-size:14px;color:#f5a623;text-align:center;letter-spacing:2px}
+  .card .cfoot{display:flex;align-items:center;justify-content:space-between;font-family:'Do Hyeon',sans-serif;font-size:17px;color:#8a7e6c;border-top:2px solid #4a3f33;padding-top:10px}
+  .tcard{width:380px;margin-top:6px}
+  .tcard .row3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px}
+  .pcard{width:400px}
+  .ocard{width:440px;text-align:center}
+  #pause .keys2{font-family:'Do Hyeon',sans-serif;font-size:15px;line-height:1.6;color:#8a7e6c;text-align:center;border-top:2px solid #4a3f33;padding-top:10px}
   #pause .keys2 b{font-family:'Press Start 2P',monospace;font-size:9px;color:#f5a623;font-weight:400}
   #side .keys{margin-top:auto;font-family:'Do Hyeon',sans-serif;font-size:14px;line-height:1.5;color:#8a7e6c}
   #side .keys b{font-family:'Press Start 2P',monospace;font-size:8px;color:#cfc3ae;font-weight:400}
@@ -43,7 +54,7 @@
   .touch #tmenu .btn{font-size:22px;padding:10px 12px}
   .touch #tmenu .btn b{font-size:10px}
   .touch #bFence{font-size:11px;padding:10px 11px}
-  .touch #pause .btn{font-size:16px;padding:16px}
+  .touch .card .btn{font-size:24px;padding:14px 12px}
   .touch .pcOnly{display:none}
   .pcOnly2{display:inline} .touch .pcOnly2{display:none} .tOnly{display:none} .touch .tOnly{display:inline}
   #bNext{display:none} #bNext.show{display:block}
@@ -104,34 +115,29 @@
   .tw .key{font-size:7px;color:#8a7e6c;margin-left:auto;align-self:flex-start}
   #hint{left:12px;bottom:10px;font-family:'Do Hyeon',sans-serif;font-size:15px;color:#cfc3ae;text-shadow:2px 2px 0 #0f0d0b}
   .in-title .hud{opacity:0;pointer-events:none}
-  #title{position:absolute;inset:0;display:none;flex-direction:column;align-items:center;justify-content:center;gap:14px;background:radial-gradient(ellipse at center,rgba(15,13,11,.45) 0%,rgba(15,13,11,.88) 75%);color:#f1e8d6;text-align:center}
+  #title{position:absolute;inset:0;display:none;flex-direction:column;align-items:center;justify-content:center;gap:10px;background:radial-gradient(ellipse at center,rgba(15,13,11,.72) 0%,rgba(15,13,11,.9) 70%);color:#f1e8d6;text-align:center}
   .in-title #title{display:flex}
   #title .eyebrow{font-family:'Press Start 2P',monospace;font-size:12px;color:#f5a623;letter-spacing:2px}
   #title h1{margin:0;font-family:'Do Hyeon',sans-serif;font-weight:400;font-size:84px;line-height:1.05;text-shadow:5px 5px 0 #0f0d0b}
-  #title .tag{font-family:'Do Hyeon',sans-serif;font-size:24px;color:#cfc3ae;text-shadow:2px 2px 0 #0f0d0b;margin-bottom:18px}
-  #title .btns{display:flex;gap:14px}
-  #bStart{font-size:18px;padding:16px 30px;background:#f5a623;color:#1d1915;box-shadow:inset 0 0 0 3px #ffd27a,0 5px 0 #0f0d0b}
-  #bStartDemo{font-size:12px;padding:16px 18px}
-  #title .press{font-family:'Press Start 2P',monospace;font-size:10px;color:#f1e8d6;margin-top:14px;animation:blink 1s steps(1) infinite}
+  #title .tag{font-family:'Do Hyeon',sans-serif;font-size:24px;color:#cfc3ae;text-shadow:2px 2px 0 #0f0d0b;margin-bottom:8px}
+  #bStart{font-family:'Press Start 2P',monospace !important;font-size:18px !important;padding:16px !important;background:#f5a623;color:#1d1915;box-shadow:inset 0 0 0 3px #ffd27a,0 5px 0 #0f0d0b}
+  #title .press{font-family:'Press Start 2P',monospace;font-size:10px;color:#8a7e6c;margin-top:8px;animation:blink 1s steps(1) infinite}
   #title .ver{position:absolute;right:14px;bottom:10px;font-family:'Press Start 2P',monospace;font-size:8px;color:#8a7e6c}
   @keyframes blink{50%{opacity:0}}
-  #pause{position:absolute;inset:0;display:none;flex-direction:column;align-items:center;justify-content:center;gap:16px;background:rgba(15,13,11,.7);color:#f1e8d6}
+  #pause{position:absolute;inset:0;display:none;flex-direction:column;align-items:center;justify-content:center;gap:16px;background:rgba(15,13,11,.6);color:#f1e8d6}
   #pause.show{display:flex}
-  #pause .ttl{font-family:'Press Start 2P',monospace;font-size:28px;color:#f5a623;text-shadow:4px 4px 0 #0f0d0b;animation:blink 1.2s steps(1) infinite}
-  #pause .col{display:flex;flex-direction:column;gap:10px;width:220px}
-  #pause .btn{font-size:12px;padding:12px}
+  #pause .ttl{font-size:22px;animation:blink 1.2s steps(1) infinite}
   #pause .keys{font-family:'Do Hyeon',sans-serif;font-size:17px;color:#cfc3ae}
-  #over{position:absolute;inset:0;display:none;flex-direction:column;align-items:center;justify-content:center;gap:18px;background:rgba(15,13,11,.78);color:#f1e8d6;text-align:center}
+  #over{position:absolute;inset:0;display:none;flex-direction:column;align-items:center;justify-content:center;gap:18px;background:rgba(15,13,11,.7);color:#f1e8d6;text-align:center}
   #over.show{display:flex}
-  #over h1{margin:0;font-family:'Do Hyeon',sans-serif;font-weight:400;font-size:56px;text-shadow:4px 4px 0 #0f0d0b}
+  #over h1{margin:0;font-family:'Do Hyeon',sans-serif;font-weight:400;font-size:44px;text-shadow:3px 3px 0 #0f0d0b}
+  #over .ttl{color:#e0412f}
   #over p{margin:0;font-family:'Press Start 2P',monospace;font-size:12px;color:#f5a623}
-  #over #overBat{font-family:'Do Hyeon',sans-serif;font-size:22px;color:#8fd06a;display:flex;align-items:center;gap:8px}
+  #over #overBat{font-family:'Do Hyeon',sans-serif;font-size:22px;color:#8fd06a;display:flex;align-items:center;justify-content:center;gap:8px;border-top:2px solid #4a3f33;border-bottom:2px solid #4a3f33;padding:8px 0}
   /* ───── 배터리 · 업적 · 영구 강화 ───── */
   .bat{display:inline-block;width:16px;height:9px;border:2px solid #8fd06a;position:relative;vertical-align:middle;background:linear-gradient(90deg,#8fd06a 70%,transparent 70%);flex:none}
   .bat::after{content:'';position:absolute;right:-5px;top:2px;width:3px;height:5px;background:#8fd06a}
   .batbox{display:flex;align-items:center;gap:9px;font-family:'Press Start 2P',monospace;font-size:12px;color:#8fd06a}
-  #title .btns2{display:flex;gap:12px;align-items:center;margin-top:4px}
-  #title .btns2 .btn{font-family:'Do Hyeon',sans-serif;font-size:20px;padding:8px 18px}
   .mpanel{position:absolute;inset:0;display:none;align-items:center;justify-content:center;background:rgba(15,13,11,.84)}
   .mpanel.show{display:flex}
   .mbox{width:820px;max-height:516px;box-sizing:border-box;background:#1d1915;border:3px solid #0f0d0b;box-shadow:inset 0 0 0 2px #4a3f33;padding:16px 18px;display:flex;flex-direction:column;gap:12px;color:#f1e8d6}
@@ -187,19 +193,29 @@
     <div class="eyebrow">AI x INDIE GAME</div>
     <h1>방치형 룸 디펜스</h1>
     <div class="tag">세상은 망했다. 내 방만 빼고.</div>
-    <div class="btns"><button class="btn" id="bStart">START</button><button class="btn" id="bStartDemo">DEMO</button></div>
-    <div class="btns2"><button class="btn" id="bAch">업적</button><button class="btn" id="bUp">강화</button><div class="batbox"><span class="bat"></span><span id="batT">0</span></div></div>
+    <div class="card tcard">
+      <button class="btn" id="bStart">START</button>
+      <div class="row3"><button class="btn" id="bStartDemo">데모</button><button class="btn" id="bAch">업적</button><button class="btn" id="bUp">강화</button></div>
+      <div class="cfoot"><span>보유 배터리</span><span class="batbox"><span class="bat"></span><span id="batT">0</span></span></div>
+    </div>
     <div class="press"><span class="pcOnly2">PRESS ENTER</span><span class="tOnly">TAP START</span></div>
     <div class="ver" id="ver"></div>
   </div>
   <div id="tmenu" class="hud panel"><div class="tmh"><span id="tmName"></span><span id="tmLv"></span></div><button class="btn" id="tmUp">업그레이드 <b id="tmUpC"></b></button><button class="btn" id="tmSell">판매 <b id="tmSellC"></b></button></div>
   <div id="toast">H 키, 또는 오른쪽 위에 마우스를 올리면 UI가 다시 보여요</div>
-  <div id="pause">
+  <div id="pause"><div class="card pcard">
     <div class="ttl">PAUSED</div>
-    <div class="col"><button class="btn" id="bResume">RESUME</button><button class="btn" id="bRestart">RESTART</button><button class="btn" id="bTitle">TITLE</button><button class="btn" id="bAch2">업적 보기</button></div>
+    <button class="btn main" id="bResume">계속하기</button>
+    <div class="grid2"><button class="btn" id="bRestart">다시 시작</button><button class="btn" id="bTitle">타이틀로</button><button class="btn" id="bAch2">업적</button><button class="btn" id="bHide2">UI 숨기기</button></div>
     <div class="keys2 pcOnly"><b>1-9</b> 타워 선택 · <b>SPACE</b> 웨이브 시작 · <b>F</b> 속도 · <b>U</b> 울타리 강화<br><b>H</b> UI 숨김 · <b>D</b> 자동 데모 · <b>ESC</b> 계속하기</div>
-  </div>
-  <div id="over"><h1>침대가 함락됐다...</h1><p id="overWave">WAVE 0</p><div id="overBat"></div><button class="btn" id="bRetry" style="font-size:12px;padding:12px 16px">RETRY</button></div>
+  </div></div>
+  <div id="over"><div class="card ocard">
+    <div class="ttl">GAME OVER</div>
+    <h1>침대가 함락됐다...</h1>
+    <p id="overWave">WAVE 0</p>
+    <div id="overBat"></div>
+    <div class="grid2"><button class="btn main" id="bRetry">다시 하기</button><button class="btn" id="bOverTitle">타이틀로</button></div>
+  </div></div>
   <div id="achPanel" class="mpanel"><div class="mbox"><div class="mhead"><span>업적</span><span id="achCount"></span><button class="btn mclose">닫기</button></div><div class="alist" id="achList"></div></div></div>
   <div id="upPanel" class="mpanel"><div class="mbox"><div class="mhead"><span>영구 강화</span><span class="batbox"><span class="bat"></span><span id="upBat">0</span></span><button class="btn mclose">닫기</button></div><div class="ulist" id="upList"></div><div class="mfoot"><span>배터리는 업적 달성과 판이 끝날 때(클리어한 웨이브 수만큼) 얻어요. 자동 데모를 쓴 판은 제외.</span><button class="btn" id="bWipe">기록 초기화</button></div></div></div>
   <div id="achPop"></div>
@@ -215,7 +231,7 @@
 
 <script>
 'use strict';
-const VERSION = 'v0.18';
+const VERSION = 'v0.19';
 // 터치 기기인지 (휴대폰·태블릿이면 터치 UI로)
 const TOUCH = matchMedia('(pointer: coarse)').matches || navigator.maxTouchPoints > 0;
 
@@ -1312,6 +1328,8 @@ $('bFence').onclick = () => upgradeFence();
 $('bResume').onclick = () => setPause(false);
 $('bRestart').onclick = () => { runRewardToast(); const d = G.demo; setPause(false); reset(false); if (d) toggleDemo(); };
 $('bTitle').onclick = goTitle;
+$('bOverTitle').onclick = goTitle;
+$('bHide2').onclick = () => { setPause(false); toggleHide(); };
 document.addEventListener('visibilitychange', () => { if (document.hidden) setPause(true); });
 function startGame(demo) {
   $('stage').classList.remove('in-title'); fit();
