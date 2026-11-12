@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
-<title>룸 디펜스 프로토타입 v0.45.1</title>
+<title>룸 디펜스 프로토타입 v0.45.2</title>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Do+Hyeon&display=swap">
 <style>
   html,body{margin:0;height:100%;background:#0f0d0b;overflow:hidden;user-select:none;-webkit-user-select:none;-webkit-touch-callout:none;touch-action:none;overscroll-behavior:none}
@@ -621,7 +621,7 @@
 
 <script>
 'use strict';
-const VERSION = 'v0.45.1';
+const VERSION = 'v0.45.2';
 // 터치 기기인지 (휴대폰·태블릿이면 터치 UI로)
 const TOUCH = matchMedia('(pointer: coarse)').matches || navigator.maxTouchPoints > 0;
 
@@ -2217,7 +2217,8 @@ function hoverSlot() { let best = null, bd = TOUCH ? 17 : 10;   // 손가락은 
 function render() {
   ctx.setTransform(1, 0, 0, 1, OX, OY);           // 게임 영역을 보이는 화면 가운데로
   ctx.save();
-  if (G.shake > 0 && SET.shake) ctx.translate(Math.round(rnd(-G.shake, G.shake)), Math.round(rnd(-G.shake, G.shake)));
+  const running = !G.paused && !G.choosing && !panelOpen();   // 멈춘 동안(능력 고르기·일시정지·창)은 흔들림 줄어들지 않으니 흔들지 않는다
+  if (G.shake > 0 && SET.shake && running) ctx.translate(Math.round(rnd(-G.shake, G.shake)), Math.round(rnd(-G.shake, G.shake)));
   ctx.drawImage(ground, -PX, -PY);
   ctx.drawImage(FENCE_IMG[G.fence], 0, 0);
   if (G.fence >= 4 && R() < .2 + (G.fence - 4) * .1) {                       // 전기 펜스 스파크
