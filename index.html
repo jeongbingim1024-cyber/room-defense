@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
-<title>룸 디펜스 프로토타입 v0.19</title>
+<title>룸 디펜스 프로토타입 v0.20</title>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Do+Hyeon&display=swap">
 <style>
   html,body{margin:0;height:100%;background:#0f0d0b;overflow:hidden;user-select:none;-webkit-user-select:none;-webkit-touch-callout:none;touch-action:none;overscroll-behavior:none}
@@ -34,6 +34,7 @@
   .card .cfoot{display:flex;align-items:center;justify-content:space-between;font-family:'Do Hyeon',sans-serif;font-size:17px;color:#8a7e6c;border-top:2px solid #4a3f33;padding-top:10px}
   .tcard{width:380px;margin-top:6px}
   .tcard .row3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px}
+  .tcard .row3 .btn{padding:10px 4px;white-space:nowrap}
   .pcard{width:400px}
   .ocard{width:440px;text-align:center}
   #pause .keys2{font-family:'Do Hyeon',sans-serif;font-size:15px;line-height:1.6;color:#8a7e6c;text-align:center;border-top:2px solid #4a3f33;padding-top:10px}
@@ -162,6 +163,17 @@
   .uprow .btn.poor,.uprow .btn.max{opacity:.45}
   .mfoot{display:flex;align-items:center;gap:12px;font-family:'Do Hyeon',sans-serif;font-size:15px;color:#8a7e6c}
   #bWipe{margin-left:auto;font-family:'Do Hyeon',sans-serif;font-size:15px;padding:6px 10px;background:#3a1512;white-space:nowrap}
+  .hgoal{font-family:'Do Hyeon',sans-serif;font-size:21px;color:#f1e8d6;background:#2c2620;border-left:6px solid #f5a623;padding:8px 12px}
+  .hgoal b,.hl b{color:#f5a623;font-weight:400}
+  .hcols{display:grid;grid-template-columns:1.2fr 1fr;gap:16px}
+  .hcol{display:flex;flex-direction:column;gap:7px}
+  .hh{font-family:'Press Start 2P',monospace;font-size:10px;color:#f5a623;letter-spacing:1px;margin-bottom:2px}
+  .hr{display:flex;gap:10px;font-family:'Do Hyeon',sans-serif;font-size:17px;line-height:1.25}
+  .hr span:first-child{width:142px;flex:none;color:#f1e8d6;white-space:nowrap}
+  .hr span:last-child{color:#cfc3ae}
+  .hr em{font-style:normal}
+  .hl{font-family:'Do Hyeon',sans-serif;font-size:17px;color:#cfc3ae;line-height:1.25;padding-left:14px;position:relative}
+  .hl::before{content:'';position:absolute;left:0;top:7px;width:6px;height:6px;background:#f5a623}
   #achPop{position:absolute;left:50%;top:128px;transform:translate(-50%,-20px);opacity:0;transition:opacity .3s,transform .3s;pointer-events:none;background:rgba(29,25,21,.95);border:3px solid #0f0d0b;box-shadow:inset 0 0 0 2px #f5a623;padding:10px 22px;text-align:center}
   #achPop.show{opacity:1;transform:translate(-50%,0)}
   .ap1{font-family:'Press Start 2P',monospace;font-size:9px;color:#f5a623}
@@ -185,7 +197,6 @@
     <button class="btn" id="bNext" title="웨이브 바로 시작 (SPACE)">NEXT &#9654;</button>
     <button class="btn" id="bPause" title="일시정지 (ESC)">II</button>
     <button class="btn" id="bSpeed" title="속도 (F)">x1</button>
-    <button class="btn" id="bDemo" title="자동 데모 (D)">DEMO</button>
     <button class="btn" id="bHide" title="UI 숨기기 (H)">HIDE</button>
   </div>
   <div id="hint" class="hud"><span class="pcOnly2">빈 슬롯 클릭: 설치 · 타워 클릭: 업그레이드·판매 · 타워 끌기: 이동 · ESC 메뉴</span><span class="tOnly">빈 칸 탭: 설치 · 타워 탭: 업그레이드·판매 · 타워 끌기: 이동</span></div>
@@ -195,7 +206,7 @@
     <div class="tag">세상은 망했다. 내 방만 빼고.</div>
     <div class="card tcard">
       <button class="btn" id="bStart">START</button>
-      <div class="row3"><button class="btn" id="bStartDemo">데모</button><button class="btn" id="bAch">업적</button><button class="btn" id="bUp">강화</button></div>
+      <div class="row3"><button class="btn" id="bHelp">게임 방법</button><button class="btn" id="bAch">업적</button><button class="btn" id="bUp">강화</button></div>
       <div class="cfoot"><span>보유 배터리</span><span class="batbox"><span class="bat"></span><span id="batT">0</span></span></div>
     </div>
     <div class="press"><span class="pcOnly2">PRESS ENTER</span><span class="tOnly">TAP START</span></div>
@@ -207,7 +218,7 @@
     <div class="ttl">PAUSED</div>
     <button class="btn main" id="bResume">계속하기</button>
     <div class="grid2"><button class="btn" id="bRestart">다시 시작</button><button class="btn" id="bTitle">타이틀로</button><button class="btn" id="bAch2">업적</button><button class="btn" id="bHide2">UI 숨기기</button></div>
-    <div class="keys2 pcOnly"><b>1-9</b> 타워 선택 · <b>SPACE</b> 웨이브 시작 · <b>F</b> 속도 · <b>U</b> 울타리 강화<br><b>H</b> UI 숨김 · <b>D</b> 자동 데모 · <b>ESC</b> 계속하기</div>
+    <div class="keys2 pcOnly"><b>1-9</b> 타워 선택 · <b>SPACE</b> 웨이브 시작 · <b>F</b> 속도 · <b>U</b> 울타리 강화<br><b>H</b> UI 숨김 · <b>ESC</b> 계속하기</div>
   </div></div>
   <div id="over"><div class="card ocard">
     <div class="ttl">GAME OVER</div>
@@ -218,6 +229,26 @@
   </div></div>
   <div id="achPanel" class="mpanel"><div class="mbox"><div class="mhead"><span>업적</span><span id="achCount"></span><button class="btn mclose">닫기</button></div><div class="alist" id="achList"></div></div></div>
   <div id="upPanel" class="mpanel"><div class="mbox"><div class="mhead"><span>영구 강화</span><span class="batbox"><span class="bat"></span><span id="upBat">0</span></span><button class="btn mclose">닫기</button></div><div class="ulist" id="upList"></div><div class="mfoot"><span>배터리는 업적 달성과 판이 끝날 때(클리어한 웨이브 수만큼) 얻어요. 자동 데모를 쓴 판은 제외.</span><button class="btn" id="bWipe">기록 초기화</button></div></div></div>
+  <div id="helpPanel" class="mpanel"><div class="mbox"><div class="mhead"><span>게임 방법</span><button class="btn mclose">닫기</button></div>
+    <div class="hgoal">사방에서 몰려오는 벌레로부터 <b>침대</b>를 지키세요. 침대 HP가 0이 되면 끝!</div>
+    <div class="hcols">
+      <div class="hcol"><div class="hh">조작</div>
+        <div class="hr"><span>타워 설치</span><span>사이드바에서 고르고 빈 칸 <em class="pcOnly2">클릭</em><em class="tOnly">탭</em></span></div>
+        <div class="hr"><span>업그레이드·판매</span><span>설치한 타워 <em class="pcOnly2">클릭</em><em class="tOnly">탭</em></span></div>
+        <div class="hr"><span>타워 이동</span><span>끌어서 다른 칸으로 (겹치면 교환)</span></div>
+        <div class="hr"><span>울타리 강화</span><span>왼쪽 위 UP 버튼<em class="pcOnly2"> · U</em></span></div>
+        <div class="hr"><span>웨이브 바로 시작</span><span>NEXT 버튼<em class="pcOnly2"> · SPACE</em></span></div>
+        <div class="hr"><span>속도 · 일시정지</span><span>x1 · II 버튼<em class="pcOnly2"> · F · ESC</em></span></div>
+      </div>
+      <div class="hcol"><div class="hh">규칙</div>
+        <div class="hl">웨이브를 깰 때마다 <b>새 타워</b>가 하나씩 풀려요</div>
+        <div class="hl">벌레를 잡고 웨이브를 깨면 <b>스크랩</b>을 얻어요</div>
+        <div class="hl">5웨이브마다 <b>거대 바퀴벌레 보스</b>가 나와요</div>
+        <div class="hl">울타리가 좋을수록 침대가 덜 아파요</div>
+        <div class="hl">판이 끝나면 버틴 웨이브만큼 <b>배터리</b>를 얻어요</div>
+        <div class="hl">배터리로 <b>강화</b>에서 영구 업그레이드!</div>
+      </div>
+    </div></div></div>
   <div id="achPop"></div>
 </div>
 <div id="side">
@@ -231,7 +262,7 @@
 
 <script>
 'use strict';
-const VERSION = 'v0.19';
+const VERSION = 'v0.20';
 // 터치 기기인지 (휴대폰·태블릿이면 터치 UI로)
 const TOUCH = matchMedia('(pointer: coarse)').matches || navigator.maxTouchPoints > 0;
 
@@ -1292,7 +1323,7 @@ cv.addEventListener('pointercancel', () => drag = null);
 cv.addEventListener('pointerleave', () => { mouse.in = false; });
 let speed = 1;
 function cycleSpeed() { speed = speed === 1 ? 2 : speed === 2 ? 3 : 1; $('bSpeed').textContent = 'x' + speed; $('bSpeed').classList.toggle('on', speed > 1); }
-function toggleDemo() { G.demo = !G.demo; if (G.demo) G.usedDemo = true; $('bDemo').classList.toggle('on', G.demo); if (G.demo && G.scrap < 400) G.scrap = 400; }
+function toggleDemo() { G.demo = !G.demo; if (G.demo) G.usedDemo = true; $('stage').classList.toggle('demo-on', G.demo); /* 자동 데모는 숨은 기능 (D 키, 영상 촬영용) */ if (G.demo && G.scrap < 400) G.scrap = 400; }
 function upgradeFence() {
   if (blocked() || G.fence >= FENCE_LV.length - 1) return false;
   const nx = FENCE_LV[G.fence + 1];
@@ -1314,7 +1345,7 @@ function toggleHide() {
   $('bHide').classList.toggle('on', hidden);
   if (hidden) showToast(TOUCH ? '오른쪽 위 흐린 SHOW 버튼을 누르면 UI가 다시 보여요' : 'H 키, 또는 오른쪽 위에 마우스를 올리면 UI가 다시 보여요'); else { clearTimeout(toastT); $('toast').classList.remove('show'); }
 }
-$('bSpeed').onclick = cycleSpeed; $('bDemo').onclick = toggleDemo; $('bHide').onclick = toggleHide;
+$('bSpeed').onclick = cycleSpeed; $('bHide').onclick = toggleHide;
 $('bRetry').onclick = () => reset(true);
 function setPause(on) {
   if (G.phase === 'title' || G.over) on = false;
@@ -1339,7 +1370,7 @@ function startGame(demo) {
 // ───────── 업적 / 강화 화면 ─────────
 function refreshTitleBat() { $('batT').textContent = SAVE.bat; }
 const panelOpen = () => !!document.querySelector('.mpanel.show');
-function openPanel(id) { closeMenu(); $(id).classList.add('show'); id === 'achPanel' ? renderAch() : renderUp(); }
+function openPanel(id) { closeMenu(); $(id).classList.add('show'); if (id === 'achPanel') renderAch(); if (id === 'upPanel') renderUp(); }
 function closePanels() { document.querySelectorAll('.mpanel').forEach(p => p.classList.remove('show')); refreshTitleBat(); }
 function renderAch() {
   const done = ACH.filter(a => SAVE.ach[a.id]).length;
@@ -1378,7 +1409,7 @@ $('bAch2').onclick = () => openPanel('achPanel');
 document.querySelectorAll('.mclose').forEach(b => b.onclick = closePanels);
 refreshTitleBat();
 $('bStart').onclick = () => startGame(false);
-$('bStartDemo').onclick = () => startGame(true);
+$('bHelp').onclick = () => openPanel('helpPanel');
 addEventListener('keydown', e => {
   const k = e.key.toLowerCase();
   if (panelOpen()) { if (k === 'escape') closePanels(); return; }
