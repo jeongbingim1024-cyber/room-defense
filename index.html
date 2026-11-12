@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
-<title>룸 디펜스 프로토타입 v0.45</title>
+<title>룸 디펜스 프로토타입 v0.45.1</title>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Do+Hyeon&display=swap">
 <style>
   html,body{margin:0;height:100%;background:#0f0d0b;overflow:hidden;user-select:none;-webkit-user-select:none;-webkit-touch-callout:none;touch-action:none;overscroll-behavior:none}
@@ -621,7 +621,7 @@
 
 <script>
 'use strict';
-const VERSION = 'v0.45';
+const VERSION = 'v0.45.1';
 // 터치 기기인지 (휴대폰·태블릿이면 터치 UI로)
 const TOUCH = matchMedia('(pointer: coarse)').matches || navigator.maxTouchPoints > 0;
 
@@ -3070,7 +3070,7 @@ async function redeemCoupon(raw) {
   finally { cpBusy = false; }
 }
 // ───────── 관리자 도구: 이 구글 계정으로 로그인했을 때만 설정에 보임 (실제 권한은 Firestore 규칙이 막음) ─────────
-const ADMIN_UIDS = ['sl476vY2bEWFky1yBVmvrTk2WIz2'];   // 관리자 구글 계정 uid (추가하면 firestore.rules의 isAdmin도 같이)
+const ADMIN_UIDS = ['sl476vY2bEWFky1yBVmvrTk2WIz2', 'RBaspJX8ZXQfitqIlY6xC4eZnNH3'];   // 관리자 구글 계정 uid (추가하면 firestore.rules의 isAdmin도 같이)
 const ADMIN_UID = ADMIN_UIDS[0];
 const isAdmin = () => !!(CLOUD.user && ADMIN_UIDS.includes(CLOUD.user.uid));
 const ADM = { coupons: null, ranks: null, delArm: '' };

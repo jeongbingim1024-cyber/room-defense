@@ -3,7 +3,7 @@ service cloud.firestore {
   match /databases/{database}/documents {
     // 관리자 = 게임 만든 사람의 구글 계정 (쿠폰 만들기, 테스트 순위 기록 지우기)
     function isAdmin() {
-      return request.auth != null && request.auth.uid == 'sl476vY2bEWFky1yBVmvrTk2WIz2'
+      return request.auth != null && request.auth.uid in ['sl476vY2bEWFky1yBVmvrTk2WIz2', 'RBaspJX8ZXQfitqIlY6xC4eZnNH3']
         && request.auth.token.firebase.sign_in_provider == 'google.com';
     }
     function validScore(d) {
