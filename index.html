@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
-<title>룸 디펜스 프로토타입 v0.41</title>
+<title>룸 디펜스 프로토타입 v0.41.1</title>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Do+Hyeon&display=swap">
 <style>
   html,body{margin:0;height:100%;background:#0f0d0b;overflow:hidden;user-select:none;-webkit-user-select:none;-webkit-touch-callout:none;touch-action:none;overscroll-behavior:none}
@@ -137,6 +137,7 @@
   #title .tag{font-family:'Do Hyeon',sans-serif;font-size:24px;color:#cfc3ae;text-shadow:2px 2px 0 #0f0d0b;margin-bottom:8px}
   #bStart{font-family:'Press Start 2P',monospace !important;font-size:18px !important;padding:16px !important;background:#f5a623;color:#1d1915;box-shadow:inset 0 0 0 3px #ffd27a,0 5px 0 #0f0d0b}
   #title .press{font-family:'Press Start 2P',monospace;font-size:10px;color:#8a7e6c;margin-top:8px;animation:blink 1s steps(1) infinite}
+  #title #bNotice{position:absolute;top:12px;right:14px;font-family:'Do Hyeon',sans-serif;font-size:16px;padding:6px 14px;color:#f5a623;z-index:2}
   #title .ver{position:absolute;right:14px;bottom:10px;font-family:'Press Start 2P',monospace;font-size:8px;color:#8a7e6c}
   @keyframes blink{50%{opacity:0}}
   #pause{position:absolute;inset:0;display:none;flex-direction:column;align-items:center;justify-content:center;gap:16px;background:rgba(15,13,11,.6);color:#f1e8d6}
@@ -497,7 +498,7 @@
   </div>
   <div id="statPanel" class="hud panel"><div class="sthead"><span>이번 판 능력치</span><button class="btn" id="statClose">닫기</button></div><div id="statBody"></div></div>
   <div id="hint" class="hud"><span class="pcOnly2">빈 칸 클릭·목록에서 끌어오기: 설치 · 타워 클릭: 업그레이드·판매 · 타워 끌기: 이동 · ESC 메뉴</span><span class="tOnly">빈 칸 탭·끌어오기: 설치 · 타워 탭: 업그레이드·판매 · 타워 끌기: 이동</span></div>
-  <div id="title">
+  <div id="title"><button class="btn" id="bNotice" hidden>공지</button>
     <div class="eyebrow">AI x INDIE GAME</div>
     <h1>방치형 룸 디펜스</h1>
     <div class="tag">세상은 망했다. 내 방만 빼고.</div>
@@ -596,7 +597,7 @@
 
 <script>
 'use strict';
-const VERSION = 'v0.41';
+const VERSION = 'v0.41.1';
 // 터치 기기인지 (휴대폰·태블릿이면 터치 UI로)
 const TOUCH = matchMedia('(pointer: coarse)').matches || navigator.maxTouchPoints > 0;
 
@@ -2929,7 +2930,10 @@ async function loadNotice() {
 const noticeHidden = id => { try { return localStorage.getItem('roomdef_notice_hide') === id; } catch (e) { return false; } };
 function openNotice(force) {
   const d = NOTICE.d; if (!d || !d.on || (!d.body && !d.code)) return;
-  if (!force && (noticeHidden(d.id) || (d.code && SAVE.cp[d.code]))) return;   // 다시 보지 않기를 눌렀거나 쿠폰을 이미 받았으면 안 띄움
+  let seen = ''; try { seen = localStorage.getItem('roomdef_notice_seen') || ''; } catch (e) {}
+  // 새 공지는 누구에게나 한 번 띄우고, 그 뒤로는 쿠폰을 받거나 '다시 보지 않기'를 누를 때까지 띄움
+  if (!force && (noticeHidden(d.id) || (seen === d.id && d.code && SAVE.cp[d.code]))) return;
+  try { localStorage.setItem('roomdef_notice_seen', d.id); } catch (e) {}
   $('noticeBody').textContent = d.body;
   $('noticeCodeRow').style.display = d.code ? '' : 'none';
   $('noticeCode').textContent = d.code;
@@ -2939,7 +2943,11 @@ function openNotice(force) {
 }
 $('bNoticeGet').onclick = async () => { const d = NOTICE.d; if (!d || !d.code) return; await redeemCoupon(d.code); if (SAVE.cp[d.code]) { $('bNoticeGet').textContent = '받음'; $('bNoticeGet').disabled = true; } };
 $('bNoticeHide').onclick = () => { try { localStorage.setItem('roomdef_notice_hide', NOTICE.d ? NOTICE.d.id : ''); } catch (e) {} closePanels(); };
-setTimeout(() => loadNotice().then(d => { if (d && G.phase === 'title' && !document.querySelector('.mpanel.show') && !TEST) openNotice(false); }), 1200);
+$('bNotice').onclick = () => openNotice(true);
+setTimeout(() => loadNotice().then(d => {
+  $('bNotice').hidden = !(d && d.on && (d.body || d.code));
+  if (d && G.phase === 'title' && !document.querySelector('.mpanel.show')) openNotice(false);
+}), 1200);
 if (TEST) { const b = document.createElement('div'); b.id = 'testBadge'; b.textContent = 'TEST MODE'; $('stage').appendChild(b); }
 // ───────── 이번 판 능력치 (영구 강화 + 캐릭터·장비 + 고른 능력) ─────────
 function statRows() {
