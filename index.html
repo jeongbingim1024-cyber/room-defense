@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
-<title>룸 디펜스 프로토타입 v0.31.2</title>
+<title>룸 디펜스 프로토타입 v0.32</title>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Do+Hyeon&display=swap">
 <style>
   html,body{margin:0;height:100%;background:#0f0d0b;overflow:hidden;user-select:none;-webkit-user-select:none;-webkit-touch-callout:none;touch-action:none;overscroll-behavior:none}
@@ -96,6 +96,7 @@
   .row{display:flex;align-items:center;gap:8px;font-size:10px}
   .heart{color:#e0412f;font-size:12px}
   .hpbar{width:150px;height:12px;background:#3a1512;border:2px solid #0f0d0b;position:relative}
+  .shfill{position:absolute;left:0;top:0;height:4px;width:0;background:#9fe8ff}
   .hpfill{position:absolute;left:0;top:0;bottom:0;width:100%;background:#e0412f;box-shadow:inset 0 -3px 0 #a52a1e}
   .gear{width:12px;height:12px;background:#f5a623;border:2px solid #0f0d0b;box-sizing:border-box}
   #scrap{color:#f5a623}
@@ -343,6 +344,28 @@
   #danger.on2{animation-duration:.4s;box-shadow:inset 0 0 80px 24px rgba(255,30,20,.95)}
   #danger .dtx{position:absolute;left:50%;top:96px;transform:translateX(-50%);font-family:'Do Hyeon',sans-serif;font-size:24px;color:#ffd0c8;text-shadow:2px 2px 0 #4a0a08;white-space:nowrap}
   @keyframes dblink{0%,100%{opacity:.15}50%{opacity:1}}
+  #perk{position:absolute;inset:0;display:none;align-items:center;justify-content:center;background:rgba(15,13,11,.85);z-index:6}
+  #perk.show{display:flex}
+  .pkbox{display:flex;flex-direction:column;align-items:center;gap:14px}
+  .pkhead{display:flex;flex-direction:column;align-items:center;gap:4px}
+  .pkt1{font-family:'Do Hyeon',sans-serif;font-size:40px;color:#f5a623;text-shadow:3px 3px 0 #0f0d0b}
+  .pkt2{font-family:'Do Hyeon',sans-serif;font-size:18px;color:#cfc3ae}
+  .pkcards{display:flex;gap:14px}
+  .pkcard{width:200px;min-height:230px;display:flex;flex-direction:column;align-items:center;gap:8px;padding:16px 12px;background:#1d1915;border:3px solid #0f0d0b;box-shadow:inset 0 0 0 2px #4a3f33,0 5px 0 #0f0d0b;cursor:pointer;color:#f1e8d6;font:inherit;animation:pflip .35s both}
+  .pkcard:nth-child(2){animation-delay:.08s} .pkcard:nth-child(3){animation-delay:.16s}
+  .pkcard:hover{box-shadow:inset 0 0 0 2px #f5a623,0 5px 0 #0f0d0b;transform:translateY(-4px)}
+  .pkic{font-size:40px;line-height:1;color:#f5a623}
+  .pkn{font-family:'Do Hyeon',sans-serif;font-size:26px}
+  .pkd{font-family:'Do Hyeon',sans-serif;font-size:18px;color:#8fd06a;text-align:center;line-height:1.25;flex:1}
+  .pkl{font-family:'Do Hyeon',sans-serif;font-size:14px;color:#8a7e6c;text-align:center}
+  .pkcard .pips i{width:10px;height:10px}
+  #perkRe{font-family:'Do Hyeon',sans-serif;font-size:18px;padding:8px 18px}
+  #perkRe.poor{opacity:.45}
+  .perklist{display:flex;flex-wrap:wrap;gap:4px;font-family:'Do Hyeon',sans-serif;font-size:15px;color:#f5a623;max-width:190px}
+  .perklist:empty{display:none}
+  .perklist span{background:#0f0d0b;padding:1px 5px}
+  #bRepair.poor,#bRepair.max{opacity:.45}
+  .portrait .pkcards{flex-direction:column} .portrait .pkcard{width:520px;min-height:0;flex-direction:row;text-align:left}
   #tut{position:absolute;inset:0;display:none;pointer-events:none;z-index:5}
   #tut.show{display:block}
   .tutting #hint{visibility:hidden}
@@ -366,9 +389,11 @@
 <div id="wrap"><div id="stage" class="in-title"><div id="field">
   <canvas id="game"></canvas>
   <div id="tl" class="hud panel">
-    <div class="row"><span class="heart">&#9829;</span><div class="hpbar"><div class="hpfill" id="hpfill"></div></div></div>
+    <div class="row"><span class="heart">&#9829;</span><div class="hpbar"><div class="hpfill" id="hpfill"></div><div class="shfill" id="shfill"></div></div></div>
     <div class="row"><span class="gear"></span><span id="scrap">0</span><span class="lbl">스크랩</span></div>
     <div class="fencerow"><div><div class="fn" id="fenceName">나무 울타리</div><div class="fi" id="fenceInfo"></div></div><button class="btn" id="bFence" title="울타리 강화 (U)">UP 80</button></div>
+    <div class="fencerow"><div><div class="fn">침대 수리</div><div class="fi">HP 25% 회복</div></div><button class="btn" id="bRepair" title="침대 수리 (R)">50</button></div>
+    <div class="perklist" id="perkList"></div>
   </div>
   <div id="tc" class="hud">
     <div id="wave" class="panel">WAVE 0</div>
@@ -396,6 +421,8 @@
   </div>
   <div id="tmenu" class="hud panel"><div class="tmh"><span id="tmName"></span><span id="tmLv"></span></div><button class="btn" id="tmUp">업그레이드 <b id="tmUpC"></b></button><button class="btn" id="tmSell">판매 <b id="tmSellC"></b></button><button class="btn" id="tmInfo">정보 <b>i</b></button></div>
   <div id="toast">H 키, 또는 오른쪽 위에 마우스를 올리면 UI가 다시 보여요</div>
+  <div id="perk"><div class="pkbox"><div class="pkhead"><span class="pkt1" id="perkTitle"></span><span class="pkt2">능력 하나를 골라요 · 이번 판 동안 유지</span></div>
+    <div class="pkcards" id="perkCards"></div><button class="btn" id="perkRe">다시 뽑기</button></div></div>
   <div id="danger"><div class="dtx">벌레가 너무 많아요!</div></div>
   <div id="tut"><div id="tutHi"></div><div class="tutbox" id="tutBox"><div class="tuthead"><span>TUTORIAL</span><span id="tutStep"></span></div><div class="tuttx" id="tutText"></div>
     <div class="tutbtns"><button class="btn" id="tutSkip">튜토리얼 건너뛰기</button><button class="btn main" id="tutNext">다음</button></div></div></div>
@@ -434,6 +461,8 @@
         <div class="hr"><span>업그레이드·판매</span><span>설치한 타워 <em class="pcOnly2">클릭</em><em class="tOnly">탭</em></span></div>
         <div class="hr"><span>타워 정보</span><span>사이드바 <b class="ib2">i</b> 버튼 · 타워 메뉴의 정보</span></div>
         <div class="hr"><span>타워 이동</span><span>끌어서 다른 칸으로 (겹치면 교환)</span></div>
+        <div class="hr"><span>침대 수리 (HP 25%)</span><span>왼쪽 위 수리 버튼<em class="pcOnly2"> · R</em></span></div>
+        <div class="hr"><span>능력 고르기</span><span>10웨이브마다 3개 중 하나<em class="pcOnly2"> · 1·2·3</em></span></div>
         <div class="hr"><span>울타리 강화</span><span>왼쪽 위 UP 버튼<em class="pcOnly2"> · U</em></span></div>
         <div class="hr"><span>웨이브 바로 시작</span><span>NEXT 버튼<em class="pcOnly2"> · SPACE</em></span></div>
         <div class="hr"><span>캐릭터 · 장비 · 뽑기 · 도감</span><span>시작 화면의 캐릭터·장비 / 도감 버튼</span></div>
@@ -469,7 +498,7 @@
 
 <script>
 'use strict';
-const VERSION = 'v0.31.2';
+const VERSION = 'v0.32';
 // 터치 기기인지 (휴대폰·태블릿이면 터치 UI로)
 const TOUCH = matchMedia('(pointer: coarse)').matches || navigator.maxTouchPoints > 0;
 
@@ -598,7 +627,7 @@ function recalcBon() {
   b.def = Math.min(60, b.def);
   BON = b;
 }
-const spdMul = () => 1 + BON.spd / 100;
+const spdMul = () => 1 + (BON.spd + (G.perk ? PK('spd') : 0)) / 100;
 // 고철 상자: 처치할 때 가끔(보스는 확정 2개), 웨이브 3의 배수를 클리어할 때 1개
 function giveCrate(n, x, y) {
   if (!counts() || G.usedDemo) return;
@@ -975,13 +1004,14 @@ let enemies, towers, shells, parts, fx, floats;
 function reset(keepDemo, title = false) {
   recalcBon();
   const baseHp = 100 + upEff('hp') + BON.hp;
-  Object.assign(G, { hp: baseHp, maxHp: baseHp, scrap: 200 + upEff('scrap') + BON.scrap, runCrates: 0, overT: null, awarded: false, submitted: false, submitting: false, runKills: 0, usedDemo: false, tookDmg: false, maxTowers: 0, wave: 0, phase: title ? 'title' : 'break', ambT: 0, paused: false, cleared: 0, fence: 0, breakT: 8, queue: [], waveT: 0, over: false, time: 0,
+  Object.assign(G, { hp: baseHp, maxHp: baseHp, scrap: 200 + upEff('scrap') + BON.scrap, runCrates: 0, overT: null, perk: {}, shield: 0, choosing: false, rerolls: 0, repairs: 0, awarded: false, submitted: false, submitting: false, runKills: 0, usedDemo: false, tookDmg: false, maxTowers: 0, wave: 0, phase: title ? 'title' : 'break', ambT: 0, paused: false, cleared: 0, fence: 0, breakT: 8, queue: [], waveT: 0, over: false, time: 0,
     shake: 0, baseFlash: 0, banner: 0, bannerText: '', demo: keepDemo ? G.demo : false, demoT: 0 });
   if (G.demo) { G.scrap = 400; G.usedDemo = true; }
   selType = 'laser';
   enemies = []; towers = []; shells = []; parts = []; fx = []; floats = [];
   SLOTS.forEach(s => s.tower = null);
   if (typeof closeMenu === 'function') closeMenu();
+  if (typeof renderPerkList === 'function') { renderPerkList(); $('perk').classList.remove('show'); }
   gg.drawImage(bg, 0, 0);
   document.getElementById('over').classList.remove('show');
 }
@@ -1017,7 +1047,7 @@ class Enemy {
       this.sumT -= dt;
       if (this.sumT <= 0) { const [ty, ev, n] = this.v.summon; this.sumT = ev; this.spawnNear(ty, n); }
     }
-    const sp = this.speed * this.slowMul;      // 끈끈이 덫에 걸리면 느려진다
+    const sp = this.speed * this.slowMul * (1 - PK('slow') / 100);      // 끈끈이 덫에 걸리면 느려진다
     this.anim += dt * (this.d.fly ? 14 : sp * .35);
     if (this.state === 'move') {
       const dx = this.tx - this.x, dy = this.ty - this.y, d = Math.hypot(dx, dy);
@@ -1044,8 +1074,9 @@ class Enemy {
     } else {                                   // 공격 상태: 울타리에 붙어서 깨문다
       this.ang = Math.atan2(CY - this.y, CX - this.x);
       const fl = FENCE_LV[G.fence];
-      if (fl.thorns && G.phase !== 'title') {             // 철조망 이상: 울타리에 붙은 적은 가시/전기에 계속 피해
-        this.hit(fl.thorns * dt, false);
+      const th = fl.thorns + PK('thorns');
+      if (th && G.phase !== 'title') {             // 철조망 이상(또는 가시 덤불 능력): 울타리에 붙은 적은 가시/전기에 계속 피해
+        this.hit(th * dt, false);
         if (R() < dt * 3) parts.push(new Part(this.x, this.y, rnd(-20, 20), rnd(-25, -5), G.fence === 4 ? '#9fe8ff' : '#d0d4da', .25, 1));
       }
       if (this.dead) return;
@@ -1055,7 +1086,7 @@ class Enemy {
         if (G.phase === 'title') return;
         // 초반 웨이브는 약하게 물고, 웨이브가 오를수록 세진다 (1웨이브 35% → 6웨이브부터 100%)
         const ramp = Math.min(1, .35 + .13 * (G.wave - 1));
-        G.hp -= this.d.dmg * (this.boss ? 4 : 1) * this.dmgMul * ramp * (1 - fl.reduce) * (1 - BON.def / 100); G.tookDmg = true;   // 울타리가 좋을수록 덜 아프다
+        hurtBed(this.d.dmg * (this.boss ? 4 : 1) * this.dmgMul * ramp * (1 - fl.reduce) * (1 - BON.def / 100));   // 울타리가 좋을수록 덜 아프다
         G.baseFlash = .15;
         const bx = this.x + Math.cos(this.ang) * 6, by = this.y + Math.sin(this.ang) * 6;
         for (let i = 0; i < 3; i++) parts.push(new Part(bx, by, rnd(-30, 30), rnd(-40, 0), '#f1e8d6', .3, 1));
@@ -1064,12 +1095,22 @@ class Enemy {
   }
   hit(dmg, flash = true) {
     if (this.dead) return;
+    if (G.phase !== 'title') {
+      if (PK('boss') && (this.boss || this.vid)) dmg *= 1 + PK('boss') / 100;
+      if (PK('crit') && R() < PK('crit') / 100) { dmg *= 2; if (dmg >= 8) floats.push(new Floater(this.x, this.y - 14, 'CRIT', '#ffd27a', .5)); }
+    }
     this.hp -= dmg * (1 - this.armor); if (flash) this.flash = .07;
+    if (this.hp > 0 && !this.boss && PK('exec') && this.hp < this.maxHp * PK('exec') / 100) { this.hp = 0; floats.push(new Floater(this.x, this.y - 14, '처형', '#e0412f', .6)); }
     if (this.hp <= 0) this.die();
   }
   die() {
     this.dead = true;
-    const rew = Math.round(this.d.reward * (this.boss ? 8 : this.vid ? 5 : 1) * (this.v && this.v.rew || 1) * (1 + (upEff('loot') + BON.loot) / 100));
+    const late = Math.max(.5, 1 - .025 * Math.max(0, G.wave - 12));   // 웨이브 12부터 처치 보상이 조금씩 줄어든다 (최소 절반)
+    const rew = Math.round(this.d.reward * (this.boss ? 8 : this.vid ? 5 : 1) * (this.v && this.v.rew || 1) * (1 + (upEff('loot') + BON.loot) / 100) * late);
+    if (PK('boom') && G.phase !== 'title') {        // 연쇄 폭발
+      fx.push(new Ring(this.x, this.y, 20, '#ffb060', .3));
+      for (const e of enemies) if (e !== this && !e.dead && dist(this, e) < 20) e.hit(PK('boom'), true);
+    }
     if (this.v && this.v.split) this.spawnNear(this.v.split[0], this.v.split[1]);
     if (counts()) {
       SAVE.st.kills++; G.runKills++; if (this.type === 'mosq') SAVE.st.mosq++; if (this.type === 'spit') SAVE.st.spit++;
@@ -1167,8 +1208,8 @@ class Tower {
     this.type = type; this.def = TDEF[type]; this.slot = slot; this.x = slot.x; this.y = slot.y;
     this.lvl = 1; this.spent = TDEF[type].cost; this.cd = 0; this.ang = Math.atan2(slot.y - CY, slot.x - CX); this.anim = 0; this.target = null; this.pop = .25;
   }
-  get range() { return this.def.range * (1 + .12 * (this.lvl - 1)) * (1 + upEff('range') / 100); }
-  get dmg() { return this.def.dmg * (1 + .6 * (this.lvl - 1)) * (1 + upEff('dmg') / 100) * (1 + BON.dmg / 100); }
+  get range() { return this.def.range * (1 + .12 * (this.lvl - 1)) * (1 + (upEff('range') + (G.perk ? PK('range') : 0)) / 100); }
+  get dmg() { return this.def.dmg * (1 + .6 * (this.lvl - 1)) * (1 + upEff('dmg') / 100) * (1 + (BON.dmg + PK('dmg')) / 100); }
   get upCost() { return Math.round(this.def.cost * .8 * this.lvl); }
   findTarget() {                          // 사거리 안에서 침대에 가장 가까운 적
     let best = null, bv = 1e9;
@@ -1210,7 +1251,7 @@ class Fan extends Tower {
   // 켜졌다(2초) 꺼졌다 반복. 쉬는 시간은 레벨이 오를수록 짧아진다 (LV1 4초 → LV2 3초 → LV3 2초)
   get offT() { return FAN_OFF[this.lvl - 1]; }
   get cone() { return FAN_CONE[this.lvl - 1]; }                     // 부채꼴 반각: 레벨마다 넓어진다
-  get range() { return this.def.range * (1 + .15 * (this.lvl - 1)) * (1 + upEff('range') / 100); }   // 사거리도 레벨마다 +15%
+  get range() { return this.def.range * (1 + .15 * (this.lvl - 1)) * (1 + (upEff('range') + (G.perk ? PK('range') : 0)) / 100); }   // 사거리도 레벨마다 +15%
   update(dt) {
     super.update(dt); this.aim(dt, 5);
     if (this.wind === undefined) { this.wind = 0; this.wcd = 0; }
@@ -1503,7 +1544,7 @@ class Spit {
       this.dead = true;
       if (G.phase === 'title' || G.over) return;
       const ramp = Math.min(1, .35 + .13 * (G.wave - 1));
-      G.hp -= this.dmg * ramp * (1 - BON.def / 100); G.tookDmg = true; G.baseFlash = .15;
+      hurtBed(this.dmg * ramp * (1 - BON.def / 100)); G.baseFlash = .15;
       for (let i = 0; i < 10; i++) { const a = R() * 6.28, sp = rnd(15, 45); parts.push(new Part(this.tx, this.ty, Math.cos(a) * sp, Math.sin(a) * sp * .6, i % 2 ? '#9be04a' : '#c8f07a', rnd(.3, .5), R() < .3 ? 2 : 1)); }
       for (let i = 0; i < 5; i++) P(gg, (this.tx + rnd(-3, 3)) | 0, (this.ty + rnd(-2, 2)) | 0, '#7ab03a');
     }
@@ -1600,7 +1641,7 @@ function makeWave(n) {
   return q;
 }
 function startWave() {
-  G.wave++; G.phase = 'wave'; G.queue = makeWave(G.wave); G.waveT = 0; G.tookDmg = false; G.overT = null;
+  G.wave++; G.phase = 'wave'; G.queue = makeWave(G.wave); G.waveT = 0; G.tookDmg = false; G.overT = null; G.shield = PK('shield');
   G.banner = 2; G.bannerText = 'WAVE ' + G.wave;
   if (G.wave === 5 && !G.demo) setTimeout(() => showToast('새 벌레: 폭탄먼지벌레! 울타리 밖에서 산성액을 쏴요. 사거리 긴 타워로 잡으세요', 3600), 600);
 }
@@ -1639,12 +1680,76 @@ function upgrade(t) {
 }
 
 // ───────── 데모 모드 (영상 촬영용 자동 플레이) ─────────
+// ───────── 10웨이브마다 능력 고르기 (이번 판에만 적용, 같은 능력은 겹쳐서 세짐) ─────────
+const PERKS = [
+  { id: 'spd',    name: '과충전',       ic: '⚡', desc: v => `모든 타워 공격 속도 +${v}%`,          per: 15, max: 5 },
+  { id: 'dmg',    name: '날카로운 부품', ic: '⚔', desc: v => `모든 타워 공격력 +${v}%`,             per: 15, max: 5 },
+  { id: 'range',  name: '망원 렌즈',     ic: '◎', desc: v => `모든 타워 사거리 +${v}%`,             per: 10, max: 4 },
+  { id: 'hp',     name: '새 매트리스',   ic: '♥', desc: v => `침대 최대 HP +${v} (바로 회복)`,       per: 40, max: 5 },
+  { id: 'shield', name: '방어막',       ic: '◆', desc: v => `웨이브 시작마다 보호막 ${v} (먼저 깎임)`, per: 20, max: 5 },
+  { id: 'heal',   name: '꿀잠 회복',     ic: '✚', desc: v => `웨이브 클리어마다 HP +${v}`,          per: 12, max: 5 },
+  { id: 'crit',   name: '치명타',       ic: '✦', desc: v => `${v}% 확률로 피해 2배`,              per: 10, max: 5 },
+  { id: 'thorns', name: '가시 덤불',     ic: '✷', desc: v => `울타리에 붙은 적에게 초당 피해 +${v}`,  per: 4,  max: 5 },
+  { id: 'slow',   name: '끈적한 바닥',   ic: '≈', desc: v => `모든 적 이동 속도 -${v}%`,            per: 8,  max: 4 },
+  { id: 'exec',   name: '처형',         ic: '✝', desc: v => `체력 ${v}% 이하 적 즉사 (대형 보스 제외)`, per: 6,  max: 4 },
+  { id: 'boss',   name: '보스 사냥꾼',   ic: '♛', desc: v => `보스·정예에게 피해 +${v}%`,           per: 30, max: 4 },
+  { id: 'boom',   name: '연쇄 폭발',     ic: '✺', desc: v => `적이 죽으면 주변에 폭발 피해 ${v}`,     per: 10, max: 5 },
+];
+const PK = id => G.perk[id] || 0;                                // 쌓인 수치
+const pkLv = id => Math.round(PK(id) / PERKS.find(p => p.id === id).per);
+let perkOffer = null;
+function rollPerks() {
+  const pool = PERKS.filter(p => pkLv(p.id) < p.max), out = [];
+  while (out.length < 3 && pool.length) out.push(pool.splice((R() * pool.length) | 0, 1)[0]);
+  return out;
+}
+const rerollCost = () => 100 * 2 ** (G.rerolls || 0);           // 다시 뽑기: 100 → 200 → 400 … (남는 스크랩 쓸 곳)
+function openPerk() {
+  perkOffer = rollPerks(); if (!perkOffer.length) return;
+  if (G.demo) { pickPerk(perkOffer[(R() * perkOffer.length) | 0].id); return; }
+  G.choosing = true; renderPerk(); $('perk').classList.add('show');
+}
+function renderPerk() {
+  $('perkTitle').textContent = `웨이브 ${G.wave} 돌파!`;
+  $('perkCards').innerHTML = perkOffer.map(p => { const lv = pkLv(p.id);
+    return `<button class="pkcard" data-pk="${p.id}"><div class="pkic">${p.ic}</div><div class="pkn">${p.name}</div><div class="pkd">${p.desc(p.per * (lv + 1))}</div>` +
+      `<div class="pkl">${lv ? `지금 ${p.desc(PK(p.id))}` : '새 능력'}</div><div class="pips">${Array.from({ length: p.max }, (_, i) => `<i class="${i <= lv ? 'on' : ''}"></i>`).join('')}</div></button>`; }).join('');
+  $('perkCards').querySelectorAll('[data-pk]').forEach(b => b.onclick = () => pickPerk(b.dataset.pk));
+  const c = rerollCost(); $('perkRe').textContent = `다시 뽑기 (스크랩 ${c})`; $('perkRe').classList.toggle('poor', G.scrap < c);
+}
+function pickPerk(id) {
+  const p = PERKS.find(x => x.id === id);
+  G.perk[id] = PK(id) + p.per;
+  if (id === 'hp') { G.maxHp += p.per; G.hp = Math.min(G.maxHp, G.hp + p.per); }
+  if (id === 'shield') G.shield = Math.max(G.shield, PK('shield'));
+  G.choosing = false; $('perk').classList.remove('show');
+  floats.push(new Floater(CX, CY - 30, p.name + '!', '#f5a623', 1.6)); fx.push(new Ring(CX, CY, 60, '#f5a623', .6));
+  renderPerkList();
+}
+function renderPerkList() {
+  $('perkList').innerHTML = PERKS.filter(p => PK(p.id)).map(p => `<span title="${p.name}: ${p.desc(PK(p.id))}">${p.ic}${pkLv(p.id) > 1 ? pkLv(p.id) : ''}</span>`).join('');
+}
+// 침대에 피해: 보호막이 먼저 깎인다
+function hurtBed(x) {
+  if (G.shield > 0) { const a = Math.min(G.shield, x); G.shield -= a; x -= a; }
+  G.hp -= x; G.tookDmg = true;
+}
+// 침대 수리: 최대 HP의 25% 회복, 쓸수록 비싸짐 (후반 남는 스크랩 쓸 곳)
+const repairCost = () => 50 + 40 * (G.repairs || 0);
+function repairBed() {
+  if (G.over || G.phase === 'title' || G.hp >= G.maxHp) return;
+  const c = repairCost(); if (G.scrap < c) { floats.push(new Floater(CX, CY - 24, 'NO SCRAP', '#e0412f', .8)); return; }
+  G.scrap -= c; G.repairs = (G.repairs || 0) + 1;
+  const h = Math.min(G.maxHp - G.hp, Math.round(G.maxHp * .25)); G.hp += h;
+  floats.push(new Floater(CX, CY - 24, '+' + h + ' HP', '#8fd06a', 1.2)); fx.push(new Ring(CX, CY, 40, '#8fd06a', .5));
+}
 // 웨이브 끝: 다 잡으면(forced=false) 쉬는 시간, 시간이 다 되면(forced=true) 남은 적은 그대로 두고 바로 다음 웨이브
 const waveOvertime = n => Math.max(12, 22 - n * .3);           // 다 나온 뒤 기다려 주는 시간(초)
 function waveDone(forced) {
-  const bonus = Math.round((20 + G.wave * 5) * (forced ? .5 : 1)); G.scrap += bonus;   // 웨이브 클리어 보상 (시간 초과면 절반)
+  const base = 20 + 5 * Math.min(G.wave, 12) + Math.max(0, G.wave - 12);   // 웨이브 12까지만 크게 늘고 그 뒤로는 조금씩
+  const bonus = Math.round(base * (forced ? .5 : 1)); G.scrap += bonus;   // 웨이브 클리어 보상 (시간 초과면 절반)
   G.cleared = G.wave;
-  if (BON.heal && G.hp > 0) { const h = Math.min(BON.heal, G.maxHp - G.hp); if (h > 0) { G.hp += h; floats.push(new Floater(CX, CY - 20, '+' + Math.round(h) + ' HP', '#8fd06a', 1.2)); } }
+  if ((BON.heal || PK('heal')) && G.hp > 0) { const h = Math.min(BON.heal + PK('heal'), G.maxHp - G.hp); if (h > 0) { G.hp += h; floats.push(new Floater(CX, CY - 20, '+' + Math.round(h) + ' HP', '#8fd06a', 1.2)); } }
   if (G.wave % 3 === 0) giveCrate(1, CX, CY + 10);
   if (counts() && !G.usedDemo) {
     const st = SAVE.st;
@@ -1659,6 +1764,7 @@ function waveDone(forced) {
     fresh.forEach(k => { const el = palEls[k]; el.classList.remove('new'); void el.offsetWidth; el.classList.add('new'); });
     floats.push(new Floater(CX, 165, 'NEW TOWER!', '#f1e8d6', 1.5));
   }
+  if (G.wave % 10 === 0) openPerk();             // 10웨이브마다 능력 고르기
   if (forced) { startWave(); G.bannerText = 'TIME! WAVE ' + G.wave; G.banner = 2; floats.push(new Floater(CX, 120, '+' + bonus, '#f5a623', 1.2)); }
   else { G.phase = 'break'; G.breakT = G.demo ? 2.5 : 6; G.banner = 1.6; G.bannerText = 'CLEAR +' + bonus; }
 }
@@ -1877,7 +1983,7 @@ function hud() {
   refreshMenu();
   $('bNext').classList.toggle('show', G.phase === 'break' || (G.phase === 'wave' && !G.queue.length && !TUT.on));   // 다 나온 뒤엔 NEXT로 바로 다음 웨이브
   danger();
-  const key = [G.hp | 0, G.maxHp, G.scrap, G.wave, sub, selType, G.cleared, G.fence].join('|');
+  const key = [G.hp | 0, G.maxHp, G.scrap, G.wave, sub, selType, G.cleared, G.fence, G.shield | 0].join('|');
   if (key === lastHud) return; lastHud = key;
   const fl = FENCE_LV[G.fence], fn = FENCE_LV[G.fence + 1];
   $('fenceName').textContent = `${fl.name} Lv${G.fence + 1}`;
@@ -1890,6 +1996,8 @@ function hud() {
   const nxt = Object.keys(TDEF).filter(k => !isUnlocked(k)).sort((a, b) => TDEF[a].unlock - TDEF[b].unlock)[0];
   $('next').innerHTML = nxt ? `다음 해금 <b>${TDEF[nxt].name}</b><br>웨이브 ${TDEF[nxt].unlock} 클리어 시` : '<b>모든 타워 해금 완료!</b>';
   $('hpfill').style.width = Math.max(0, G.hp / G.maxHp * 100) + '%';
+  $('shfill').style.width = Math.min(100, (G.shield || 0) / G.maxHp * 100) + '%';
+  $('bRepair').textContent = repairCost(); $('bRepair').classList.toggle('poor', G.scrap < repairCost()); $('bRepair').classList.toggle('max', G.hp >= G.maxHp);
   $('scrap').textContent = G.scrap; $('wave').textContent = 'WAVE ' + G.wave; $('sub').textContent = sub;
   for (const [k, el] of Object.entries(palEls)) {
     const lock = !isUnlocked(k);
@@ -2020,7 +2128,7 @@ function upgradeFence() {
   const cost = fenceCost(G.fence + 1);
   if (G.scrap < cost) { floats.push(new Floater(CX, CY - FENCE.ry - 6, 'NO SCRAP', '#e0412f', .8)); return false; }
   G.scrap -= cost; G.fence++;
-  const newMax = nx.maxHp + upEff('hp') + BON.hp, gain = newMax - G.maxHp; G.maxHp = newMax; G.hp = Math.min(G.maxHp, G.hp + gain);
+  const newMax = nx.maxHp + upEff('hp') + BON.hp + PK('hp'), gain = newMax - G.maxHp; G.maxHp = newMax; G.hp = Math.min(G.maxHp, G.hp + gain);
   if (counts()) { SAVE.st.fenceMax = Math.max(SAVE.st.fenceMax, G.fence); checkAch(); }
   for (let i = 0; i < 16; i++) { const t = i / 16 * 6.28; fx.push(new Ring(CX + Math.cos(t) * FENCE.rx, CY + Math.sin(t) * FENCE.ry, 12, '#f5c623', .4)); }
   G.shake = Math.max(G.shake, 2);
@@ -2047,6 +2155,8 @@ $('bPause').onclick = () => setPause(!G.paused);
 const skipWait = () => { if (G.over || G.paused) return; if (G.phase === 'break') G.breakT = 0; else if (G.phase === 'wave' && !G.queue.length && !TUT.on) G.overT = 0; };
 $('bNext').onclick = skipWait;
 $('bFence').onclick = () => upgradeFence();
+$('bRepair').onclick = () => repairBed();
+$('perkRe').onclick = () => { const c = rerollCost(); if (G.scrap < c) { showToast('스크랩이 모자라요', 1400); return; } G.scrap -= c; G.rerolls++; perkOffer = rollPerks(); renderPerk(); };
 $('bResume').onclick = () => setPause(false);
 $('bRestart').onclick = () => { runRewardToast(); const d = G.demo; setPause(false); reset(false); if (d) toggleDemo(); };
 $('bTitle').onclick = goTitle;
@@ -2472,6 +2582,7 @@ addEventListener('keydown', e => {
     if (k === 'd') startGame(true);
     return;
   }
+  if (G.choosing) { const i = '123'.indexOf(k); if (i >= 0 && perkOffer[i]) pickPerk(perkOffer[i].id); return; }   // 능력 고르는 중엔 1·2·3만
   if (k === 'escape' && menuT) { closeMenu(); return; }
   if (k === 'escape' || k === 'p') { e.preventDefault(); setPause(!G.paused); return; }
   if (G.paused) return;
@@ -2481,7 +2592,7 @@ addEventListener('keydown', e => {
   if (k === 'd') toggleDemo();
   if (k === 'f') cycleSpeed();
   if (k === 'u') upgradeFence();
-  if (k === 'r' && G.over) reset(true);
+  if (k === 'r') { if (G.over) reset(true); else repairBed(); }
 });
 function fit() {
   const st = $('stage');
@@ -2498,7 +2609,7 @@ reset(false, true);
 let last = performance.now();
 function loop(now) {
   const dt = Math.min(.05, (now - last) / 1000); last = now;
-  if (!G.paused && !panelOpen()) for (let i = 0; i < speed; i++) update(dt);   // 정보·업적 창이 열려 있으면 잠깐 멈춤
+  if (!G.paused && !panelOpen() && !G.choosing) for (let i = 0; i < speed; i++) update(dt);   // 정보·업적 창이 열려 있으면 잠깐 멈춤
   render(); hud(); tutTick();
   requestAnimationFrame(loop);
 }
