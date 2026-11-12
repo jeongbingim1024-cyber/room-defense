@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
-<title>룸 디펜스 프로토타입 v0.22</title>
+<title>룸 디펜스 프로토타입 v0.23</title>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Do+Hyeon&display=swap">
 <style>
   html,body{margin:0;height:100%;background:#0f0d0b;overflow:hidden;user-select:none;-webkit-user-select:none;-webkit-touch-callout:none;touch-action:none;overscroll-behavior:none}
@@ -11,7 +11,7 @@
   #stage{position:relative;display:flex;height:540px;flex:none;transform-origin:center center}
   #field{position:relative;width:960px;height:540px;flex:none}
   /* 타워 구매 칸은 게임 화면 바깥 오른쪽 사이드바로 (몹을 가리지 않게) */
-  #side{width:184px;height:540px;flex:none;box-sizing:border-box;background:#1d1915;border-left:3px solid #0f0d0b;box-shadow:inset 2px 0 0 #4a3f33;padding:14px 10px;display:flex;flex-direction:column;gap:10px;color:#f1e8d6}
+  #side{width:214px;height:540px;flex:none;box-sizing:border-box;background:#1d1915;border-left:3px solid #0f0d0b;box-shadow:inset 2px 0 0 #4a3f33;padding:14px 10px;display:flex;flex-direction:column;gap:10px;color:#f1e8d6}
   .in-title #side,.hide-ui #side{display:none}
   #side .sidettl{font-family:'Press Start 2P',monospace;font-size:10px;color:#f5a623;letter-spacing:1px}
   #palette{gap:4px !important}
@@ -110,8 +110,8 @@
   .tw.sel{background:#3d3226;box-shadow:inset 0 0 0 2px #f5a623}
   .tw.poor{opacity:.45}
   .tw canvas{width:24px;height:26px;image-rendering:pixelated;flex:none}
-  .tw .nm{font-family:'Do Hyeon',sans-serif;font-size:16px;line-height:1}
-  .tw .ct2{margin-left:auto;font-family:'Press Start 2P',monospace;font-size:8px;color:#f5a623}
+  .tw .nm{font-family:'Do Hyeon',sans-serif;font-size:16px;line-height:1;flex:1 1 auto;min-width:0;overflow:hidden;text-overflow:ellipsis}
+  .tw .ct2{flex:none;margin-left:auto;font-family:'Press Start 2P',monospace;font-size:8px;color:#f5a623}
   .tw .ct{font-size:8px;color:#f5a623;margin-top:5px}
   .tw .key{font-size:7px;color:#8a7e6c;margin-left:auto;align-self:flex-start}
   #hint{left:12px;bottom:10px;font-family:'Do Hyeon',sans-serif;font-size:15px;color:#cfc3ae;text-shadow:2px 2px 0 #0f0d0b}
@@ -157,7 +157,9 @@
   .ulist{display:flex;flex-direction:column;gap:6px;overflow-y:auto;touch-action:pan-y}
   .uprow{display:flex;align-items:center;gap:14px;background:#2c2620;border:3px solid #0f0d0b;box-shadow:inset 0 0 0 2px #4a3f33;padding:4px 12px}
   .uprow .t1{font-family:'Do Hyeon',sans-serif;font-size:22px;width:118px;flex:none}
-  .uprow .t2{font-family:'Do Hyeon',sans-serif;font-size:17px;color:#cfc3ae;width:200px;flex:none}
+  .uprow .t2{font-family:'Do Hyeon',sans-serif;font-size:17px;color:#cfc3ae;width:190px;flex:none}
+  .uprow .cur{font-family:'Do Hyeon',sans-serif;font-size:17px;color:#f5a623;width:64px;flex:none;text-align:right}
+  .uprow .pips{gap:3px} .uprow .pips i{width:11px;height:13px}
   .pips{display:flex;gap:4px} .pips i{width:14px;height:14px;background:#0f0d0b;border:2px solid #4a3f33} .pips i.on{background:#f5a623;border-color:#ffd27a}
   .uprow .btn{margin-left:auto;font-family:'Do Hyeon',sans-serif;font-size:18px;padding:4px 12px;display:flex;align-items:center;gap:8px;min-width:116px;justify-content:center}
   .uprow .btn.poor,.uprow .btn.max{opacity:.45}
@@ -178,6 +180,7 @@
   .hr span:first-child{width:142px;flex:none;color:#f1e8d6;white-space:nowrap}
   .hr span:last-child{color:#cfc3ae}
   .hr em{font-style:normal}
+  .ib2{display:inline-flex;align-items:center;justify-content:center;width:18px;height:18px;font-family:'Press Start 2P',monospace;font-size:8px;font-weight:400;color:#f5a623;border:2px solid #4a3f33;vertical-align:middle}
   .hl{font-family:'Do Hyeon',sans-serif;font-size:17px;color:#cfc3ae;line-height:1.25;padding-left:14px;position:relative}
   .hl::before{content:'';position:absolute;left:0;top:7px;width:6px;height:6px;background:#f5a623}
   #submitRow{display:grid;grid-template-columns:1fr 120px;gap:10px}
@@ -195,6 +198,19 @@
   .rrow.me{box-shadow:inset 0 0 0 2px #f5a623}
   .rrow .sm{font-size:15px;color:#8a7e6c}
   .rmsg{font-family:'Do Hyeon',sans-serif;font-size:19px;color:#8a7e6c;text-align:center;padding:30px 0}
+  #infoIc{width:40px;height:44px;image-rendering:pixelated}
+  #infoTag{font-family:'Do Hyeon',sans-serif;font-size:17px;color:#8a7e6c}
+  .idesc{font-family:'Do Hyeon',sans-serif;font-size:19px;color:#f1e8d6;background:#2c2620;border-left:6px solid #f5a623;padding:8px 12px;line-height:1.35}
+  .itbl{border-collapse:collapse;width:100%;font-family:'Do Hyeon',sans-serif;font-size:19px}
+  .itbl th{font-family:'Press Start 2P',monospace;font-size:10px;color:#f5a623;font-weight:400;padding:8px 10px;text-align:center;border-bottom:2px solid #4a3f33}
+  .itbl th:first-child,.itbl td:first-child{text-align:left;color:#cfc3ae;width:30%}
+  .itbl td{padding:6px 10px;text-align:center;color:#f1e8d6;border-bottom:1px solid #2c2620}
+  .itbl .now{background:rgba(245,166,35,.13)}
+  .itbl th.now{color:#1d1915;background:#f5a623}
+  .inote{font-family:'Do Hyeon',sans-serif;font-size:15px;color:#8a7e6c;line-height:1.4}
+  .ibtn{flex:none;width:18px;height:18px;padding:0;margin-left:2px;font-family:'Press Start 2P',monospace;font-size:8px;color:#cfc3ae;background:#1d1915;border:2px solid #4a3f33;cursor:pointer;display:flex;align-items:center;justify-content:center}
+  .ibtn:hover{border-color:#f5a623;color:#f5a623}
+  .portrait .ibtn,.touch .ibtn{width:30px;height:30px;font-size:11px}
   #achPop{position:absolute;left:50%;top:128px;transform:translate(-50%,-20px);opacity:0;transition:opacity .3s,transform .3s;pointer-events:none;background:rgba(29,25,21,.95);border:3px solid #0f0d0b;box-shadow:inset 0 0 0 2px #f5a623;padding:10px 22px;text-align:center}
   #achPop.show{opacity:1;transform:translate(-50%,0)}
   .ap1{font-family:'Press Start 2P',monospace;font-size:9px;color:#f5a623}
@@ -233,7 +249,7 @@
     <div class="press"><span class="pcOnly2">PRESS ENTER</span><span class="tOnly">TAP START</span></div>
     <div class="ver" id="ver"></div>
   </div>
-  <div id="tmenu" class="hud panel"><div class="tmh"><span id="tmName"></span><span id="tmLv"></span></div><button class="btn" id="tmUp">업그레이드 <b id="tmUpC"></b></button><button class="btn" id="tmSell">판매 <b id="tmSellC"></b></button></div>
+  <div id="tmenu" class="hud panel"><div class="tmh"><span id="tmName"></span><span id="tmLv"></span></div><button class="btn" id="tmUp">업그레이드 <b id="tmUpC"></b></button><button class="btn" id="tmSell">판매 <b id="tmSellC"></b></button><button class="btn" id="tmInfo">정보 <b>i</b></button></div>
   <div id="toast">H 키, 또는 오른쪽 위에 마우스를 올리면 UI가 다시 보여요</div>
   <div id="pause"><div class="card pcard">
     <div class="ttl">PAUSED</div>
@@ -262,6 +278,7 @@
       <div class="hcol"><div class="hh">조작</div>
         <div class="hr"><span>타워 설치</span><span>사이드바에서 고르고 빈 칸 <em class="pcOnly2">클릭</em><em class="tOnly">탭</em></span></div>
         <div class="hr"><span>업그레이드·판매</span><span>설치한 타워 <em class="pcOnly2">클릭</em><em class="tOnly">탭</em></span></div>
+        <div class="hr"><span>타워 정보</span><span>사이드바 <b class="ib2">i</b> 버튼 · 타워 메뉴의 정보</span></div>
         <div class="hr"><span>타워 이동</span><span>끌어서 다른 칸으로 (겹치면 교환)</span></div>
         <div class="hr"><span>울타리 강화</span><span>왼쪽 위 UP 버튼<em class="pcOnly2"> · U</em></span></div>
         <div class="hr"><span>웨이브 바로 시작</span><span>NEXT 버튼<em class="pcOnly2"> · SPACE</em></span></div>
@@ -280,6 +297,11 @@
     <div class="rhead"><span>#</span><span>닉네임</span><span>웨이브</span><span>처치</span><span>버전</span></div>
     <div id="rankList"></div>
   </div></div>
+  <div id="infoPanel" class="mpanel"><div class="mbox"><div class="mhead"><canvas id="infoIc" width="20" height="22"></canvas><span id="infoName"></span><span id="infoTag"></span><button class="btn mclose">닫기</button></div>
+    <div class="idesc" id="infoDesc"></div>
+    <table class="itbl" id="infoTbl"></table>
+    <div class="inote" id="infoNote"></div>
+  </div></div>
   <div id="achPop"></div>
 </div>
 <div id="side">
@@ -293,7 +315,7 @@
 
 <script>
 'use strict';
-const VERSION = 'v0.22';
+const VERSION = 'v0.23';
 // 터치 기기인지 (휴대폰·태블릿이면 터치 UI로)
 const TOUCH = matchMedia('(pointer: coarse)').matches || navigator.maxTouchPoints > 0;
 
@@ -319,17 +341,19 @@ const ACH = [
   { id: 'lazy',    name: '귀차니즘 만렙',    desc: '자동 데모로 웨이브 20 도달', bat: 10 },
   { id: 'mover',   name: '이사 좀 그만',     desc: '타워 누적 30번 옮기기', bat: 10, prog: () => [SAVE.st.moves, 30] },
 ];
+// 한 단계 효과는 작게, 최대 레벨은 높게 (per = 한 단계 효과, 가격은 base × 다음 레벨)
 const UPS = [
-  { id: 'scrap', name: '비상금',     desc: '시작 스크랩 +20',      max: 5, base: 10 },
-  { id: 'hp',    name: '튼튼한 침대', desc: '침대 최대 HP +10',     max: 5, base: 10 },
-  { id: 'dmg',   name: '정밀 조준',   desc: '모든 타워 공격력 +5%', max: 5, base: 15 },
-  { id: 'range', name: '좋은 시력',   desc: '모든 타워 사거리 +3%', max: 3, base: 20 },
-  { id: 'loot',  name: '재활용 달인', desc: '처치 보상 +5%',        max: 5, base: 15 },
-  { id: 'fence', name: '단골 철물점', desc: '울타리 강화 비용 -8%', max: 3, base: 20 },
+  { id: 'scrap', name: '비상금',     what: '시작 스크랩', sign: '+', per: 10, unit: '',  max: 10, base: 8 },
+  { id: 'hp',    name: '튼튼한 침대', what: '침대 최대 HP', sign: '+', per: 10, unit: '',  max: 10, base: 8 },
+  { id: 'dmg',   name: '정밀 조준',   what: '타워 공격력', sign: '+', per: 3,  unit: '%', max: 10, base: 12 },
+  { id: 'range', name: '좋은 시력',   what: '타워 사거리', sign: '+', per: 2,  unit: '%', max: 6,  base: 15 },
+  { id: 'loot',  name: '재활용 달인', what: '처치 보상',   sign: '+', per: 3,  unit: '%', max: 10, base: 12 },
+  { id: 'fence', name: '단골 철물점', what: '울타리 강화 비용', sign: '-', per: 5, unit: '%', max: 6, base: 12 },
 ];
 const upLv = id => SAVE.up[id] || 0;
-const upPrice = u => u.base * 2 ** upLv(u.id);                // 레벨마다 2배씩 비싸진다
-const fenceCost = lv => Math.round(FENCE_LV[lv].cost * (1 - .08 * upLv('fence')));
+const upPrice = u => u.base * (upLv(u.id) + 1);               // 8 → 16 → 24 … 단계마다 조금씩 비싸진다
+const upEff = id => upLv(id) * UPS.find(u => u.id === id).per;   // 지금까지 쌓인 효과
+const fenceCost = lv => Math.round(FENCE_LV[lv].cost * (1 - upEff('fence') / 100));
 const counts = () => !G.demo && G.phase !== 'title';           // 자동 데모·타이틀 화면에서는 기록하지 않는다
 function unlockAch(id) {
   const a = ACH.find(x => x.id === id);
@@ -641,8 +665,8 @@ for (let i = 0; i < SLOT_COUNT; i++) { const t = i / SLOT_COUNT * Math.PI * 2 + 
 const G = {};
 let enemies, towers, shells, parts, fx, floats;
 function reset(keepDemo, title = false) {
-  const baseHp = 100 + 10 * upLv('hp');
-  Object.assign(G, { hp: baseHp, maxHp: baseHp, scrap: 200 + 20 * upLv('scrap'), awarded: false, submitted: false, runKills: 0, usedDemo: false, tookDmg: false, maxTowers: 0, wave: 0, phase: title ? 'title' : 'break', ambT: 0, paused: false, cleared: 0, fence: 0, breakT: 8, queue: [], waveT: 0, over: false, time: 0,
+  const baseHp = 100 + upEff('hp');
+  Object.assign(G, { hp: baseHp, maxHp: baseHp, scrap: 200 + upEff('scrap'), awarded: false, submitted: false, runKills: 0, usedDemo: false, tookDmg: false, maxTowers: 0, wave: 0, phase: title ? 'title' : 'break', ambT: 0, paused: false, cleared: 0, fence: 0, breakT: 8, queue: [], waveT: 0, over: false, time: 0,
     shake: 0, baseFlash: 0, banner: 0, bannerText: '', demo: keepDemo ? G.demo : false, demoT: 0 });
   if (G.demo) { G.scrap = 400; G.usedDemo = true; }
   selType = 'laser';
@@ -710,7 +734,7 @@ class Enemy {
   }
   die() {
     this.dead = true;
-    const rew = Math.round(this.d.reward * (this.boss ? 8 : 1) * (1 + .05 * upLv('loot')));
+    const rew = Math.round(this.d.reward * (this.boss ? 8 : 1) * (1 + upEff('loot') / 100));
     if (counts()) {
       SAVE.st.kills++; G.runKills++; if (this.type === 'mosq') SAVE.st.mosq++; saveDirty = true;
       if (SAVE.st.kills >= 100) unlockAch('kill100');
@@ -759,8 +783,8 @@ class Tower {
     this.type = type; this.def = TDEF[type]; this.slot = slot; this.x = slot.x; this.y = slot.y;
     this.lvl = 1; this.spent = TDEF[type].cost; this.cd = 0; this.ang = Math.atan2(slot.y - CY, slot.x - CX); this.anim = 0; this.target = null; this.pop = .25;
   }
-  get range() { return this.def.range * (1 + .12 * (this.lvl - 1)) * (1 + .03 * upLv('range')); }
-  get dmg() { return this.def.dmg * (1 + .6 * (this.lvl - 1)) * (1 + .05 * upLv('dmg')); }
+  get range() { return this.def.range * (1 + .12 * (this.lvl - 1)) * (1 + upEff('range') / 100); }
+  get dmg() { return this.def.dmg * (1 + .6 * (this.lvl - 1)) * (1 + upEff('dmg') / 100); }
   get upCost() { return Math.round(this.def.cost * .8 * this.lvl); }
   findTarget() {                          // 사거리 안에서 침대에 가장 가까운 적
     let best = null, bv = 1e9;
@@ -917,7 +941,7 @@ class Coil extends Tower {
     for (const e of enemies) {
       if (e.dead || dist(this, e) > this.range) continue;
       this.active = true;
-      e.hit(this.dmg * (e.d.fly ? 3 : 1) * (1 + .6 * (this.lvl - 1)) * dt, false);
+      e.hit(this.dmg * (e.d.fly ? 3 : 1) * dt, false);
       if (R() < dt * 3) parts.push(new Part(e.x + rnd(-3, 3), e.y - 3, rnd(-3, 3), rnd(-14, -6), '#8ad06a', .5, 1));
     }
     if (R() < dt * 6) parts.push(new Part(this.x + 6 + rnd(-1, 1), this.y - 3, rnd(-4, 4), rnd(-16, -9), 'rgba(220,225,215,.6)', 1.1, 1));
@@ -1143,7 +1167,7 @@ function update(dt) {
     while (G.queue.length && G.queue[0].t <= G.waveT) { const s = G.queue.shift(); enemies.push(new Enemy(s.type, s.ang, G.wave, !!s.boss)); }
     if (!G.queue.length && !enemies.length) {
       G.phase = 'break'; G.breakT = G.demo ? 2.5 : 6;
-      const bonus = 25 + G.wave * 8; G.scrap += bonus;   // 웨이브 클리어 보상
+      const bonus = 20 + G.wave * 5; G.scrap += bonus;   // 웨이브 클리어 보상
       G.banner = 1.6; G.bannerText = 'CLEAR +' + bonus;
       G.cleared = G.wave;
       if (counts()) {
@@ -1268,6 +1292,8 @@ Object.entries(TDEF).forEach(([k, d]) => {
   el.appendChild(ic);
   const tx = document.createElement('div'); tx.className = 'nm'; tx.textContent = d.name; el.appendChild(tx);
   const ct = document.createElement('div'); ct.className = 'ct2'; ct.textContent = d.cost; el.appendChild(ct); el.ct = ct;
+  const ib = document.createElement('button'); ib.className = 'ibtn'; ib.textContent = 'i'; ib.title = '타워 정보';
+  ib.onclick = e => { e.stopPropagation(); openInfo(k); }; el.appendChild(ib);
   el.onclick = () => { selType = k; };
   el.title = d.desc;
   pal.appendChild(el); palEls[k] = el;
@@ -1330,6 +1356,41 @@ function refreshMenu() {
 }
 $('tmUp').onclick = () => { if (menuT && upgrade(menuT)) refreshMenu(); };
 $('tmSell').onclick = () => { if (menuT) { sell(menuT); closeMenu(); } };
+$('tmInfo').onclick = () => { if (menuT) { const t = menuT; openInfo(t.type, t.lvl); } };
+// ───────── 타워 정보: 레벨별 수치 (영구 강화까지 반영한 실제 값) ─────────
+function towerAt(type, lvl) { const t = Object.create(TCLASS[type].prototype); t.def = TDEF[type]; t.type = type; t.lvl = lvl; return t; }
+function infoRows(type) {
+  const L = [1, 2, 3].map(l => towerAt(type, l)), d = TDEF[type];
+  const row = (label, f) => [label, ...L.map(f)];
+  const one = v => Math.round(v), dec = v => v.toFixed(1), sec = v => v + '초';
+  const rows = [row('사거리', t => one(t.range))];
+  switch (type) {
+    case 'fan':     rows.push(row('초당 피해', t => dec(t.dmg)), row('밀어내는 힘', t => one(46 * (1 + .25 * (t.lvl - 1)))), row('공격 범위', () => '앞쪽 부채꼴')); break;
+    case 'glue':    rows.push(row('적 이동 속도', t => one(Math.max(.25, d.slow - .1 * (t.lvl - 1)) * 100) + '%'), row('초당 피해', t => dec(t.dmg)), row('보스', () => '최대 30% 감속')); break;
+    case 'laser':   rows.push(row('초당 피해', t => dec(t.dmg)), row('공격', () => '끊김 없는 빔')); break;
+    case 'coil':    rows.push(row('초당 독 피해', t => dec(t.dmg)), row('모기에게', t => dec(t.dmg * 3)), row('대상', () => '범위 안 전부')); break;
+    case 'hammer':  rows.push(row('한 번 피해', t => one(t.dmg)), row('공격 간격', () => sec(d.rate)), row('대상', () => '범위 안 전부')); break;
+    case 'swatter': rows.push(row('한 방 피해', t => one(t.dmg)), row('공격 간격', () => sec(d.rate)), row('모기', () => '즉사')); break;
+    case 'tesla':   rows.push(row('번개 피해', t => one(t.dmg)), row('연쇄', t => (d.chain + t.lvl - 1) + '마리'), row('공격 간격', () => sec(d.rate))); break;
+    case 'cannon':  rows.push(row('포탄 피해', t => one(t.dmg)), row('폭발 반경', () => d.splash), row('공격 간격', () => sec(d.rate))); break;
+    case 'sling':   rows.push(row('한 방 피해', t => one(t.dmg)), row('공격 간격', () => sec(d.rate)), row('노리는 적', () => '체력 높은 순')); break;
+  }
+  rows.push(['비용', '설치 ' + d.cost, '+' + Math.round(d.cost * .8), '+' + Math.round(d.cost * 1.6)]);
+  return rows;
+}
+function openInfo(type, lvl = 0) {
+  closeMenu();
+  const d = TDEF[type], ic = $('infoIc').getContext('2d');
+  ic.imageSmoothingEnabled = false; ic.clearRect(0, 0, 20, 22); ic.drawImage(palEls[type].querySelector('canvas'), 0, 0);
+  $('infoName').textContent = d.name + (lvl ? ` · 지금 LV${lvl}` : '');
+  $('infoTag').textContent = d.unlock ? `웨이브 ${d.unlock} 클리어 시 해금` : '처음부터 사용 가능';
+  $('infoDesc').textContent = d.desc;
+  const head = `<tr><th></th>${[1, 2, 3].map(l => `<th class="${l === lvl ? 'now' : ''}">LV${l}</th>`).join('')}</tr>`;
+  $('infoTbl').innerHTML = head + infoRows(type).map(r => `<tr><td>${r[0]}</td>${r.slice(1).map((v, i) => `<td class="${i + 1 === lvl ? 'now' : ''}">${v}</td>`).join('')}</tr>`).join('');
+  const bonus = [upEff('dmg') && `공격력 +${upEff('dmg')}%`, upEff('range') && `사거리 +${upEff('range')}%`].filter(Boolean).join(', ');
+  $('infoNote').textContent = '업그레이드할 때마다 공격력 +60%, 사거리 +12% (최대 LV3) · 판매하면 쓴 스크랩의 70% 환불' + (bonus ? ` · 영구 강화(${bonus}) 반영된 수치` : '');
+  $('infoPanel').classList.add('show');
+}
 const blocked = () => G.over || G.paused || G.phase === 'title';
 cv.addEventListener('pointerdown', e => {
   if (blocked()) return;
@@ -1365,7 +1426,7 @@ function upgradeFence() {
   const cost = fenceCost(G.fence + 1);
   if (G.scrap < cost) { floats.push(new Floater(CX, CY - FENCE.ry - 6, 'NO SCRAP', '#e0412f', .8)); return false; }
   G.scrap -= cost; G.fence++;
-  const newMax = nx.maxHp + 10 * upLv('hp'), gain = newMax - G.maxHp; G.maxHp = newMax; G.hp = Math.min(G.maxHp, G.hp + gain);
+  const newMax = nx.maxHp + upEff('hp'), gain = newMax - G.maxHp; G.maxHp = newMax; G.hp = Math.min(G.maxHp, G.hp + gain);
   if (G.fence === FENCE_LV.length - 1 && counts()) unlockAch('fence');
   for (let i = 0; i < 16; i++) { const t = i / 16 * 6.28; fx.push(new Ring(CX + Math.cos(t) * FENCE.rx, CY + Math.sin(t) * FENCE.ry, 12, '#f5c623', .4)); }
   G.shake = Math.max(G.shake, 2);
@@ -1421,7 +1482,7 @@ function renderUp() {
   $('upList').innerHTML = UPS.map(u => {
     const lv = upLv(u.id), max = lv >= u.max, price = upPrice(u);
     const pips = Array.from({ length: u.max }, (_, i) => `<i class="${i < lv ? 'on' : ''}"></i>`).join('');
-    return `<div class="uprow"><div class="t1">${u.name}</div><div class="t2">${u.desc}</div><div class="pips">${pips}</div>` +
+    return `<div class="uprow"><div class="t1">${u.name}</div><div class="t2">${u.what} ${u.sign}${u.per}${u.unit}</div><div class="pips">${pips}</div><div class="cur">${lv ? u.sign + lv * u.per + u.unit : ''}</div>` +
       `<button class="btn${max ? ' max' : SAVE.bat < price ? ' poor' : ''}" data-up="${u.id}">${max ? 'MAX' : `강화 <span class="bat"></span>${price}`}</button></div>`;
   }).join('');
   $('upList').querySelectorAll('[data-up]').forEach(b => b.onclick = () => {
@@ -1553,7 +1614,7 @@ reset(false, true);
 let last = performance.now();
 function loop(now) {
   const dt = Math.min(.05, (now - last) / 1000); last = now;
-  if (!G.paused) for (let i = 0; i < speed; i++) update(dt);
+  if (!G.paused && !panelOpen()) for (let i = 0; i < speed; i++) update(dt);   // 정보·업적 창이 열려 있으면 잠깐 멈춤
   render(); hud();
   requestAnimationFrame(loop);
 }
