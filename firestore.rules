@@ -21,6 +21,17 @@ service cloud.firestore {
             || (request.resource.data.wave == resource.data.wave && request.resource.data.kills > resource.data.kills));
       allow delete: if false;
     }
+    // 클라우드 저장: 구글 로그인 uid별 문서 하나, 본인만 읽고 쓰기
+    match /saves/{uid} {
+      allow read, delete: if request.auth != null && request.auth.uid == uid
+        && request.auth.token.firebase.sign_in_provider == 'google.com';
+      allow create, update: if request.auth != null && request.auth.uid == uid
+        && request.auth.token.firebase.sign_in_provider == 'google.com'
+        && request.resource.data.keys().hasOnly(['code', 'ts', 'ver'])
+        && request.resource.data.code is string && request.resource.data.code.size() <= 200000
+        && request.resource.data.ts is timestamp
+        && request.resource.data.ver is string && request.resource.data.ver.size() <= 10;
+    }
     // 그 밖의 모든 데이터는 접근 금지 (예전 scores 순위표 포함)
     match /{document=**} {
       allow read, write: if false;
