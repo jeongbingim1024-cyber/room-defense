@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
-<title>룸 디펜스 프로토타입 v0.32.1</title>
+<title>룸 디펜스 프로토타입 v0.32.2</title>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Do+Hyeon&display=swap">
 <style>
   html,body{margin:0;height:100%;background:#0f0d0b;overflow:hidden;user-select:none;-webkit-user-select:none;-webkit-touch-callout:none;touch-action:none;overscroll-behavior:none}
@@ -95,7 +95,9 @@
   #bFence.max{background:#3a3d44;color:#8a7e6c;cursor:default}
   .row{display:flex;align-items:center;gap:8px;font-size:10px}
   .heart{color:#e0412f;font-size:12px}
-  .hpbar{width:150px;height:12px;background:#3a1512;border:2px solid #0f0d0b;position:relative}
+  .hptx{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-family:'Press Start 2P',monospace;font-size:8px;color:#fff;text-shadow:1px 1px 0 #0f0d0b,-1px 0 0 #0f0d0b,0 -1px 0 #0f0d0b,1px 0 0 #0f0d0b;letter-spacing:-.5px}
+  .hptx b{color:#9fe8ff;font-weight:400;margin-left:4px}
+  .hpbar{width:150px;height:16px;background:#3a1512;border:2px solid #0f0d0b;position:relative}
   .shfill{position:absolute;left:0;top:0;height:4px;width:0;background:#9fe8ff}
   .hpfill{position:absolute;left:0;top:0;bottom:0;width:100%;background:#e0412f;box-shadow:inset 0 -3px 0 #a52a1e}
   .gear{width:12px;height:12px;background:#f5a623;border:2px solid #0f0d0b;box-sizing:border-box}
@@ -390,7 +392,7 @@
 <div id="wrap"><div id="stage" class="in-title"><div id="field">
   <canvas id="game"></canvas>
   <div id="tl" class="hud panel">
-    <div class="row"><span class="heart">&#9829;</span><div class="hpbar"><div class="hpfill" id="hpfill"></div><div class="shfill" id="shfill"></div></div></div>
+    <div class="row"><span class="heart">&#9829;</span><div class="hpbar"><div class="hpfill" id="hpfill"></div><div class="shfill" id="shfill"></div><div class="hptx" id="hptx">100 / 100</div></div></div>
     <div class="row"><span class="gear"></span><span id="scrap">0</span><span class="lbl">스크랩</span></div>
     <div class="fencerow"><div><div class="fn" id="fenceName">나무 울타리</div><div class="fi" id="fenceInfo"></div></div><button class="btn" id="bFence" title="울타리 강화 (U)">UP 80</button></div>
     <div class="fencerow"><div><div class="fn">침대 수리</div><div class="fi">HP 25% 회복</div></div><button class="btn" id="bRepair" title="침대 수리 (R)">50</button></div>
@@ -499,7 +501,7 @@
 
 <script>
 'use strict';
-const VERSION = 'v0.32.1';
+const VERSION = 'v0.32.2';
 // 터치 기기인지 (휴대폰·태블릿이면 터치 UI로)
 const TOUCH = matchMedia('(pointer: coarse)').matches || navigator.maxTouchPoints > 0;
 
@@ -2020,7 +2022,7 @@ function hud() {
   if (key === lastHud) return; lastHud = key;
   const fl = FENCE_LV[G.fence], fn = FENCE_LV[G.fence + 1];
   $('fenceName').textContent = `${fl.name} Lv${G.fence + 1}`;
-  $('fenceInfo').textContent = G.fence === 0 ? '받는 피해 그대로' : `받는 피해 -${fl.reduce * 100}%` + (fl.thorns ? ` · 가시 ${fl.thorns}` : '');
+  $('fenceInfo').textContent = G.fence === 0 ? '받는 피해 그대로' : `피해 -${Math.round(fl.reduce * 100)}%` + (fl.thorns ? ` · 가시 ${fl.thorns}` : '') + ` · HP +${fl.maxHp - 100}`;
   $('bFence').textContent = fn ? 'UP ' + fenceCost(G.fence + 1) : 'MAX';
   $('bFence').classList.toggle('max', !fn); $('bFence').classList.toggle('poor', !!fn && G.scrap < fenceCost(G.fence + 1));
   const sd = TDEF[selType];
@@ -2029,6 +2031,7 @@ function hud() {
   const nxt = Object.keys(TDEF).filter(k => !isUnlocked(k)).sort((a, b) => TDEF[a].unlock - TDEF[b].unlock)[0];
   $('next').innerHTML = nxt ? `다음 해금 <b>${TDEF[nxt].name}</b><br>웨이브 ${TDEF[nxt].unlock} 클리어 시` : '<b>모든 타워 해금 완료!</b>';
   $('hpfill').style.width = Math.max(0, G.hp / G.maxHp * 100) + '%';
+  $('hptx').innerHTML = `${Math.max(0, Math.ceil(G.hp))} / ${Math.round(G.maxHp)}` + (G.shield > 0 ? `<b>+${Math.ceil(G.shield)}</b>` : '');
   $('shfill').style.width = Math.min(100, (G.shield || 0) / G.maxHp * 100) + '%';
   $('bRepair').textContent = repairCost(); $('bRepair').classList.toggle('poor', G.scrap < repairCost()); $('bRepair').classList.toggle('max', G.hp >= G.maxHp);
   $('scrap').textContent = G.scrap; $('wave').textContent = 'WAVE ' + G.wave; $('sub').textContent = sub;
