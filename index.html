@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
-<title>룸 디펜스 프로토타입 v0.31</title>
+<title>룸 디펜스 프로토타입 v0.31.1</title>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Do+Hyeon&display=swap">
 <style>
   html,body{margin:0;height:100%;background:#0f0d0b;overflow:hidden;user-select:none;-webkit-user-select:none;-webkit-touch-callout:none;touch-action:none;overscroll-behavior:none}
@@ -466,7 +466,7 @@
 
 <script>
 'use strict';
-const VERSION = 'v0.31';
+const VERSION = 'v0.31.1';
 // 터치 기기인지 (휴대폰·태블릿이면 터치 UI로)
 const TOUCH = matchMedia('(pointer: coarse)').matches || navigator.maxTouchPoints > 0;
 
@@ -1653,6 +1653,22 @@ function waveDone(forced) {
   if (forced) { startWave(); G.bannerText = 'TIME! WAVE ' + G.wave; G.banner = 2; floats.push(new Floater(CX, 120, '+' + bonus, '#f5a623', 1.2)); }
   else { G.phase = 'break'; G.breakT = G.demo ? 2.5 : 6; G.banner = 1.6; G.bannerText = 'CLEAR +' + bonus; }
 }
+// 데모 타워 이동: 벌레가 몰린 쪽 칸으로, 한가한 칸의 센 타워를 옮긴다 (칸이 차 있으면 자리 바꿈)
+function demoMove() {
+  G.demoMoveT = (G.demoMoveT || 0) - .5;
+  if (G.demoMoveT > 0 || G.phase !== 'wave' || towers.length < 2 || enemies.length < 6) return false;
+  const order = Object.keys(TDEF), tier = t => t ? order.indexOf(t.type) * 3 + t.lvl : -1;
+  const heat = sl => enemies.reduce((a, e) => { const d = dist(sl, e); return a + (d < 120 ? (120 - d) * (e.boss ? 5 : e.vid ? 2 : 1) : 0); }, 0);
+  const hs = SLOTS.map(sl => ({ sl, h: heat(sl) })).sort((a, b) => b.h - a.h);
+  const hot = hs[0], cold = hs.filter(x => x.sl.tower && x.sl !== hot.sl).sort((a, b) => a.h - b.h)[0];
+  if (!cold || hot.h < cold.h * 2 + 200) return false;                 // 차이가 크지 않으면 그대로
+  if (tier(cold.sl.tower) <= tier(hot.sl.tower)) return false;          // 몰린 쪽에 이미 더 센 타워가 있으면 그대로
+  const from = cold.sl, to = hot.sl, t = from.tower;
+  for (let i = 0; i <= 10; i++) { const k = i / 10; parts.push(new Part(from.x + (to.x - from.x) * k, from.y + (to.y - from.y) * k, 0, -8, '#f5a623', .5 + k * .3, 1)); }   // 이동 궤적
+  moveTower(t, to);
+  G.demoMoveT = 4;
+  return true;
+}
 // 자동 데모: 해금된 타워 중 상위 3종 위주로 설치하고, 상위 타워가 풀리면 하위 타워를 팔고 바꿔 단다
 function demoAI(dt) {
   G.demoT -= dt; if (G.demoT > 0) return; G.demoT = .5;
@@ -1661,6 +1677,7 @@ function demoAI(dt) {
   const types = order.filter(isUnlocked), top = types.slice(-3);   // 해금 순서 = 상위 순서
   const pick = budget => { const ok = top.filter(k => TDEF[k].cost <= budget); return ok.length ? ok[(R() * ok.length) | 0] : null; };
   if (G.fence < 4 && G.scrap >= fenceCost(G.fence + 1) && R() < .25) { upgradeFence(); return; }
+  if (demoMove()) return;
   // 교체: 상위 3종에 못 드는 타워 중 가장 낮은 것을 팔고 그 자리에 상위 타워 설치
   const old = towers.filter(t => !top.includes(t.type)).sort((a, b) => tier(a.type) - tier(b.type))[0];
   if (old && (!empty.length || G.phase === 'break') && R() < .6) {
