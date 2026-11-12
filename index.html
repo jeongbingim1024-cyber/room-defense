@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
-<title>룸 디펜스 프로토타입 v0.39.1</title>
+<title>룸 디펜스 프로토타입 v0.39.2</title>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Do+Hyeon&display=swap">
 <style>
   html,body{margin:0;height:100%;background:#0f0d0b;overflow:hidden;user-select:none;-webkit-user-select:none;-webkit-touch-callout:none;touch-action:none;overscroll-behavior:none}
@@ -235,7 +235,7 @@
   .gown{color:#8a7e6c;font-size:15px}
   .gcells{display:flex;flex-direction:column;gap:4px}
   .grow{display:grid;grid-template-columns:40px repeat(4,1fr);gap:5px;align-items:center}
-  html[lang=en] .grow{grid-template-columns:62px repeat(4,1fr)} html[lang=en] .glab{font-size:12px}
+  html[lang=en] .grow{grid-template-columns:84px repeat(4,1fr)} html[lang=en] .glab{font-size:12px;white-space:nowrap}
   html[lang=en] .gslot .gpart{width:46px;font-size:13px}
   .glab{font-family:'Do Hyeon',sans-serif;font-size:15px}
   .gcell{position:relative;height:38px;padding:0;background:#0f0d0b;border:2px solid var(--rc);cursor:pointer;display:flex;align-items:center;justify-content:center}
@@ -250,7 +250,7 @@
   .gfoot .btn{font-family:'Do Hyeon',sans-serif;font-size:16px;padding:5px 10px}
   .gpc.r4{box-shadow:0 0 14px #f5a623}
   .gpc.r3{box-shadow:0 0 8px #b07ae8}
-  .portrait .gwrap{flex-direction:column} .portrait .gslots{width:auto}
+  .portrait .gwrap{flex-direction:column;overflow-y:auto} .portrait .gslots{width:auto;display:grid;grid-template-columns:repeat(3,1fr);gap:6px} .portrait .gcol{flex:none}
   .pleft{width:250px;flex:none;display:flex;flex-direction:column;gap:8px;align-items:stretch}
   .pcrate{width:72px;height:72px;image-rendering:pixelated;align-self:center}
   .pcount{font-family:'Do Hyeon',sans-serif;font-size:20px;text-align:center} .pcount b{color:#f5a623;font-weight:400}
@@ -579,7 +579,7 @@
 
 <script>
 'use strict';
-const VERSION = 'v0.39.1';
+const VERSION = 'v0.39.2';
 // 터치 기기인지 (휴대폰·태블릿이면 터치 UI로)
 const TOUCH = matchMedia('(pointer: coarse)').matches || navigator.maxTouchPoints > 0;
 
