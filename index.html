@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
-<title>룸 디펜스 프로토타입 v0.26.2</title>
+<title>룸 디펜스 프로토타입 v0.26.3</title>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Do+Hyeon&display=swap">
 <style>
   html,body{margin:0;height:100%;background:#0f0d0b;overflow:hidden;user-select:none;-webkit-user-select:none;-webkit-touch-callout:none;touch-action:none;overscroll-behavior:none}
@@ -240,6 +240,19 @@
   .ibtn{flex:none;width:18px;height:18px;padding:0;margin-left:2px;font-family:'Press Start 2P',monospace;font-size:8px;color:#cfc3ae;background:#1d1915;border:2px solid #4a3f33;cursor:pointer;display:flex;align-items:center;justify-content:center}
   .ibtn:hover{border-color:#f5a623;color:#f5a623}
   .portrait .ibtn,.touch .ibtn{width:30px;height:30px;font-size:11px}
+  .lbox{width:430px;gap:12px}
+  .lhead{display:flex;align-items:center;gap:14px}
+  .lhead img{width:72px;height:72px;image-rendering:pixelated;background:#1d2a1a;border:2px solid #0f0d0b;filter:grayscale(1) brightness(.7)}
+  .lttl{font-family:'Press Start 2P',monospace;font-size:11px;color:#e0412f;letter-spacing:2px}
+  .lname{font-family:'Do Hyeon',sans-serif;font-size:30px;color:#f1e8d6;margin-top:4px}
+  .lmsg{font-family:'Do Hyeon',sans-serif;font-size:22px;color:#f1e8d6;line-height:1.35}
+  .lmsg b{color:#f5a623;font-weight:400}
+  .lbar{height:14px;background:#0f0d0b;border:2px solid #4a3f33}
+  .lfill{height:100%;background:#f5a623;box-shadow:inset 0 -3px 0 #c47f12}
+  .lsub{font-family:'Do Hyeon',sans-serif;font-size:16px;color:#8a7e6c}
+  .lbox .grid2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+  .lbox .grid2 .btn{font-family:'Do Hyeon',sans-serif;font-size:19px;padding:8px}
+  .lbox .btn.main{background:#f5a623;color:#1d1915;box-shadow:inset 0 0 0 3px #ffd27a,0 4px 0 #0f0d0b}
   #achPop{position:absolute;left:50%;top:128px;transform:translate(-50%,-20px);opacity:0;transition:opacity .3s,transform .3s;pointer-events:none;background:rgba(29,25,21,.95);border:3px solid #0f0d0b;box-shadow:inset 0 0 0 2px #f5a623;padding:10px 22px;text-align:center}
   #achPop.show{opacity:1;transform:translate(-50%,0)}
   .ap1{font-family:'Press Start 2P',monospace;font-size:9px;color:#f5a623}
@@ -324,6 +337,13 @@
     <div class="icards" id="infoCards"></div>
     <div class="inote" id="infoNote"></div>
   </div></div>
+  <div id="lockPanel" class="mpanel"><div class="mbox lbox">
+    <div class="lhead"><img id="lockImg" alt=""><div><div class="lttl">LOCKED</div><div class="lname" id="lockName"></div></div></div>
+    <div class="lmsg" id="lockMsg"></div>
+    <div class="lbar"><div class="lfill" id="lockFill"></div></div>
+    <div class="lsub" id="lockSub"></div>
+    <div class="grid2"><button class="btn" id="bLockInfo">타워 정보 보기</button><button class="btn main mclose">확인</button></div>
+  </div></div>
   <div id="achPop"></div>
 </div>
 <div id="side">
@@ -337,7 +357,7 @@
 
 <script>
 'use strict';
-const VERSION = 'v0.26.2';
+const VERSION = 'v0.26.3';
 // 터치 기기인지 (휴대폰·태블릿이면 터치 UI로)
 const TOUCH = matchMedia('(pointer: coarse)').matches || navigator.maxTouchPoints > 0;
 
@@ -1361,7 +1381,7 @@ Object.entries(TDEF).forEach(([k, d]) => {
   const ct = document.createElement('div'); ct.className = 'ct2'; ct.textContent = d.cost; el.appendChild(ct); el.ct = ct;
   const ib = document.createElement('button'); ib.className = 'ibtn'; ib.textContent = 'i'; ib.title = '타워 정보';
   ib.onclick = e => { e.stopPropagation(); openInfo(k); }; el.appendChild(ib);
-  el.onclick = () => { selType = k; };
+  el.onclick = () => { if (G.phase !== 'title' && !isUnlocked(k)) { openLock(k); return; } selType = k; };
   el.title = d.desc;
   pal.appendChild(el); palEls[k] = el;
 });
@@ -1672,6 +1692,19 @@ $('bSubmit').onclick = async () => {
 };
 $('nick').addEventListener('keydown', e => { if (e.key === 'Escape') { $('nick').blur(); return; } e.stopPropagation(); if (e.key === 'Enter') $('bSubmit').click(); });   // 닉네임 칠 때 게임 단축키가 눌리지 않게
 $('bRank').onclick = openRank;
+// ───────── 잠긴 타워 안내 팝업 ─────────
+let lockType = null;
+function openLock(k) {
+  closeMenu(); lockType = k;
+  const d = TDEF[k], left = d.unlock - G.cleared;
+  $('lockImg').src = towerIcon(k, 1);
+  $('lockName').textContent = d.name;
+  $('lockMsg').innerHTML = `<b>웨이브 ${d.unlock}</b> 클리어하면 해금돼요.<br>앞으로 <b>${left}웨이브</b> 남았어요!`;
+  $('lockFill').style.width = Math.max(4, Math.min(100, G.cleared / d.unlock * 100)) + '%';
+  $('lockSub').textContent = `지금 클리어한 웨이브: ${G.cleared} / ${d.unlock}`;
+  $('lockPanel').classList.add('show');
+}
+$('bLockInfo').onclick = () => { $('lockPanel').classList.remove('show'); openInfo(lockType); };
 // ───────── 피드백 (구글 폼): 버전·기기·닉네임을 미리 채운 링크로 연다 ─────────
 const FEEDBACK_FORM = 'https://docs.google.com/forms/d/e/1FAIpQLSe9yNyfcDR13_Fl_Kh_PJSNw6jYat13ysiAAK_YvL4MYnB4mQ/viewform';
 function feedbackUrl() {
@@ -1703,7 +1736,7 @@ addEventListener('keydown', e => {
   if (k === 'escape' && menuT) { closeMenu(); return; }
   if (k === 'escape' || k === 'p') { e.preventDefault(); setPause(!G.paused); return; }
   if (G.paused) return;
-  const byKey = Object.entries(TDEF).find(([, d]) => d.key === k); if (byKey) selType = byKey[0];
+  const byKey = Object.entries(TDEF).find(([, d]) => d.key === k); if (byKey) { if (!isUnlocked(byKey[0])) { openLock(byKey[0]); return; } selType = byKey[0]; }
   if (k === ' ') { e.preventDefault(); if (G.phase === 'break' && !G.over) G.breakT = 0; }
   if (k === 'h') toggleHide();
   if (k === 'd') toggleDemo();
