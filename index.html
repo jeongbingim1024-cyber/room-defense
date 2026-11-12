@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
-<title>룸 디펜스 프로토타입 v0.17</title>
+<title>룸 디펜스 프로토타입 v0.18</title>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Do+Hyeon&display=swap">
 <style>
   html,body{margin:0;height:100%;background:#0f0d0b;overflow:hidden;user-select:none;-webkit-user-select:none;-webkit-touch-callout:none;touch-action:none;overscroll-behavior:none}
@@ -125,6 +125,42 @@
   #over.show{display:flex}
   #over h1{margin:0;font-family:'Do Hyeon',sans-serif;font-weight:400;font-size:56px;text-shadow:4px 4px 0 #0f0d0b}
   #over p{margin:0;font-family:'Press Start 2P',monospace;font-size:12px;color:#f5a623}
+  #over #overBat{font-family:'Do Hyeon',sans-serif;font-size:22px;color:#8fd06a;display:flex;align-items:center;gap:8px}
+  /* ───── 배터리 · 업적 · 영구 강화 ───── */
+  .bat{display:inline-block;width:16px;height:9px;border:2px solid #8fd06a;position:relative;vertical-align:middle;background:linear-gradient(90deg,#8fd06a 70%,transparent 70%);flex:none}
+  .bat::after{content:'';position:absolute;right:-5px;top:2px;width:3px;height:5px;background:#8fd06a}
+  .batbox{display:flex;align-items:center;gap:9px;font-family:'Press Start 2P',monospace;font-size:12px;color:#8fd06a}
+  #title .btns2{display:flex;gap:12px;align-items:center;margin-top:4px}
+  #title .btns2 .btn{font-family:'Do Hyeon',sans-serif;font-size:20px;padding:8px 18px}
+  .mpanel{position:absolute;inset:0;display:none;align-items:center;justify-content:center;background:rgba(15,13,11,.84)}
+  .mpanel.show{display:flex}
+  .mbox{width:820px;max-height:516px;box-sizing:border-box;background:#1d1915;border:3px solid #0f0d0b;box-shadow:inset 0 0 0 2px #4a3f33;padding:16px 18px;display:flex;flex-direction:column;gap:12px;color:#f1e8d6}
+  .mhead{display:flex;align-items:center;gap:16px;font-family:'Do Hyeon',sans-serif;font-size:30px}
+  .mhead .mclose{margin-left:auto;font-family:'Do Hyeon',sans-serif;font-size:18px;padding:6px 14px}
+  #achCount{font-family:'Press Start 2P',monospace;font-size:11px;color:#f5a623}
+  .alist{display:grid;grid-template-columns:1fr 1fr;gap:8px;overflow-y:auto;touch-action:pan-y}
+  .ach{display:flex;gap:10px;align-items:center;background:#2c2620;border:3px solid #0f0d0b;box-shadow:inset 0 0 0 2px #4a3f33;padding:7px 10px;opacity:.6}
+  .ach.done{opacity:1;box-shadow:inset 0 0 0 2px #f5a623}
+  .ach .ic{width:30px;height:30px;flex:none;display:flex;align-items:center;justify-content:center;font-family:'Press Start 2P',monospace;font-size:10px;background:#0f0d0b;color:#8a7e6c}
+  .ach.done .ic{background:#f5a623;color:#1d1915}
+  .ach .t1{font-family:'Do Hyeon',sans-serif;font-size:20px;line-height:1.1}
+  .ach .t2{font-family:'Do Hyeon',sans-serif;font-size:15px;color:#cfc3ae;line-height:1.2}
+  .ach .rw{margin-left:auto;display:flex;flex-direction:column;align-items:flex-end;gap:4px;font-family:'Press Start 2P',monospace;font-size:9px;color:#8fd06a;white-space:nowrap}
+  .ach .pg{color:#8a7e6c;font-size:8px}
+  .ulist{display:flex;flex-direction:column;gap:6px;overflow-y:auto;touch-action:pan-y}
+  .uprow{display:flex;align-items:center;gap:14px;background:#2c2620;border:3px solid #0f0d0b;box-shadow:inset 0 0 0 2px #4a3f33;padding:4px 12px}
+  .uprow .t1{font-family:'Do Hyeon',sans-serif;font-size:22px;width:118px;flex:none}
+  .uprow .t2{font-family:'Do Hyeon',sans-serif;font-size:17px;color:#cfc3ae;width:200px;flex:none}
+  .pips{display:flex;gap:4px} .pips i{width:14px;height:14px;background:#0f0d0b;border:2px solid #4a3f33} .pips i.on{background:#f5a623;border-color:#ffd27a}
+  .uprow .btn{margin-left:auto;font-family:'Do Hyeon',sans-serif;font-size:18px;padding:4px 12px;display:flex;align-items:center;gap:8px;min-width:116px;justify-content:center}
+  .uprow .btn.poor,.uprow .btn.max{opacity:.45}
+  .mfoot{display:flex;align-items:center;gap:12px;font-family:'Do Hyeon',sans-serif;font-size:15px;color:#8a7e6c}
+  #bWipe{margin-left:auto;font-family:'Do Hyeon',sans-serif;font-size:15px;padding:6px 10px;background:#3a1512;white-space:nowrap}
+  #achPop{position:absolute;left:50%;top:128px;transform:translate(-50%,-20px);opacity:0;transition:opacity .3s,transform .3s;pointer-events:none;background:rgba(29,25,21,.95);border:3px solid #0f0d0b;box-shadow:inset 0 0 0 2px #f5a623;padding:10px 22px;text-align:center}
+  #achPop.show{opacity:1;transform:translate(-50%,0)}
+  .ap1{font-family:'Press Start 2P',monospace;font-size:9px;color:#f5a623}
+  .ap2{font-family:'Do Hyeon',sans-serif;font-size:26px;color:#f1e8d6;margin:4px 0}
+  .ap3{font-family:'Press Start 2P',monospace;font-size:10px;color:#8fd06a;display:flex;align-items:center;justify-content:center;gap:8px}
 </style>
 </head>
 <body>
@@ -152,6 +188,7 @@
     <h1>방치형 룸 디펜스</h1>
     <div class="tag">세상은 망했다. 내 방만 빼고.</div>
     <div class="btns"><button class="btn" id="bStart">START</button><button class="btn" id="bStartDemo">DEMO</button></div>
+    <div class="btns2"><button class="btn" id="bAch">업적</button><button class="btn" id="bUp">강화</button><div class="batbox"><span class="bat"></span><span id="batT">0</span></div></div>
     <div class="press"><span class="pcOnly2">PRESS ENTER</span><span class="tOnly">TAP START</span></div>
     <div class="ver" id="ver"></div>
   </div>
@@ -159,10 +196,13 @@
   <div id="toast">H 키, 또는 오른쪽 위에 마우스를 올리면 UI가 다시 보여요</div>
   <div id="pause">
     <div class="ttl">PAUSED</div>
-    <div class="col"><button class="btn" id="bResume">RESUME</button><button class="btn" id="bRestart">RESTART</button><button class="btn" id="bTitle">TITLE</button></div>
+    <div class="col"><button class="btn" id="bResume">RESUME</button><button class="btn" id="bRestart">RESTART</button><button class="btn" id="bTitle">TITLE</button><button class="btn" id="bAch2">업적 보기</button></div>
     <div class="keys2 pcOnly"><b>1-9</b> 타워 선택 · <b>SPACE</b> 웨이브 시작 · <b>F</b> 속도 · <b>U</b> 울타리 강화<br><b>H</b> UI 숨김 · <b>D</b> 자동 데모 · <b>ESC</b> 계속하기</div>
   </div>
-  <div id="over"><h1>침대가 함락됐다...</h1><p id="overWave">WAVE 0</p><button class="btn" id="bRetry" style="font-size:12px;padding:12px 16px">RETRY</button></div>
+  <div id="over"><h1>침대가 함락됐다...</h1><p id="overWave">WAVE 0</p><div id="overBat"></div><button class="btn" id="bRetry" style="font-size:12px;padding:12px 16px">RETRY</button></div>
+  <div id="achPanel" class="mpanel"><div class="mbox"><div class="mhead"><span>업적</span><span id="achCount"></span><button class="btn mclose">닫기</button></div><div class="alist" id="achList"></div></div></div>
+  <div id="upPanel" class="mpanel"><div class="mbox"><div class="mhead"><span>영구 강화</span><span class="batbox"><span class="bat"></span><span id="upBat">0</span></span><button class="btn mclose">닫기</button></div><div class="ulist" id="upList"></div><div class="mfoot"><span>배터리는 업적 달성과 판이 끝날 때(클리어한 웨이브 수만큼) 얻어요. 자동 데모를 쓴 판은 제외.</span><button class="btn" id="bWipe">기록 초기화</button></div></div></div>
+  <div id="achPop"></div>
 </div>
 <div id="side">
   <div class="sidettl">TOWERS</div>
@@ -175,9 +215,68 @@
 
 <script>
 'use strict';
-const VERSION = 'v0.17';
+const VERSION = 'v0.18';
 // 터치 기기인지 (휴대폰·태블릿이면 터치 UI로)
-const TOUCH = matchMedia('(pointer: coarse)').matches || navigator.maxTouchPoints > 0;   // 수정할 때마다 올린다
+const TOUCH = matchMedia('(pointer: coarse)').matches || navigator.maxTouchPoints > 0;
+
+// ───────── 메타 진행: 업적 + 배터리 + 영구 강화 (이 브라우저에 저장) ─────────
+const SAVE_KEY = 'roomdef_save_v1';
+const SAVE = (() => {
+  const d = { bat: 0, ach: {}, up: {}, st: { kills: 0, mosq: 0, moves: 0 } };
+  try { const s = JSON.parse(localStorage.getItem(SAVE_KEY)); if (s) return { bat: s.bat || 0, ach: s.ach || {}, up: s.up || {}, st: { ...d.st, ...(s.st || {}) } }; } catch (e) {}
+  return d;
+})();
+let saveDirty = false;
+function persist() { saveDirty = false; try { localStorage.setItem(SAVE_KEY, JSON.stringify(SAVE)); } catch (e) {} }
+setInterval(() => { if (saveDirty) persist(); }, 2000);
+const ACH = [
+  { id: 'first',   name: '일단 눕자',        desc: '첫 타워 설치', bat: 10 },
+  { id: 'kill100', name: '살충 입문',        desc: '벌레 누적 100마리 처치', bat: 20, prog: () => [SAVE.st.kills, 100] },
+  { id: 'mosq50',  name: '모기 없는 밤',     desc: '모기 누적 50마리 처치', bat: 20, prog: () => [SAVE.st.mosq, 50] },
+  { id: 'boss',    name: '바퀴 퇴치 전문가', desc: '거대 바퀴벌레(보스) 처치', bat: 30 },
+  { id: 'perfect', name: '꿀잠 보장',        desc: '웨이브 3 이상을 HP 손실 없이 클리어', bat: 30 },
+  { id: 'fence',   name: '철벽 방어',        desc: '울타리를 전기 펜스까지 강화', bat: 30 },
+  { id: 'full',    name: '풀 세팅',          desc: '8칸 모두 3레벨 타워로 채우기', bat: 50 },
+  { id: 'minimal', name: '미니멀리스트',     desc: '타워 3개 이하로 웨이브 10 클리어', bat: 50 },
+  { id: 'lazy',    name: '귀차니즘 만렙',    desc: '자동 데모로 웨이브 20 도달', bat: 10 },
+  { id: 'mover',   name: '이사 좀 그만',     desc: '타워 누적 30번 옮기기', bat: 10, prog: () => [SAVE.st.moves, 30] },
+];
+const UPS = [
+  { id: 'scrap', name: '비상금',     desc: '시작 스크랩 +20',      max: 5, base: 10 },
+  { id: 'hp',    name: '튼튼한 침대', desc: '침대 최대 HP +10',     max: 5, base: 10 },
+  { id: 'dmg',   name: '정밀 조준',   desc: '모든 타워 공격력 +5%', max: 5, base: 15 },
+  { id: 'range', name: '좋은 시력',   desc: '모든 타워 사거리 +3%', max: 3, base: 20 },
+  { id: 'loot',  name: '재활용 달인', desc: '처치 보상 +5%',        max: 5, base: 15 },
+  { id: 'fence', name: '단골 철물점', desc: '울타리 강화 비용 -8%', max: 3, base: 20 },
+];
+const upLv = id => SAVE.up[id] || 0;
+const upPrice = u => u.base * 2 ** upLv(u.id);                // 레벨마다 2배씩 비싸진다
+const fenceCost = lv => Math.round(FENCE_LV[lv].cost * (1 - .08 * upLv('fence')));
+const counts = () => !G.demo && G.phase !== 'title';           // 자동 데모·타이틀 화면에서는 기록하지 않는다
+function unlockAch(id) {
+  const a = ACH.find(x => x.id === id);
+  if (!a || SAVE.ach[id] || (G.demo && id !== 'lazy')) return;
+  SAVE.ach[id] = true; SAVE.bat += a.bat; persist();
+  achPop(a);
+}
+const achQ = []; let achBusy = false;
+function achPop(a) { achQ.push(a); if (!achBusy) nextAch(); }
+function nextAch() {
+  const a = achQ.shift(); if (!a) { achBusy = false; return; }
+  achBusy = true; const el = document.getElementById('achPop');
+  el.innerHTML = `<div class="ap1">ACHIEVEMENT</div><div class="ap2">${a.name}</div><div class="ap3"><span class="bat"></span>+${a.bat}</div>`;
+  el.classList.add('show');
+  setTimeout(() => { el.classList.remove('show'); setTimeout(nextAch, 400); }, 2600);
+}
+function checkFull() { if (SLOTS.every(s => s.tower && s.tower.lvl >= 3)) unlockAch('full'); }
+// 판이 끝날 때(게임오버·재시작·타이틀로) 클리어한 웨이브 수만큼 배터리 지급, 한 판에 한 번
+function endRun() {
+  if (G.awarded || G.phase === 'title') return null;
+  G.awarded = true;
+  if (G.usedDemo) return { gain: 0, demo: true };
+  const gain = G.cleared; SAVE.bat += gain; persist();
+  return { gain };
+}   // 수정할 때마다 올린다
 // ───────── 기본 설정 ─────────
 const W = 480, H = 270, CX = 240, CY = 140;          // 내부 해상도(픽셀아트) & 방 중심
 const FENCE = { rx: 118, ry: 92 };                    // 울타리 타원
@@ -464,9 +563,10 @@ for (let i = 0; i < SLOT_COUNT; i++) { const t = i / SLOT_COUNT * Math.PI * 2 + 
 const G = {};
 let enemies, towers, shells, parts, fx, floats;
 function reset(keepDemo, title = false) {
-  Object.assign(G, { hp: 100, maxHp: 100, scrap: 200, wave: 0, phase: title ? 'title' : 'break', ambT: 0, paused: false, cleared: 0, fence: 0, breakT: 8, queue: [], waveT: 0, over: false, time: 0,
+  const baseHp = 100 + 10 * upLv('hp');
+  Object.assign(G, { hp: baseHp, maxHp: baseHp, scrap: 200 + 20 * upLv('scrap'), awarded: false, usedDemo: false, tookDmg: false, maxTowers: 0, wave: 0, phase: title ? 'title' : 'break', ambT: 0, paused: false, cleared: 0, fence: 0, breakT: 8, queue: [], waveT: 0, over: false, time: 0,
     shake: 0, baseFlash: 0, banner: 0, bannerText: '', demo: keepDemo ? G.demo : false, demoT: 0 });
-  if (G.demo) G.scrap = 400;
+  if (G.demo) { G.scrap = 400; G.usedDemo = true; }
   selType = 'laser';
   enemies = []; towers = []; shells = []; parts = []; fx = []; floats = [];
   SLOTS.forEach(s => s.tower = null);
@@ -518,7 +618,7 @@ class Enemy {
         if (G.phase === 'title') return;
         // 초반 웨이브는 약하게 물고, 웨이브가 오를수록 세진다 (1웨이브 35% → 6웨이브부터 100%)
         const ramp = Math.min(1, .35 + .13 * (G.wave - 1));
-        G.hp -= this.d.dmg * (this.boss ? 4 : 1) * ramp * (1 - fl.reduce);   // 울타리가 좋을수록 덜 아프다
+        G.hp -= this.d.dmg * (this.boss ? 4 : 1) * ramp * (1 - fl.reduce); G.tookDmg = true;   // 울타리가 좋을수록 덜 아프다
         G.baseFlash = .15;
         const bx = this.x + Math.cos(this.ang) * 6, by = this.y + Math.sin(this.ang) * 6;
         for (let i = 0; i < 3; i++) parts.push(new Part(bx, by, rnd(-30, 30), rnd(-40, 0), '#f1e8d6', .3, 1));
@@ -532,7 +632,13 @@ class Enemy {
   }
   die() {
     this.dead = true;
-    const rew = this.d.reward * (this.boss ? 8 : 1);
+    const rew = Math.round(this.d.reward * (this.boss ? 8 : 1) * (1 + .05 * upLv('loot')));
+    if (counts()) {
+      SAVE.st.kills++; if (this.type === 'mosq') SAVE.st.mosq++; saveDirty = true;
+      if (SAVE.st.kills >= 100) unlockAch('kill100');
+      if (SAVE.st.mosq >= 50) unlockAch('mosq50');
+      if (this.boss) unlockAch('boss');
+    }
     G.scrap += rew;
     const n = this.boss ? 40 : 9;
     for (let i = 0; i < n; i++) { const a = R() * 6.28, s = rnd(15, this.boss ? 110 : 55); parts.push(new Part(this.x, this.y, Math.cos(a) * s, Math.sin(a) * s, this.d.blood[(R() * 3) | 0], rnd(.3, .7), R() < .3 ? 2 : 1)); }
@@ -575,8 +681,8 @@ class Tower {
     this.type = type; this.def = TDEF[type]; this.slot = slot; this.x = slot.x; this.y = slot.y;
     this.lvl = 1; this.spent = TDEF[type].cost; this.cd = 0; this.ang = Math.atan2(slot.y - CY, slot.x - CX); this.anim = 0; this.target = null; this.pop = .25;
   }
-  get range() { return this.def.range * (1 + .12 * (this.lvl - 1)); }
-  get dmg() { return this.def.dmg * (1 + .6 * (this.lvl - 1)); }
+  get range() { return this.def.range * (1 + .12 * (this.lvl - 1)) * (1 + .03 * upLv('range')); }
+  get dmg() { return this.def.dmg * (1 + .6 * (this.lvl - 1)) * (1 + .05 * upLv('dmg')); }
   get upCost() { return Math.round(this.def.cost * .8 * this.lvl); }
   findTarget() {                          // 사거리 안에서 침대에 가장 가까운 적
     let best = null, bv = 1e9;
@@ -887,7 +993,8 @@ function makeWave(n) {
   return q;
 }
 function startWave() {
-  G.wave++; G.phase = 'wave'; G.queue = makeWave(G.wave); G.waveT = 0;
+  G.wave++; G.phase = 'wave'; G.queue = makeWave(G.wave); G.waveT = 0; G.tookDmg = false;
+  if (G.demo && G.wave >= 20) unlockAch('lazy');
   G.banner = 2; G.bannerText = 'WAVE ' + G.wave;
 }
 
@@ -900,6 +1007,8 @@ function place(slot, type) {
   if (G.scrap < d.cost) { floats.push(new Floater(slot.x, slot.y - 10, 'NO SCRAP', '#e0412f', .8)); return false; }
   G.scrap -= d.cost;
   const t = new TCLASS[type](type, slot); slot.tower = t; towers.push(t);
+  G.maxTowers = Math.max(G.maxTowers, towers.length);
+  if (counts()) { unlockAch('first'); checkFull(); }
   fx.push(new Ring(slot.x, slot.y + 4, 14, '#f1e8d6', .3));
   for (let i = 0; i < 8; i++) { const a = R() * 6.28; parts.push(new Part(slot.x, slot.y + 5, Math.cos(a) * 30, Math.sin(a) * 12, '#c9a77a', .35, 1)); }
   return true;
@@ -916,6 +1025,7 @@ function upgrade(t) {
   if (t.lvl >= 3) return false;
   if (G.scrap < t.upCost) { floats.push(new Floater(t.x, t.y - 14, 'NO SCRAP', '#e0412f', .8)); return false; }
   G.scrap -= t.upCost; t.spent += t.upCost; t.lvl++; t.pop = .25;
+  if (counts()) checkFull();
   fx.push(new Ring(t.x, t.y, 18, '#f5c623', .4));
   floats.push(new Floater(t.x, t.y - 14, 'LV' + t.lvl, '#f5c623', .9));
   return true;
@@ -926,7 +1036,7 @@ function demoAI(dt) {
   G.demoT -= dt; if (G.demoT > 0) return; G.demoT = .5;
   const empty = SLOTS.filter(s => !s.tower);
   const types = Object.keys(TDEF).filter(isUnlocked);
-  if (G.fence < 4 && G.scrap >= FENCE_LV[G.fence + 1].cost && R() < .25) { upgradeFence(); return; }
+  if (G.fence < 4 && G.scrap >= fenceCost(G.fence + 1) && R() < .25) { upgradeFence(); return; }
   if (empty.length && R() < .75) {
     const ty = types[(R() * types.length) | 0];
     if (G.scrap >= TDEF[ty].cost) place(empty[(R() * empty.length) | 0], ty);
@@ -958,6 +1068,10 @@ function update(dt) {
       const bonus = 25 + G.wave * 8; G.scrap += bonus;   // 웨이브 클리어 보상
       G.banner = 1.6; G.bannerText = 'CLEAR +' + bonus;
       G.cleared = G.wave;
+      if (counts()) {
+        if (G.wave >= 3 && !G.tookDmg) unlockAch('perfect');
+        if (G.cleared >= 10 && G.maxTowers <= 3) unlockAch('minimal');
+      }
       const fresh = Object.keys(TDEF).filter(k => TDEF[k].unlock === G.cleared);   // 이번에 새로 풀린 타워
       if (fresh.length) {
         showToast('새 타워 해금! ' + fresh.map(k => TDEF[k].name).join(', '), 2600);
@@ -976,7 +1090,13 @@ function update(dt) {
   // 바닥 얼룩은 천천히 사라진다
   if (Math.floor(G.time * 2) !== Math.floor((G.time - dt) * 2)) { gg.globalAlpha = .06; gg.drawImage(bg, 0, 0); gg.globalAlpha = 1; }
   if (G.demo) { demoAI(dt); if (G.hp < 30) G.hp = G.maxHp; }
-  if (G.hp <= 0) { G.hp = 0; G.over = true; document.getElementById('overWave').textContent = 'WAVE ' + G.wave + ' 까지 버팀'; document.getElementById('over').classList.add('show'); }
+  if (G.hp <= 0) {
+    G.hp = 0; G.over = true;
+    document.getElementById('overWave').textContent = 'WAVE ' + G.wave + ' 까지 버팀';
+    const r = endRun();
+    document.getElementById('overBat').innerHTML = !r ? '' : r.demo ? '자동 데모를 쓴 판은 배터리를 얻지 않아요' : `<span class="bat"></span>배터리 +${r.gain} · 보유 ${SAVE.bat}`;
+    document.getElementById('over').classList.add('show');
+  }
 }
 
 // ───────── 그리기 ─────────
@@ -1080,8 +1200,8 @@ function hud() {
   const fl = FENCE_LV[G.fence], fn = FENCE_LV[G.fence + 1];
   $('fenceName').textContent = `${fl.name} Lv${G.fence + 1}`;
   $('fenceInfo').textContent = G.fence === 0 ? '받는 피해 그대로' : `받는 피해 -${fl.reduce * 100}%` + (fl.thorns ? ` · 가시 ${fl.thorns}` : '');
-  $('bFence').textContent = fn ? 'UP ' + fn.cost : 'MAX';
-  $('bFence').classList.toggle('max', !fn); $('bFence').classList.toggle('poor', !!fn && G.scrap < fn.cost);
+  $('bFence').textContent = fn ? 'UP ' + fenceCost(G.fence + 1) : 'MAX';
+  $('bFence').classList.toggle('max', !fn); $('bFence').classList.toggle('poor', !!fn && G.scrap < fenceCost(G.fence + 1));
   const sd = TDEF[selType];
   $('in1').textContent = sd.name; $('in2').textContent = sd.desc;
   $('in3').textContent = isUnlocked(selType) ? `사거리 ${sd.range} · 비용 ${sd.cost}` : `잠김 · 웨이브 ${sd.unlock} 클리어 시 해금`;
@@ -1108,6 +1228,7 @@ function moveTower(t, to) {
   from.tower = other; if (other) { other.slot = from; other.x = from.x; other.y = from.y; other.pop = .25; }
   for (const sl of other ? [to, from] : [to]) { fx.push(new Ring(sl.x, sl.y + 4, 14, '#f1e8d6', .3)); for (let i = 0; i < 6; i++) { const a = R() * 6.28; parts.push(new Part(sl.x, sl.y + 5, Math.cos(a) * 28, Math.sin(a) * 10, '#c9a77a', .3, 1)); } }
   floats.push(new Floater(to.x, to.y - 14, other ? 'SWAP' : 'MOVE', '#f1e8d6', .7));
+  if (counts()) { SAVE.st.moves++; saveDirty = true; if (SAVE.st.moves >= 30) unlockAch('mover'); }
 }
 // ───────── 타워 메뉴 (클릭하면 업그레이드 / 판매) ─────────
 let menuT = null;
@@ -1155,13 +1276,15 @@ cv.addEventListener('pointercancel', () => drag = null);
 cv.addEventListener('pointerleave', () => { mouse.in = false; });
 let speed = 1;
 function cycleSpeed() { speed = speed === 1 ? 2 : speed === 2 ? 3 : 1; $('bSpeed').textContent = 'x' + speed; $('bSpeed').classList.toggle('on', speed > 1); }
-function toggleDemo() { G.demo = !G.demo; $('bDemo').classList.toggle('on', G.demo); if (G.demo && G.scrap < 400) G.scrap = 400; }
+function toggleDemo() { G.demo = !G.demo; if (G.demo) G.usedDemo = true; $('bDemo').classList.toggle('on', G.demo); if (G.demo && G.scrap < 400) G.scrap = 400; }
 function upgradeFence() {
   if (blocked() || G.fence >= FENCE_LV.length - 1) return false;
   const nx = FENCE_LV[G.fence + 1];
-  if (G.scrap < nx.cost) { floats.push(new Floater(CX, CY - FENCE.ry - 6, 'NO SCRAP', '#e0412f', .8)); return false; }
-  G.scrap -= nx.cost; G.fence++;
-  const gain = nx.maxHp - G.maxHp; G.maxHp = nx.maxHp; G.hp = Math.min(G.maxHp, G.hp + gain);
+  const cost = fenceCost(G.fence + 1);
+  if (G.scrap < cost) { floats.push(new Floater(CX, CY - FENCE.ry - 6, 'NO SCRAP', '#e0412f', .8)); return false; }
+  G.scrap -= cost; G.fence++;
+  const newMax = nx.maxHp + 10 * upLv('hp'), gain = newMax - G.maxHp; G.maxHp = newMax; G.hp = Math.min(G.maxHp, G.hp + gain);
+  if (G.fence === FENCE_LV.length - 1 && counts()) unlockAch('fence');
   for (let i = 0; i < 16; i++) { const t = i / 16 * 6.28; fx.push(new Ring(CX + Math.cos(t) * FENCE.rx, CY + Math.sin(t) * FENCE.ry, 12, '#f5c623', .4)); }
   G.shake = Math.max(G.shake, 2);
   showToast('울타리 강화! ' + nx.name, 2000);
@@ -1181,12 +1304,13 @@ function setPause(on) {
   if (G.phase === 'title' || G.over) on = false;
   G.paused = on; $('pause').classList.toggle('show', on); $('bPause').classList.toggle('on', on);
 }
-function goTitle() { setPause(false); if (G.demo) toggleDemo(); reset(false, true); $('stage').classList.add('in-title'); fit(); }
+function runRewardToast() { const r = endRun(); if (r && r.gain > 0) showToast(`배터리 +${r.gain} 획득 · 보유 ${SAVE.bat}`, 2600); }
+function goTitle() { runRewardToast(); setPause(false); if (G.demo) toggleDemo(); reset(false, true); $('stage').classList.add('in-title'); fit(); refreshTitleBat(); }
 $('bPause').onclick = () => setPause(!G.paused);
 $('bNext').onclick = () => { if (G.phase === 'break' && !G.over && !G.paused) G.breakT = 0; };
 $('bFence').onclick = () => upgradeFence();
 $('bResume').onclick = () => setPause(false);
-$('bRestart').onclick = () => { const d = G.demo; setPause(false); reset(false); if (d) toggleDemo(); };
+$('bRestart').onclick = () => { runRewardToast(); const d = G.demo; setPause(false); reset(false); if (d) toggleDemo(); };
 $('bTitle').onclick = goTitle;
 document.addEventListener('visibilitychange', () => { if (document.hidden) setPause(true); });
 function startGame(demo) {
@@ -1194,10 +1318,52 @@ function startGame(demo) {
   reset(false);
   if (demo !== G.demo) toggleDemo();
 }
+// ───────── 업적 / 강화 화면 ─────────
+function refreshTitleBat() { $('batT').textContent = SAVE.bat; }
+const panelOpen = () => !!document.querySelector('.mpanel.show');
+function openPanel(id) { closeMenu(); $(id).classList.add('show'); id === 'achPanel' ? renderAch() : renderUp(); }
+function closePanels() { document.querySelectorAll('.mpanel').forEach(p => p.classList.remove('show')); refreshTitleBat(); }
+function renderAch() {
+  const done = ACH.filter(a => SAVE.ach[a.id]).length;
+  $('achCount').textContent = `${done} / ${ACH.length}`;
+  $('achList').innerHTML = ACH.map(a => {
+    const ok = !!SAVE.ach[a.id], pg = !ok && a.prog ? a.prog() : null;
+    return `<div class="ach${ok ? ' done' : ''}"><div class="ic">${ok ? 'OK' : '?'}</div><div><div class="t1">${a.name}</div><div class="t2">${a.desc}</div></div>` +
+      `<div class="rw"><span><span class="bat"></span> ${a.bat}</span>${pg ? `<span class="pg">${Math.min(pg[0], pg[1])}/${pg[1]}</span>` : ''}</div></div>`;
+  }).join('');
+}
+function renderUp() {
+  $('upBat').textContent = SAVE.bat;
+  $('upList').innerHTML = UPS.map(u => {
+    const lv = upLv(u.id), max = lv >= u.max, price = upPrice(u);
+    const pips = Array.from({ length: u.max }, (_, i) => `<i class="${i < lv ? 'on' : ''}"></i>`).join('');
+    return `<div class="uprow"><div class="t1">${u.name}</div><div class="t2">${u.desc}</div><div class="pips">${pips}</div>` +
+      `<button class="btn${max ? ' max' : SAVE.bat < price ? ' poor' : ''}" data-up="${u.id}">${max ? 'MAX' : `강화 <span class="bat"></span>${price}`}</button></div>`;
+  }).join('');
+  $('upList').querySelectorAll('[data-up]').forEach(b => b.onclick = () => {
+    const u = UPS.find(x => x.id === b.dataset.up), lv = upLv(u.id), price = upPrice(u);
+    if (lv >= u.max || SAVE.bat < price) return;
+    SAVE.bat -= price; SAVE.up[u.id] = lv + 1; persist(); renderUp();
+    if (G.phase === 'title') reset(false, true);          // 타이틀에서 강화하면 다음 판 시작값에 바로 반영
+  });
+}
+let wipeArm = false;
+$('bWipe').onclick = () => {
+  if (!wipeArm) { wipeArm = true; $('bWipe').textContent = '한 번 더 누르면 초기화'; setTimeout(() => { wipeArm = false; $('bWipe').textContent = '기록 초기화'; }, 3000); return; }
+  wipeArm = false; $('bWipe').textContent = '기록 초기화';
+  SAVE.bat = 0; SAVE.ach = {}; SAVE.up = {}; SAVE.st = { kills: 0, mosq: 0, moves: 0 }; persist();
+  renderUp(); showToast('업적·배터리·강화 기록을 초기화했어요', 2200);
+};
+$('bAch').onclick = () => openPanel('achPanel');
+$('bUp').onclick = () => openPanel('upPanel');
+$('bAch2').onclick = () => openPanel('achPanel');
+document.querySelectorAll('.mclose').forEach(b => b.onclick = closePanels);
+refreshTitleBat();
 $('bStart').onclick = () => startGame(false);
 $('bStartDemo').onclick = () => startGame(true);
 addEventListener('keydown', e => {
   const k = e.key.toLowerCase();
+  if (panelOpen()) { if (k === 'escape') closePanels(); return; }
   if (G.phase === 'title') {
     if (k === 'enter' || k === ' ') { e.preventDefault(); startGame(false); }
     if (k === 'd') startGame(true);
