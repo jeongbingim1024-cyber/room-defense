@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
-<title>룸 디펜스 프로토타입 v0.31.1</title>
+<title>룸 디펜스 프로토타입 v0.31.2</title>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Do+Hyeon&display=swap">
 <style>
   html,body{margin:0;height:100%;background:#0f0d0b;overflow:hidden;user-select:none;-webkit-user-select:none;-webkit-touch-callout:none;touch-action:none;overscroll-behavior:none}
@@ -112,7 +112,9 @@
   .tw.sel{background:#3d3226;box-shadow:inset 0 0 0 2px #f5a623}
   .tw.poor{opacity:.45}
   .tw canvas{width:24px;height:26px;image-rendering:pixelated;flex:none}
-  .tw .nm{font-family:'Do Hyeon',sans-serif;font-size:16px;line-height:1;flex:1 1 auto;min-width:0;overflow:hidden;text-overflow:ellipsis}
+  .tw .nm{font-family:'Do Hyeon',sans-serif;font-size:15px;line-height:1;flex:1 1 auto;min-width:0;overflow:hidden;text-overflow:ellipsis;display:flex;flex-direction:column;gap:1px}
+  .tw .role{font-size:11px;line-height:1.1;color:#8a7e6c}
+  .portrait .tw .role{font-size:16px}
   .tw .ct2{flex:none;margin-left:auto;font-family:'Press Start 2P',monospace;font-size:8px;color:#f5a623}
   .tw .ct{font-size:8px;color:#f5a623;margin-top:5px}
   .tw .key{font-size:7px;color:#8a7e6c;margin-left:auto;align-self:flex-start}
@@ -298,6 +300,7 @@
   #infoTags{display:flex;gap:6px}
   .itag{font-family:'Do Hyeon',sans-serif;font-size:15px;color:#1d1915;background:#cfc3ae;padding:2px 8px}
   .itag.t0{background:#f5a623}
+  .itag.t1{background:#8fd06a}
   .iunl{display:block;font-size:15px;color:#8a7e6c;margin-top:2px}
   .icards{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
   .icard{background:#2c2620;border:3px solid #0f0d0b;box-shadow:inset 0 0 0 2px #4a3f33;padding:8px 10px;display:flex;flex-direction:column;gap:6px}
@@ -466,7 +469,7 @@
 
 <script>
 'use strict';
-const VERSION = 'v0.31.1';
+const VERSION = 'v0.31.2';
 // 터치 기기인지 (휴대폰·태블릿이면 터치 UI로)
 const TOUCH = matchMedia('(pointer: coarse)').matches || navigator.maxTouchPoints > 0;
 
@@ -1440,11 +1443,17 @@ class Sling extends Tower {
     super.update(dt); this.aim(dt, 7); this.anim = Math.max(0, this.anim - dt * 3);
     if (this.cd <= 0 && this.target && Math.abs(angDiff(this.ang, Math.atan2(this.target.y - this.y, this.target.x - this.x))) < .2) {
       this.cd = this.def.rate; this.anim = 1;
-      shells.push(new Pebble(this.x + Math.cos(this.ang) * 10, this.y + Math.sin(this.ang) * 10, this.target, this.dmg));
+      // 레벨만큼 발사 (LV1 1발 · LV2 2발 · LV3 3발), 체력 많은 순으로 서로 다른 적, 모자라면 같은 적에게
+      const n = this.lvl, tg = enemies.filter(e => !e.dead && dist(this, e) <= this.range).sort((a, b) => b.hp - a.hp);
+      for (let i = 0; i < n; i++) {
+        const off = (i - (n - 1) / 2) * 5, px = -Math.sin(this.ang) * off, py = Math.cos(this.ang) * off;   // 새총마다 옆으로 조금씩
+        shells.push(new Pebble(this.x + Math.cos(this.ang) * 10 + px, this.y + Math.sin(this.ang) * 10 + py, tg[i] || tg[0] || this.target, this.dmg * SLING_MUL[n - 1]));
+      }
     }
   }
   draw() { this.drawBase(TSPR.sling.base); this.drawRot(TSPR.sling.barrel, 3, 5, this.anim * 3); }
 }
+const SLING_MUL = [1, .55, .42];   // 발수가 늘면 한 발 피해는 조금 줄인다 (LV2 2발×55%, LV3 3발×42%)
 class Pebble {
   constructor(x, y, target, dmg) { Object.assign(this, { x, y, target, dmg, dead: false, tx: target.x, ty: target.y }); }
   update(dt) {
@@ -1823,6 +1832,20 @@ function render() {
 const $ = id => document.getElementById(id);
 const pal = $('palette');
 const palEls = {};
+const TINFO = {
+  fan:     { tags: ['근거리', '범위', '돌풍·밀어내기'], tip: '켜지는 순간 돌풍으로 날려 보내고 2초간 밀어낸 뒤 쉬며 충전해요. 레벨업하면 더 넓고 멀리, 자주 불어요.' },
+  glue:    { tags: ['근거리', '범위', '감속'], tip: '범위 안 벌레의 발을 묶어요. 레이저·대포 옆에 두면 맞는 시간이 늘어나요. 보스는 덜 느려져요.' },
+  laser:   { tags: ['중거리', '단일', '지속 빔'], tip: '침대에 가장 가까운 한 마리를 끊김 없이 지져요. 초반 주력 타워예요.' },
+  coil:    { tags: ['근거리', '범위', '독·모기 특효'], tip: '연기 범위 안 모두에게 독 피해. 모기에게는 3배라 모기 떼에 강해요.' },
+  hammer:  { tags: ['근거리', '범위', '강타'], tip: '근처 벌레 전부를 한 번에 내려찍어요. 사거리가 짧아서 벌레가 몰리는 곳에 두세요.' },
+  swatter: { tags: ['근거리', '단일', '강타·모기 즉사'], tip: '한 마리에게 강한 전기 한 방. 모기는 체력과 상관없이 바로 죽어요.' },
+  tesla:   { tags: ['중거리', '연쇄', '다수 공격'], tip: '번개가 가까운 벌레들 사이를 튀어요. 레벨이 오를수록 더 많이 이어져요.' },
+  cannon:  { tags: ['장거리', '범위', '폭발'], tip: '포탄이 떨어진 자리 주변에 폭발 피해. 뭉쳐 있는 무리에 가장 강해요.' },
+  sling:   { tags: ['초장거리', '다중', '레벨마다 +1발'], tip: '맵 거의 끝까지 닿고, 체력 많은 적부터 노려요. LV2는 2발, LV3는 3발을 서로 다른 적에게 쏴요.' },
+};
+// 타워 분류: 사거리(근거리·중거리·장거리) + 공격 방식(단일·범위·연쇄·다중) — 정보 창 태그 앞 두 개와 같다
+const ROLE_C = { 근거리: '#e8903a', 중거리: '#f5c623', 장거리: '#5aa0e8', 초장거리: '#5aa0e8', 단일: '#f19a8a', 범위: '#8fd06a', 연쇄: '#9fe8ff', 다중: '#c8a0ff' };
+const roleHTML = k => TINFO[k].tags.slice(0, 2).map(t => `<span style="color:${ROLE_C[t] || '#cfc3ae'}">${t}</span>`).join(' · ');
 Object.entries(TDEF).forEach(([k, d]) => {
   const el = document.createElement('div'); el.className = 'tw';
   const ic = document.createElement('canvas'); ic.width = 20; ic.height = 22;
@@ -1832,7 +1855,7 @@ Object.entries(TDEF).forEach(([k, d]) => {
   if (k === 'fan') g.drawImage(TSPR.fan.blades[0], 4, 4);
   if (k === 'hammer') g.drawImage(TSPR.hammer.head, 3, 0);
   el.appendChild(ic);
-  const tx = document.createElement('div'); tx.className = 'nm'; tx.textContent = d.name; el.appendChild(tx);
+  const tx = document.createElement('div'); tx.className = 'nm'; tx.innerHTML = `${d.name}<span class="role">${roleHTML(k)}</span>`; el.appendChild(tx);
   const ct = document.createElement('div'); ct.className = 'ct2'; ct.textContent = d.cost; el.appendChild(ct); el.ct = ct;
   const ib = document.createElement('button'); ib.className = 'ibtn'; ib.textContent = 'i'; ib.title = '타워 정보';
   ib.onclick = e => { e.stopPropagation(); openInfo(k); }; el.appendChild(ib);
@@ -1925,17 +1948,6 @@ function towerIcon(type, lvl) {
   for (let i = 0; i < lvl - 1; i++) { g.fillStyle = '#120d0a'; g.fillRect(19 + i * 6, 39, 5, 5); g.fillStyle = '#f5c623'; g.fillRect(20 + i * 6, 40, 3, 3); }
   return c.toDataURL();
 }
-const TINFO = {
-  fan:     { tags: ['돌풍', '밀어내기', '부채꼴'], tip: '켜지는 순간 돌풍으로 날려 보내고 2초간 밀어낸 뒤 쉬며 충전해요. 레벨업하면 더 넓고 멀리, 자주 불어요.' },
-  glue:    { tags: ['감속', '범위'], tip: '범위 안 벌레의 발을 묶어요. 레이저·대포 옆에 두면 맞는 시간이 늘어나요. 보스는 덜 느려져요.' },
-  laser:   { tags: ['단일', '지속 빔'], tip: '침대에 가장 가까운 한 마리를 끊김 없이 지져요. 초반 주력 타워예요.' },
-  coil:    { tags: ['범위', '지속 독', '모기 특효'], tip: '연기 범위 안 모두에게 독 피해. 모기에게는 3배라 모기 떼에 강해요.' },
-  hammer:  { tags: ['범위', '근거리', '강타'], tip: '근처 벌레 전부를 한 번에 내려찍어요. 사거리가 짧아서 벌레가 몰리는 곳에 두세요.' },
-  swatter: { tags: ['단일', '강타', '모기 즉사'], tip: '한 마리에게 강한 전기 한 방. 모기는 체력과 상관없이 바로 죽어요.' },
-  tesla:   { tags: ['연쇄', '다수 공격'], tip: '번개가 가까운 벌레들 사이를 튀어요. 레벨이 오를수록 더 많이 이어져요.' },
-  cannon:  { tags: ['범위', '폭발', '장거리'], tip: '포탄이 떨어진 자리 주변에 폭발 피해. 뭉쳐 있는 무리에 가장 강해요.' },
-  sling:   { tags: ['단일', '저격', '초장거리'], tip: '맵 거의 끝까지 닿고, 체력이 가장 많은 적부터 노려요. 보스 잡기 담당.' },
-};
 function infoStats(type, lvl) {
   const t = towerAt(type, lvl), d = TDEF[type], one = v => Math.round(v), dec = v => v.toFixed(1);
   const st = [['사거리', one(t.range)]];
@@ -1948,7 +1960,7 @@ function infoStats(type, lvl) {
     case 'swatter': st.push(['한 방 피해', one(t.dmg)], ['공격 간격', d.rate + '초'], ['초당 피해', dec(t.dmg / d.rate)]); break;
     case 'tesla':   st.push(['번개 피해', one(t.dmg)], ['연쇄', (d.chain + lvl - 1) + '마리'], ['공격 간격', d.rate + '초']); break;
     case 'cannon':  st.push(['포탄 피해', one(t.dmg)], ['폭발 반경', d.splash], ['공격 간격', d.rate + '초']); break;
-    case 'sling':   st.push(['한 방 피해', one(t.dmg)], ['공격 간격', d.rate + '초'], ['초당 피해', dec(t.dmg / d.rate)]); break;
+    case 'sling':   st.push(['탄환', `${lvl}발 × ${one(t.dmg * SLING_MUL[lvl - 1])}`], ['공격 간격', d.rate + '초'], ['초당 피해(다 맞으면)', dec(lvl * t.dmg * SLING_MUL[lvl - 1] / d.rate)]); break;
   }
   const spent = d.cost + (lvl >= 2 ? Math.round(d.cost * .8) : 0) + (lvl >= 3 ? Math.round(d.cost * 1.6) : 0);
   st.push(['누적 비용', spent], ['판매 시', '+' + Math.round(spent * .7)]);
