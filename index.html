@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
-<title>룸 디펜스 프로토타입 v0.50.1</title>
+<title>룸 디펜스 프로토타입 v0.50.2</title>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Do+Hyeon&display=swap">
 <style>
   html,body{margin:0;height:100%;background:#0f0d0b;overflow:hidden;user-select:none;-webkit-user-select:none;-webkit-touch-callout:none;touch-action:none;overscroll-behavior:none}
@@ -644,7 +644,7 @@
 
 <script>
 'use strict';
-const VERSION = 'v0.50.1';
+const VERSION = 'v0.50.2';
 // 터치 기기인지 (휴대폰·태블릿이면 터치 UI로)
 const TOUCH = matchMedia('(pointer: coarse)').matches || navigator.maxTouchPoints > 0;
 
@@ -1584,10 +1584,10 @@ const TDEF = {   // 기본 9종 (grade 0 일반 · 1 희귀 · 2 영웅 · 3 전
   laser: { base: 'laser', grade: 0, name: '레이저 포탑', cost: 50, range: 96,  dmg: 15, unlock: 0, key: '2', desc: '한 마리에게 끊김 없는 빔' },
   glue: { base: 'glue', grade: 0, name: '끈끈이 덫',   cost: 55, range: 64,  dmg: 1,  slow: .5, unlock: 1, key: '3', desc: '범위 안 적의 발을 묶어 느리게 만든다' },
   hammer: { base: 'hammer', grade: 1, name: '뿅망치 기계', cost: 60, range: 65,  dmg: 27, rate: .9, unlock: 2, key: '4', desc: '근처 적을 한꺼번에 내려찍기' },
-  coil: { base: 'coil', grade: 1, name: '모기향',     cost: 65, range: 66,  dmg: 11,  unlock: 3, key: '5', desc: '범위 안 모두에게 독 연기, 모기는 3배' },
+  coil: { base: 'coil', grade: 1, name: '모기향',     cost: 65, range: 70,  dmg: 11,  unlock: 3, key: '5', desc: '범위 안 모두에게 독 연기, 모기는 3배' },
   swatter: { base: 'swatter', grade: 1, name: '전기 파리채', cost: 70, range: 70,  dmg: 32, rate: .75, unlock: 4, key: '6', desc: '강한 한 방, 모기는 즉사' },
   tesla: { base: 'tesla', grade: 2, name: '테슬라 코일', cost: 75, range: 82,  dmg: 18, rate: .7, chain: 5, unlock: 5, key: '7', desc: '여러 마리를 잇는 연쇄 번개' },
-  cannon: { base: 'cannon', grade: 2, name: '대포',       cost: 85, range: 115,  dmg: 32, rate: 1.3, splash: 22, unlock: 6, key: '8', desc: '포탄 폭발로 범위 피해' },
+  cannon: { base: 'cannon', grade: 2, name: '대포',       cost: 85, range: 115,  dmg: 36, rate: 1.3, splash: 22, unlock: 6, key: '8', desc: '포탄 폭발로 범위 피해' },
   sling: { base: 'sling', grade: 3, leg: 'headshot', name: '고무줄 새총', cost: 95, range: 170, dmg: 48, rate: 1.6, unlock: 7, key: '9', desc: '초장거리 저격, 체력 높은 적부터' },
 };
 // 변형 18종: 기본 타워의 공격 방식(base)을 쓰고 수치·속성만 다르다. fx: slow [속도 배율, 초], burn [타워 피해 대비 초당, 초], stun 초
@@ -1607,7 +1607,7 @@ const TVAR = {
   microwave: { base: 'laser',   grade: 2, name: '전자레인지',     cost: 120, range: 100, dmg: 26,  fx: { burn: [.6, 2.5] }, beam: [255, 90, 220], desc: '강한 빔에 화상까지' },
   iron:      { base: 'hammer',  grade: 2, name: '다리미',        cost: 110, range: 66,  dmg: 30,  rate: 1, fx: { burn: [.4, 2] }, desc: '뜨겁게 내려찍어 화상을 남긴다' },
   spray:     { base: 'coil',    grade: 2, name: '살충 스프레이',   cost: 115, range: 72,  dmg: 16,   fly: 5, desc: '모기에게 5배, 독 피해도 강하다' },
-  fireworks: { base: 'cannon',  grade: 3, leg: 'finale', name: '불꽃놀이 발사대', cost: 160, range: 125, dmg: 30,  rate: 1.4, splash: 26, shots: 3, fx: { burn: [.3, 2] }, desc: '포탄 3발에 화상까지' },
+  fireworks: { base: 'cannon',  grade: 3, leg: 'finale', name: '불꽃놀이 발사대', cost: 160, range: 125, dmg: 25,  rate: 1.4, splash: 26, shots: 3, fx: { burn: [.3, 2] }, desc: '포탄 3발에 화상까지' },
   lightningrod:{ base: 'tesla', grade: 3, leg: 'strike', name: '피뢰침',        cost: 170, range: 95,  dmg: 22,  rate: .9, chain: 6, fx: { stun: .4 }, desc: '강한 번개가 맞은 적을 잠깐 멈춘다' },
   railgun:   { base: 'sling',   grade: 3, leg: 'pierce', name: '레일건',        cost: 180, range: 200, dmg: 95, rate: 2.2, desc: '맵 끝까지 닿는 아주 강한 한 방' },
 };
@@ -1841,7 +1841,7 @@ function drawFanCone(t, x, y, ang, a = .8) {
   }
   ctx.restore();
 }
-const FAN_ON = 2, FAN_OFF = [5, 4, 3, 2.5, 2], FAN_BURST = 3, FAN_CONE = [.6, .72, .85, .95, 1.05];   // 부채꼴 반각(라디안): 약 69° → 83° → 97°   // 바람 켜짐 2초, 레벨별 쉬는 시간, 돌풍 순간 피해 = 초당 피해 × 4
+const FAN_ON = 2, FAN_OFF = [5, 4, 3, 2.8, 2.6], FAN_BURST = 3, FAN_CONE = [.6, .72, .85, .9, .95];   // v0.50.2: LV4·5 성장 낮춤   // 부채꼴 반각(라디안): 약 69° → 83° → 97°   // 바람 켜짐 2초, 레벨별 쉬는 시간, 돌풍 순간 피해 = 초당 피해 × 4
 // 돌풍 이펙트: 부채꼴로 퍼지는 바람 물결
 class Gust {
   constructor(x, y, ang, r, lvl, cone) { Object.assign(this, { x, y, ang, r, lvl, cone, life: .45, max: .45, dead: false }); }
@@ -1952,7 +1952,7 @@ class Cannon extends Tower {
       this.shotN = (this.shotN || 0) + 1;
       const fin = this.def.leg === 'finale' && this.shotN % 4 === 0;   // 피날레: 포탄 2배 + 폭발 범위 +30%
       const n = (this.def.shots || 1) * (fin ? 2 : 1), sp = fin ? 9 : 14;
-      for (let i = 0; i < n; i++) { const j = n > 1 ? (i - (n - 1) / 2) * sp : 0; shells.push(new Shell(sx, sy, this.target.x + this.target.vx * t + j * -Math.sin(this.ang), this.target.y + this.target.vy * t + j * Math.cos(this.ang), this.dmg, this.def.splash * (fin ? 1.3 : 1), this)); }
+      for (let i = 0; i < n; i++) { const j = n > 1 ? (i - (n - 1) / 2) * sp : 0; shells.push(new Shell(sx, sy, this.target.x + this.target.vx * t + j * -Math.sin(this.ang), this.target.y + this.target.vy * t + j * Math.cos(this.ang), this.dmg, this.def.splash * (fin ? 1.3 : 1) * (1 + .08 * (this.lvl - 1)), this)); }   // 폭발 범위: 레벨마다 +8%
       if (fin) floats.push(new Floater(this.x, this.y - 16, L('피날레!', 'FINALE!'), '#e0a0ff', .7));
       for (let i = 0; i < 6; i++) parts.push(new Part(sx, sy, Math.cos(this.ang) * rnd(30, 70) + rnd(-20, 20), Math.sin(this.ang) * rnd(30, 70) + rnd(-20, 20), R() < .5 ? '#ffd27a' : '#f5a623', .18, 2));
     }
@@ -2050,7 +2050,7 @@ class Sling extends Tower {
   }
   draw() { this.drawBase(this.spr.base); this.drawRot(this.spr.barrel, 8, 6, this.anim * 3); }   // 새총을 타워 가운데에 맞춤 (사거리 원의 중심 = 새총)
 }
-const SLING_MUL = [1, .55, .42, .36, .32];   // 발수가 늘면 한 발 피해는 조금 줄인다 (LV2 2발×55%, LV3 3발×42%)
+const SLING_MUL = [1, .55, .42, .33, .27];   // v0.50.2: LV4·5에서 너무 강해서 낮춤   // 발수가 늘면 한 발 피해는 조금 줄인다 (LV2 2발×55%, LV3 3발×42%)
 class Pebble {
   constructor(x, y, target, dmg, src) { Object.assign(this, { x, y, target, dmg, src, dead: false, tx: target.x, ty: target.y }); }
   update(dt) {
