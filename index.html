@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
-<title>룸 디펜스 프로토타입 v0.26.1</title>
+<title>룸 디펜스 프로토타입 v0.26.2</title>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Do+Hyeon&display=swap">
 <style>
   html,body{margin:0;height:100%;background:#0f0d0b;overflow:hidden;user-select:none;-webkit-user-select:none;-webkit-touch-callout:none;touch-action:none;overscroll-behavior:none}
@@ -33,6 +33,8 @@
   .card .ttl{font-family:'Press Start 2P',monospace;font-size:14px;color:#f5a623;text-align:center;letter-spacing:2px}
   .card .cfoot{display:flex;align-items:center;justify-content:space-between;font-family:'Do Hyeon',sans-serif;font-size:17px;color:#8a7e6c;border-top:2px solid #4a3f33;padding-top:10px}
   .tcard{width:380px;margin-top:6px}
+  .card a.fbbtn{display:block;text-align:center;text-decoration:none;font-size:17px;padding:7px 10px;color:#cfc3ae;background:#1d1915;border-style:dashed;border-color:#4a3f33;box-shadow:none}
+  .card a.fbbtn:hover{color:#f5a623;border-color:#f5a623}
   .tcard .row3{display:grid;grid-template-columns:1fr 1fr;gap:10px}
   .tcard .row3 .btn{padding:10px 4px;white-space:nowrap}
   .pcard{width:400px}
@@ -119,7 +121,7 @@
   #title{position:absolute;inset:0;display:none;flex-direction:column;align-items:center;justify-content:center;gap:10px;background:radial-gradient(ellipse at center,rgba(15,13,11,.72) 0%,rgba(15,13,11,.9) 70%);color:#f1e8d6;text-align:center}
   .in-title #title{display:flex}
   #title .eyebrow{font-family:'Press Start 2P',monospace;font-size:12px;color:#f5a623;letter-spacing:2px}
-  #title h1{margin:0;font-family:'Do Hyeon',sans-serif;font-weight:400;font-size:84px;line-height:1.05;text-shadow:5px 5px 0 #0f0d0b}
+  #title h1{margin:0;font-family:'Do Hyeon',sans-serif;font-weight:400;font-size:72px;line-height:1.05;text-shadow:5px 5px 0 #0f0d0b}
   #title .tag{font-family:'Do Hyeon',sans-serif;font-size:24px;color:#cfc3ae;text-shadow:2px 2px 0 #0f0d0b;margin-bottom:8px}
   #bStart{font-family:'Press Start 2P',monospace !important;font-size:18px !important;padding:16px !important;background:#f5a623;color:#1d1915;box-shadow:inset 0 0 0 3px #ffd27a,0 5px 0 #0f0d0b}
   #title .press{font-family:'Press Start 2P',monospace;font-size:10px;color:#8a7e6c;margin-top:8px;animation:blink 1s steps(1) infinite}
@@ -272,6 +274,7 @@
       <button class="btn" id="bStart">START</button>
       <div class="row3"><button class="btn" id="bHelp">게임 방법</button><button class="btn" id="bRank">순위</button><button class="btn" id="bAch">업적</button><button class="btn" id="bUp">강화</button></div>
       <div class="cfoot"><span>보유 배터리</span><span class="batbox"><span class="bat"></span><span id="batT">0</span></span></div>
+      <a class="btn fbbtn" href="#" target="_blank" rel="noopener">피드백 보내기</a>
     </div>
     <div class="press"><span class="pcOnly2">PRESS ENTER</span><span class="tOnly">TAP START</span></div>
     <div class="ver" id="ver"></div>
@@ -282,6 +285,7 @@
     <div class="ttl">PAUSED</div>
     <button class="btn main" id="bResume">계속하기</button>
     <div class="grid2"><button class="btn" id="bRestart">다시 시작</button><button class="btn" id="bTitle">타이틀로</button><button class="btn" id="bAch2">업적</button><button class="btn" id="bHide2">UI 숨기기</button></div>
+    <a class="btn fbbtn" href="#" target="_blank" rel="noopener">버그·의견 보내기</a>
     <div class="keys2 pcOnly"><b>1-9</b> 타워 선택 · <b>SPACE</b> 웨이브 시작 · <b>F</b> 속도 · <b>U</b> 울타리 강화<br><b>H</b> UI 숨김 · <b>ESC</b> 계속하기</div>
   </div></div>
   <div id="over"><div class="card ocard">
@@ -291,6 +295,7 @@
     <div id="overBat"></div>
     <div id="submitRow"><input id="nick" maxlength="12" placeholder="닉네임 (최대 12자)" autocomplete="off"><button class="btn" id="bSubmit">순위 등록</button></div>
     <div class="grid2"><button class="btn main" id="bRetry">다시 하기</button><button class="btn" id="bOverTitle">타이틀로</button></div>
+    <a class="btn fbbtn" href="#" target="_blank" rel="noopener">피드백 보내기</a>
   </div></div>
   <div id="achPanel" class="mpanel"><div class="mbox"><div class="mhead"><span>업적</span><span id="achCount"></span><button class="btn mclose">닫기</button></div><div class="alist" id="achList"></div></div></div>
   <div id="upPanel" class="mpanel"><div class="mbox"><div class="mhead"><span>영구 강화</span><span class="batbox"><span class="bat"></span><span id="upBat">0</span></span><button class="btn mclose">닫기</button></div><div class="ulist" id="upList"></div><div class="mfoot"><span>배터리는 업적 달성과 판이 끝날 때(클리어한 웨이브 수만큼) 얻어요.</span><button class="btn" id="bCode">기록 옮기기</button><button class="btn" id="bWipe">기록 초기화</button></div></div></div>
@@ -332,7 +337,7 @@
 
 <script>
 'use strict';
-const VERSION = 'v0.26.1';
+const VERSION = 'v0.26.2';
 // 터치 기기인지 (휴대폰·태블릿이면 터치 UI로)
 const TOUCH = matchMedia('(pointer: coarse)').matches || navigator.maxTouchPoints > 0;
 
@@ -1667,6 +1672,14 @@ $('bSubmit').onclick = async () => {
 };
 $('nick').addEventListener('keydown', e => { if (e.key === 'Escape') { $('nick').blur(); return; } e.stopPropagation(); if (e.key === 'Enter') $('bSubmit').click(); });   // 닉네임 칠 때 게임 단축키가 눌리지 않게
 $('bRank').onclick = openRank;
+// ───────── 피드백 (구글 폼): 버전·기기·닉네임을 미리 채운 링크로 연다 ─────────
+const FEEDBACK_FORM = 'https://docs.google.com/forms/d/e/1FAIpQLSe9yNyfcDR13_Fl_Kh_PJSNw6jYat13ysiAAK_YvL4MYnB4mQ/viewform';
+function feedbackUrl() {
+  const q = new URLSearchParams({ usp: 'pp_url', 'entry.15590484': VERSION, 'entry.2128854915': TOUCH ? (Math.min(screen.width, screen.height) >= 600 ? '태블릿' : '휴대폰') : 'PC' });
+  try { const n = localStorage.getItem('roomdef_nick'); if (n) q.set('entry.907148630', n); } catch (e) {}
+  return FEEDBACK_FORM + '?' + q.toString();
+}
+document.querySelectorAll('.fbbtn').forEach(a => { a.href = feedbackUrl(); a.addEventListener('click', () => { a.href = feedbackUrl(); }); });
 $('bAch').onclick = () => openPanel('achPanel');
 $('bUp').onclick = () => openPanel('upPanel');
 $('bAch2').onclick = () => openPanel('achPanel');
