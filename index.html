@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
-<title>룸 디펜스 프로토타입 v0.27.1</title>
+<title>룸 디펜스 프로토타입 v0.27.2</title>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Do+Hyeon&display=swap">
 <style>
   html,body{margin:0;height:100%;background:#0f0d0b;overflow:hidden;user-select:none;-webkit-user-select:none;-webkit-touch-callout:none;touch-action:none;overscroll-behavior:none}
@@ -361,7 +361,7 @@
 
 <script>
 'use strict';
-const VERSION = 'v0.27.1';
+const VERSION = 'v0.27.2';
 // 터치 기기인지 (휴대폰·태블릿이면 터치 UI로)
 const TOUCH = matchMedia('(pointer: coarse)').matches || navigator.maxTouchPoints > 0;
 
@@ -712,7 +712,7 @@ const G = {};
 let enemies, towers, shells, parts, fx, floats;
 function reset(keepDemo, title = false) {
   const baseHp = 100 + upEff('hp');
-  Object.assign(G, { hp: baseHp, maxHp: baseHp, scrap: 200 + upEff('scrap'), awarded: false, submitted: false, runKills: 0, usedDemo: false, tookDmg: false, maxTowers: 0, wave: 0, phase: title ? 'title' : 'break', ambT: 0, paused: false, cleared: 0, fence: 0, breakT: 8, queue: [], waveT: 0, over: false, time: 0,
+  Object.assign(G, { hp: baseHp, maxHp: baseHp, scrap: 200 + upEff('scrap'), awarded: false, submitted: false, submitting: false, runKills: 0, usedDemo: false, tookDmg: false, maxTowers: 0, wave: 0, phase: title ? 'title' : 'break', ambT: 0, paused: false, cleared: 0, fence: 0, breakT: 8, queue: [], waveT: 0, over: false, time: 0,
     shake: 0, baseFlash: 0, banner: 0, bannerText: '', demo: keepDemo ? G.demo : false, demoT: 0 });
   if (G.demo) { G.scrap = 400; G.usedDemo = true; }
   selType = 'laser';
@@ -1291,8 +1291,13 @@ function update(dt) {
     const canSubmit = !G.usedDemo && G.wave >= 1;
     $('submitRow').classList.toggle('hide', !canSubmit);
     showBest(canSubmit);
-    if (canSubmit && myUid()) myBest().then(b => { if (b) { setBestCache(b); if (!G.submitted) showBest(true); } }).catch(() => {});
     try { $('nick').value = localStorage.getItem('roomdef_nick') || ''; } catch (e) {}
+    // 이미 순위표에 등록한 사람이면 더 높은 기록일 때 자동으로 갱신
+    if (canSubmit && myUid()) myBest().then(b => {
+      if (!b || G.submitted || !G.over) return;
+      setBestCache(b); showBest(true);
+      if (beats(b)) { if (!$('nick').value) $('nick').value = b.name; doSubmit(true); }
+    }).catch(() => {});
     document.getElementById('over').classList.add('show');
   }
 }
@@ -1726,23 +1731,27 @@ async function openRank() {
       : '<div class="rmsg">순위표에 연결할 수 없어요.<br>인터넷 연결을 확인하거나, itch.io에서 플레이해 주세요.</div>';
   }
 }
-$('bSubmit').onclick = async () => {
-  if (G.submitted) return;
+$('bSubmit').onclick = () => doSubmit(false);
+async function doSubmit(auto) {
+  if (G.submitted || G.submitting) return;
   const name = $('nick').value.replace(/[\u0000-\u001f]/g, '').trim().slice(0, 12);
   if (!name) { showToast('닉네임을 입력해 주세요', 1800); $('nick').focus(); return; }
   try { localStorage.setItem('roomdef_nick', name); } catch (e) {}
-  $('bSubmit').disabled = true; $('bSubmit').textContent = '등록 중...';
-  $('nick').blur();
+  $('bSubmit').disabled = true; $('bSubmit').textContent = auto ? '자동 갱신 중...' : '등록 중...';
+  $('nick').blur(); G.submitting = true;
   try {
-    const res = await submitScore(name); G.submitted = true;
+    const res = await submitScore(name); G.submitted = true; G.submitting = false;
     if (res.kind === 'low') { $('bSubmit').textContent = '최고 기록 유지'; showBest(true); showToast(`내 최고 기록 WAVE ${res.best.wave}보다 낮아서 그대로 둘게요`, 2800); }
-    else { $('bSubmit').textContent = res.kind === 'up' ? '갱신 완료!' : '등록 완료!'; $('myBest').innerHTML = `내 최고 기록 <b>WAVE ${G.wave} · ${G.runKills}마리</b>`; }
-    openRank();
+    else { $('bSubmit').textContent = res.kind === 'up' ? '갱신 완료!' : '등록 완료!'; $('myBest').innerHTML = `내 최고 기록 <b>WAVE ${G.wave} · ${G.runKills}마리</b>` + (auto ? '<span class="nb">자동 갱신됨</span>' : ''); }
+    if (auto) { if (res.kind !== 'low') showToast(`최고 기록 자동 갱신! WAVE ${G.wave}`, 2400); }
+    else openRank();
   } catch (e) {
+    G.submitting = false;
     $('bSubmit').disabled = false; $('bSubmit').textContent = '다시 시도';
+    if (auto) { $('bSubmit').textContent = '기록 갱신'; return; }   // 자동 갱신 실패 시 수동 버튼으로
     showToast(/anon-off/.test(e.message) ? '순위 서버 로그인 설정이 아직 안 됐어요' : /403/.test(e.message) ? '순위 서버가 아직 준비 중이에요 (오류 403)' : '등록하지 못했어요. 인터넷 연결을 확인해 주세요', 2600);
   }
-};
+}
 $('nick').addEventListener('keydown', e => { if (e.key === 'Escape') { $('nick').blur(); return; } e.stopPropagation(); if (e.key === 'Enter') $('bSubmit').click(); });   // 닉네임 칠 때 게임 단축키가 눌리지 않게
 $('bRank').onclick = openRank;
 // ───────── 잠긴 타워 안내 팝업 ─────────
