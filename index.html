@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
-<title>룸 디펜스 프로토타입 v0.27.2</title>
+<title>룸 디펜스 프로토타입 v0.28</title>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Do+Hyeon&display=swap">
 <style>
   html,body{margin:0;height:100%;background:#0f0d0b;overflow:hidden;user-select:none;-webkit-user-select:none;-webkit-touch-callout:none;touch-action:none;overscroll-behavior:none}
@@ -165,6 +165,61 @@
   .pips{display:flex;gap:4px} .pips i{width:14px;height:14px;background:#0f0d0b;border:2px solid #4a3f33} .pips i.on{background:#f5a623;border-color:#ffd27a}
   .uprow .btn{margin-left:auto;font-family:'Do Hyeon',sans-serif;font-size:18px;padding:4px 12px;display:flex;align-items:center;gap:8px;min-width:116px;justify-content:center}
   .uprow .btn.poor,.uprow .btn.max{opacity:.45}
+  .crt{display:inline-block;width:14px;height:12px;background:#c8ccd2;border:2px solid #0f0d0b;box-shadow:inset 0 0 0 2px #8a8f98;vertical-align:middle;margin:0 6px 0 4px}
+  .tcard .row3{grid-template-columns:1fr 1fr 1fr} #title #bBag{grid-column:span 2;color:#f5a623}
+  .bagbox{height:516px}
+  .bpage{flex:1;min-height:0;overflow-y:auto;touch-action:pan-y;display:flex;flex-direction:column;gap:10px}
+  .bnote{font-family:'Do Hyeon',sans-serif;font-size:16px;color:#8a7e6c}
+  .bnote b{color:#f1e8d6;font-weight:400}
+  .cgrid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+  .chcard{display:flex;align-items:center;gap:10px;background:#2c2620;border:3px solid #0f0d0b;box-shadow:inset 0 0 0 2px #4a3f33;padding:6px 10px}
+  .chcard.on{box-shadow:inset 0 0 0 2px #f5a623}
+  .chcard img{width:64px;height:64px;image-rendering:pixelated;flex:none;background:#0f0d0b}
+  .chcard.lock img{filter:brightness(.55)}
+  .chtx{flex:1;min-width:0}
+  .chtx .t1{font-family:'Do Hyeon',sans-serif;font-size:21px;line-height:1.1}
+  .chtx .t2{font-family:'Do Hyeon',sans-serif;font-size:14px;color:#8a7e6c}
+  .chtx .t3{font-family:'Do Hyeon',sans-serif;font-size:16px;color:#8fd06a}
+  .chcard .btn{font-family:'Do Hyeon',sans-serif;font-size:17px;padding:6px 10px;display:flex;align-items:center;gap:6px;white-space:nowrap}
+  .chcard .btn.on{background:#f5a623;color:#1d1915}
+  .chcard .btn.poor{opacity:.45}
+  .ggrid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+  .gcard{display:grid;grid-template-columns:46px 1fr;grid-template-rows:auto auto;gap:4px 10px;background:#2c2620;border:3px solid #0f0d0b;box-shadow:inset 0 0 0 2px #4a3f33;padding:6px 10px}
+  .gpart{grid-row:1 / 3;font-family:'Do Hyeon',sans-serif;font-size:18px;color:#f5a623;display:flex;align-items:center}
+  .gmain{display:flex;align-items:center;gap:10px}
+  .gimg{width:44px;height:44px;image-rendering:pixelated;border:2px solid #4a3f33;background:#0f0d0b;flex:none}
+  .gimg.empty{border-style:dashed}
+  .gtx .t1{font-family:'Do Hyeon',sans-serif;font-size:19px;line-height:1.1}
+  .gtx .t1.dim{color:#6a5f50}
+  .gtx .t2{font-family:'Do Hyeon',sans-serif;font-size:14px;color:#cfc3ae}
+  .gtx .pips{gap:3px;margin-top:3px} .gtx .pips i{width:9px;height:9px}
+  .gchips{display:flex;gap:6px}
+  .gchip{width:30px;height:30px;padding:0;background:#0f0d0b;border:2px solid var(--rc);opacity:.85;cursor:pointer;font-family:'Press Start 2P',monospace;font-size:9px;color:#4a3f33}
+  .gchip img{width:100%;height:100%;image-rendering:pixelated;display:block}
+  .gchip.no{border-color:#2c2620;cursor:default;opacity:.6}
+  .gchip.on{box-shadow:0 0 0 2px #f1e8d6;opacity:1}
+  #bp-pull{flex-direction:row;gap:14px}
+  .pleft{width:250px;flex:none;display:flex;flex-direction:column;gap:8px;align-items:stretch}
+  .pcrate{width:96px;height:96px;image-rendering:pixelated;align-self:center}
+  .pcount{font-family:'Do Hyeon',sans-serif;font-size:20px;text-align:center} .pcount b{color:#f5a623;font-weight:400}
+  .pleft .btn{font-family:'Do Hyeon',sans-serif;font-size:19px;padding:8px}
+  .pleft .btn[disabled]{opacity:.4;cursor:default}
+  .prob{font-family:'Do Hyeon',sans-serif;font-size:15px;text-align:center}
+  .pinfo{font-family:'Do Hyeon',sans-serif;font-size:14px;color:#8a7e6c;line-height:1.3}
+  .presult{flex:1;display:flex;flex-wrap:wrap;align-content:flex-start;gap:8px;background:#151210;border:2px solid #2c2620;padding:10px;overflow-y:auto}
+  .pcard{width:150px;display:flex;flex-direction:column;align-items:center;gap:2px;background:#2c2620;border:3px solid var(--rc);padding:8px 4px;animation:pflip .35s both}
+  .presult.many .pcard{width:96px;padding:5px 2px}
+  .pcard img{width:56px;height:56px;image-rendering:pixelated}
+  .presult.many .pcard img{width:40px;height:40px}
+  .pcard.r3{box-shadow:0 0 14px #f5a623}
+  .pcard.r2{box-shadow:0 0 8px #b07ae8}
+  .pn{font-family:'Do Hyeon',sans-serif;font-size:16px;text-align:center;line-height:1.1;color:var(--rc)}
+  .presult.many .pn{font-size:13px}
+  .pr{font-family:'Do Hyeon',sans-serif;font-size:13px;color:#8a7e6c}
+  .pnew,.pup,.pref{font-family:'Press Start 2P',monospace;font-size:8px;padding:3px 4px;margin-top:2px}
+  .pnew{background:#f5a623;color:#1d1915} .pup{background:#3a6a3a;color:#cff0c0} .pref{background:#2f3f6a;color:#cfe0ff;display:flex;align-items:center;gap:6px}
+  @keyframes pflip{from{transform:rotateY(90deg) scale(.8);opacity:0}to{transform:none;opacity:1}}
+  .portrait .cgrid,.portrait .ggrid{grid-template-columns:1fr}
   .mfoot{display:flex;align-items:center;gap:12px;font-family:'Do Hyeon',sans-serif;font-size:15px;color:#8a7e6c}
   #bCode{margin-left:auto;font-family:'Do Hyeon',sans-serif;font-size:15px;padding:6px 10px;white-space:nowrap}
   .cdesc{font-family:'Do Hyeon',sans-serif;font-size:17px;color:#cfc3ae}
@@ -175,6 +230,8 @@
   #bWipe{font-family:'Do Hyeon',sans-serif;font-size:15px;padding:6px 10px;background:#3a1512;white-space:nowrap}
   .htabs{display:flex;gap:6px;margin-left:8px}
   .htab{font-family:'Do Hyeon',sans-serif;font-size:18px;padding:5px 16px}
+  .btab{font-family:'Do Hyeon',sans-serif;font-size:18px;padding:5px 16px}
+  .btab.on{background:#f5a623;color:#1d1915;box-shadow:inset 0 0 0 2px #ffd27a,0 3px 0 #0f0d0b}
   .htab.on{background:#f5a623;color:#1d1915;box-shadow:inset 0 0 0 2px #ffd27a,0 3px 0 #0f0d0b}
   .hgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
   .hpage{overflow-y:auto;touch-action:pan-y;min-height:0}
@@ -288,8 +345,8 @@
     <div class="tag">세상은 망했다. 내 방만 빼고.</div>
     <div class="card tcard">
       <button class="btn" id="bStart">START</button>
-      <div class="row3"><button class="btn" id="bHelp">게임 방법</button><button class="btn" id="bRank">순위</button><button class="btn" id="bAch">업적</button><button class="btn" id="bUp">강화</button></div>
-      <div class="cfoot"><span>보유 배터리</span><span class="batbox"><span class="bat"></span><span id="batT">0</span></span></div>
+      <div class="row3"><button class="btn" id="bHelp">게임 방법</button><button class="btn" id="bRank">순위</button><button class="btn" id="bAch">업적</button><button class="btn" id="bUp">강화</button><button class="btn" id="bBag">캐릭터 · 장비</button></div>
+      <div class="cfoot"><span>보유</span><span class="batbox"><span class="bat"></span><span id="batT">0</span><span class="crt"></span><span id="crateT">0</span></span></div>
       <a class="btn fbbtn" href="#" target="_blank" rel="noopener">피드백 보내기</a>
     </div>
     <div class="press"><span class="pcOnly2">PRESS ENTER</span><span class="tOnly">TAP START</span></div>
@@ -316,8 +373,11 @@
   </div></div>
   <div id="achPanel" class="mpanel"><div class="mbox"><div class="mhead"><span>업적</span><span id="achCount"></span><button class="btn mclose">닫기</button></div><div class="alist" id="achList"></div></div></div>
   <div id="upPanel" class="mpanel"><div class="mbox"><div class="mhead"><span>영구 강화</span><span class="batbox"><span class="bat"></span><span id="upBat">0</span></span><button class="btn mclose">닫기</button></div><div class="ulist" id="upList"></div><div class="mfoot"><span>배터리는 업적 달성과 판이 끝날 때(클리어한 웨이브 수만큼) 얻어요.</span><button class="btn" id="bCode">기록 옮기기</button><button class="btn" id="bWipe">기록 초기화</button></div></div></div>
+  <div id="bagPanel" class="mpanel"><div class="mbox bagbox"><div class="mhead"><span>캐릭터·장비</span><div class="htabs"><button class="btn btab on" data-t="char">캐릭터</button><button class="btn btab" data-t="gear">장비</button><button class="btn btab" data-t="pull">뽑기</button></div>
+    <span class="batbox"><span class="bat"></span><span id="bagBat">0</span><span class="crt"></span><span id="bagCrate">0</span></span><button class="btn mclose">닫기</button></div>
+    <div class="bpage" id="bp-char"></div><div class="bpage" id="bp-gear"></div><div class="bpage" id="bp-pull"></div></div></div>
   <div id="codePanel" class="mpanel"><div class="mbox"><div class="mhead"><span>기록 옮기기</span><button class="btn mclose">닫기</button></div>
-    <div class="cdesc">다른 기기나 브라우저로 옮기거나 백업할 때 써요. 업적·배터리·강화가 코드 하나에 들어 있어요.</div>
+    <div class="cdesc">다른 기기나 브라우저로 옮기거나 백업할 때 써요. 업적·배터리·강화·캐릭터·장비가 코드 하나에 들어 있어요.</div>
     <div class="csec"><div class="hh">내 기록 코드</div><textarea id="codeOut" readonly rows="3"></textarea><button class="btn" id="bCopy">코드 복사</button></div>
     <div class="csec"><div class="hh">코드 붙여넣기</div><textarea id="codeIn" rows="3" placeholder="여기에 RD1- 로 시작하는 코드를 붙여넣어요"></textarea><button class="btn" id="bLoad">불러오기</button></div>
   </div></div>
@@ -361,15 +421,16 @@
 
 <script>
 'use strict';
-const VERSION = 'v0.27.2';
+const VERSION = 'v0.28';
 // 터치 기기인지 (휴대폰·태블릿이면 터치 UI로)
 const TOUCH = matchMedia('(pointer: coarse)').matches || navigator.maxTouchPoints > 0;
 
 // ───────── 메타 진행: 업적 + 배터리 + 영구 강화 (이 브라우저에 저장) ─────────
 const SAVE_KEY = 'roomdef_save_v1';
 const SAVE = (() => {
-  const d = { bat: 0, ach: {}, up: {}, st: { kills: 0, mosq: 0, moves: 0 } };
-  try { const s = JSON.parse(localStorage.getItem(SAVE_KEY)); if (s) return { bat: s.bat || 0, ach: s.ach || {}, up: s.up || {}, st: { ...d.st, ...(s.st || {}) } }; } catch (e) {}
+  const d = { bat: 0, ach: {}, up: {}, st: { kills: 0, mosq: 0, moves: 0 }, crate: 0, ch: {}, chEq: '', inv: {}, eq: {} };
+  try { const s = JSON.parse(localStorage.getItem(SAVE_KEY)); if (s) return { bat: s.bat || 0, ach: s.ach || {}, up: s.up || {}, st: { ...d.st, ...(s.st || {}) },
+    crate: s.crate || 0, ch: s.ch || {}, chEq: s.chEq || '', inv: s.inv || {}, eq: s.eq || {} }; } catch (e) {}
   return d;
 })();
 let saveDirty = false;
@@ -423,8 +484,76 @@ function endRun() {
   G.awarded = true;
   if (G.usedDemo) return { gain: 0, demo: true };
   const gain = G.cleared; SAVE.bat += gain; persist();
-  return { gain };
-}   // 수정할 때마다 올린다
+  return { gain, crates: G.runCrates || 0 };
+}
+// ───────── 캐릭터 + 장비 (v0.28) ─────────
+// 캐릭터: 배터리로 사서 1명 장착. 장비: 고철 상자로 뽑기, 부위 6개 × 등급 4개, 중복은 강화(+5까지), 다 찬 뒤 중복은 배터리로 돌려받음
+const CHARS = [
+  { id: 'minsu', name: '잠꾸러기 민수', desc: '어떤 소음에도 안 깨는 아이', eff: '침대 최대 HP +30', price: 40, b: { hp: 30 } },
+  { id: 'jisu',  name: '공돌이 지수',   desc: '타워 나사를 꽉 조여 준다',   eff: '타워 공격력 +12%', price: 60, b: { dmg: 12 } },
+  { id: 'nabi',  name: '고양이 나비',   desc: '벌레 사냥 본능',            eff: '타워 공격 속도 +10%', price: 60, b: { spd: 10 } },
+  { id: 'gramp', name: '고물상 할아버지', desc: '버릴 고철이 하나도 없다',  eff: '처치 보상 +20%, 시작 스크랩 +40', price: 50, b: { loot: 20, scrap: 40 } },
+  { id: 'guard', name: '경비원 아저씨', desc: '밤샘 경비 30년 차',          eff: '침대가 받는 피해 -12%', price: 70, b: { def: 12 } },
+  { id: 'squir', name: '행운의 다람쥐', desc: '반짝이는 건 다 주워 온다',    eff: '고철 상자 나올 확률 2배', price: 80, b: { crate: 1 } },
+];
+const RAR = [
+  { name: '일반', c: '#b8b0a0', p: 60, refund: 3 },
+  { name: '희귀', c: '#5aa0e8', p: 28, refund: 8 },
+  { name: '영웅', c: '#b07ae8', p: 10, refund: 20 },
+  { name: '전설', c: '#f5a623', p: 2,  refund: 50 },
+];
+const EQ_MAX = 5;   // 강화 최대 +5 (효과 2배)
+// stat: 효과 종류, base: 등급별 기본 수치, unit: 표시 단위
+const EQS = [
+  { id: 'helm',  part: '투구', stat: 'hp',    what: '침대 최대 HP',     unit: '',  base: [8, 16, 28, 45],  names: ['양은 냄비', '스텐 냄비', '뚝배기 투구', '무쇠 가마솥'] },
+  { id: 'top',   part: '상의', stat: 'def',   what: '받는 피해 감소',    unit: '%', base: [2, 4, 7, 11],    names: ['늘어난 티셔츠', '수면 잠옷', '극세사 잠옷', '왕실 실크 가운'] },
+  { id: 'pants', part: '하의', stat: 'scrap', what: '시작 스크랩',      unit: '',  base: [15, 30, 50, 80], names: ['무릎 나온 츄리닝', '수면 바지', '극세사 바지', '황금 잠옷 바지'] },
+  { id: 'shoes', part: '신발', stat: 'spd',   what: '타워 공격 속도',    unit: '%', base: [2, 4, 7, 11],    names: ['삼선 슬리퍼', '털 슬리퍼', '곰돌이 실내화', '로켓 슬리퍼'] },
+  { id: 'lid',   part: '방패', stat: 'heal',  what: '웨이브 클리어 시 HP 회복', unit: '', base: [2, 4, 7, 12], names: ['라면 냄비뚜껑', '프라이팬 뚜껑', '스텐 솥뚜껑', '전설의 솥뚜껑'] },
+  { id: 'broom', part: '무기', stat: 'dmg',   what: '타워 공격력',      unit: '%', base: [3, 6, 10, 16],   names: ['수수 빗자루', '플라스틱 빗자루', '대걸레', '청소기 엑스칼리버'] },
+];
+const itemId = (s, r) => s + r;                                    // 예: 'helm3' = 전설 투구
+const itemOf = id => { const s = EQS.find(e => id.startsWith(e.id) && /^\d$/.test(id.slice(e.id.length))); return s ? { s, r: +id.slice(s.id.length) } : null; };
+const itemVal = (s, r, lv) => { const v = s.base[r] * (1 + .2 * lv); return s.unit === '%' ? Math.round(v * 10) / 10 : Math.round(v); };
+let BON = {};
+function recalcBon() {
+  const b = { hp: 0, dmg: 0, spd: 0, loot: 0, def: 0, scrap: 0, heal: 0, crate: 0 };
+  const ch = CHARS.find(c => c.id === SAVE.chEq);
+  if (ch) for (const k in ch.b) b[k] += ch.b[k];
+  for (const s of EQS) { const id = SAVE.eq[s.id]; if (id && SAVE.inv[id] !== undefined) { const it = itemOf(id); b[s.stat] += itemVal(s, it.r, SAVE.inv[id]); } }
+  b.def = Math.min(60, b.def);
+  BON = b;
+}
+const spdMul = () => 1 + BON.spd / 100;
+// 고철 상자: 처치할 때 가끔(보스는 확정 2개), 웨이브 3의 배수를 클리어할 때 1개
+function giveCrate(n, x, y) {
+  if (!counts() || G.usedDemo) return;
+  SAVE.crate += n; G.runCrates = (G.runCrates || 0) + n; saveDirty = true;
+  if (x !== undefined) floats.push(new Floater(x, y - 14, '+상자' + (n > 1 ? ' x' + n : ''), '#c8ccd2', 1.2));
+}
+function rollCrateDrop(e) {
+  if (e.boss) { giveCrate(2, e.x, e.y); return; }
+  if (R() < .012 * (BON.crate ? 2 : 1)) giveCrate(1, e.x, e.y);
+}
+// 뽑기 1회: 등급 → 부위 순으로 고른다
+function pullOnce() {
+  let x = R() * 100, r = 0;
+  for (; r < RAR.length - 1; r++) { if (x < RAR[r].p) break; x -= RAR[r].p; }
+  const s = EQS[(R() * EQS.length) | 0], id = itemId(s.id, r);
+  let kind, refund = 0;
+  if (SAVE.inv[id] === undefined) { SAVE.inv[id] = 0; kind = 'new'; if (!SAVE.eq[s.id] || itemOf(SAVE.eq[s.id]).r < r) SAVE.eq[s.id] = id; }
+  else if (SAVE.inv[id] < EQ_MAX) { SAVE.inv[id]++; kind = 'up'; }
+  else { refund = RAR[r].refund; SAVE.bat += refund; kind = 'refund'; }
+  return { id, s, r, kind, refund, lv: SAVE.inv[id] };
+}
+function pull(n) {
+  if (SAVE.crate < n) return null;
+  SAVE.crate -= n;
+  const res = Array.from({ length: n }, pullOnce);
+  persist(); recalcBon();
+  return res;
+}
+
 // ───────── 기본 설정 ─────────
 const W = 480, H = 270, CX = 240, CY = 140;          // 내부 해상도(픽셀아트) & 방 중심
 const FENCE = { rx: 118, ry: 92 };                    // 울타리 타원
@@ -711,8 +840,9 @@ for (let i = 0; i < SLOT_COUNT; i++) { const t = i / SLOT_COUNT * Math.PI * 2 + 
 const G = {};
 let enemies, towers, shells, parts, fx, floats;
 function reset(keepDemo, title = false) {
-  const baseHp = 100 + upEff('hp');
-  Object.assign(G, { hp: baseHp, maxHp: baseHp, scrap: 200 + upEff('scrap'), awarded: false, submitted: false, submitting: false, runKills: 0, usedDemo: false, tookDmg: false, maxTowers: 0, wave: 0, phase: title ? 'title' : 'break', ambT: 0, paused: false, cleared: 0, fence: 0, breakT: 8, queue: [], waveT: 0, over: false, time: 0,
+  recalcBon();
+  const baseHp = 100 + upEff('hp') + BON.hp;
+  Object.assign(G, { hp: baseHp, maxHp: baseHp, scrap: 200 + upEff('scrap') + BON.scrap, runCrates: 0, awarded: false, submitted: false, submitting: false, runKills: 0, usedDemo: false, tookDmg: false, maxTowers: 0, wave: 0, phase: title ? 'title' : 'break', ambT: 0, paused: false, cleared: 0, fence: 0, breakT: 8, queue: [], waveT: 0, over: false, time: 0,
     shake: 0, baseFlash: 0, banner: 0, bannerText: '', demo: keepDemo ? G.demo : false, demoT: 0 });
   if (G.demo) { G.scrap = 400; G.usedDemo = true; }
   selType = 'laser';
@@ -766,7 +896,7 @@ class Enemy {
         if (G.phase === 'title') return;
         // 초반 웨이브는 약하게 물고, 웨이브가 오를수록 세진다 (1웨이브 35% → 6웨이브부터 100%)
         const ramp = Math.min(1, .35 + .13 * (G.wave - 1));
-        G.hp -= this.d.dmg * (this.boss ? 4 : 1) * ramp * (1 - fl.reduce); G.tookDmg = true;   // 울타리가 좋을수록 덜 아프다
+        G.hp -= this.d.dmg * (this.boss ? 4 : 1) * ramp * (1 - fl.reduce) * (1 - BON.def / 100); G.tookDmg = true;   // 울타리가 좋을수록 덜 아프다
         G.baseFlash = .15;
         const bx = this.x + Math.cos(this.ang) * 6, by = this.y + Math.sin(this.ang) * 6;
         for (let i = 0; i < 3; i++) parts.push(new Part(bx, by, rnd(-30, 30), rnd(-40, 0), '#f1e8d6', .3, 1));
@@ -780,12 +910,13 @@ class Enemy {
   }
   die() {
     this.dead = true;
-    const rew = Math.round(this.d.reward * (this.boss ? 8 : 1) * (1 + upEff('loot') / 100));
+    const rew = Math.round(this.d.reward * (this.boss ? 8 : 1) * (1 + (upEff('loot') + BON.loot) / 100));
     if (counts()) {
       SAVE.st.kills++; G.runKills++; if (this.type === 'mosq') SAVE.st.mosq++; saveDirty = true;
       if (SAVE.st.kills >= 100) unlockAch('kill100');
       if (SAVE.st.mosq >= 50) unlockAch('mosq50');
       if (this.boss) unlockAch('boss');
+      rollCrateDrop(this);
     }
     G.scrap += rew;
     const n = this.boss ? 40 : 9;
@@ -862,7 +993,7 @@ class Tower {
     this.lvl = 1; this.spent = TDEF[type].cost; this.cd = 0; this.ang = Math.atan2(slot.y - CY, slot.x - CX); this.anim = 0; this.target = null; this.pop = .25;
   }
   get range() { return this.def.range * (1 + .12 * (this.lvl - 1)) * (1 + upEff('range') / 100); }
-  get dmg() { return this.def.dmg * (1 + .6 * (this.lvl - 1)) * (1 + upEff('dmg') / 100); }
+  get dmg() { return this.def.dmg * (1 + .6 * (this.lvl - 1)) * (1 + upEff('dmg') / 100) * (1 + BON.dmg / 100); }
   get upCost() { return Math.round(this.def.cost * .8 * this.lvl); }
   findTarget() {                          // 사거리 안에서 침대에 가장 가까운 적
     let best = null, bv = 1e9;
@@ -873,7 +1004,7 @@ class Tower {
     return best;
   }
   aim(dt, speed = 8) { if (this.target) { const a = Math.atan2(this.target.y - this.y, this.target.x - this.x); this.ang += angDiff(this.ang, a) * Math.min(1, dt * speed); } }
-  update(dt) { this.pop = Math.max(0, this.pop - dt); this.cd -= dt; this.target = this.findTarget(); }
+  update(dt) { this.pop = Math.max(0, this.pop - dt); this.cd -= dt * spdMul(); this.target = this.findTarget(); }
   drawBase(img) {
     const sy = 1 + this.pop * 1.4;
     ctx.fillStyle = 'rgba(0,0,0,0.3)'; ctx.beginPath(); ctx.ellipse(this.x, this.y + 6, 8, 3, 0, 0, 7); ctx.fill();
@@ -912,7 +1043,7 @@ class Fan extends Tower {
       if (Math.abs(angDiff(this.ang, a)) > .55) continue;
       const push = (e.boss ? 10 : 46) * (1 + .25 * (this.lvl - 1)) * dt;
       e.x += Math.cos(a) * push; e.y += Math.sin(a) * push; e.state = 'move';
-      e.hit(this.dmg * dt, false);
+      e.hit(this.dmg * dt * spdMul(), false);
     }
     if (R() < dt * 40) { const a = this.ang + rnd(-.45, .45), s = rnd(90, 140); parts.push(new Part(this.x + Math.cos(a) * 6, this.y + Math.sin(a) * 6, Math.cos(a) * s, Math.sin(a) * s, 'rgba(225,242,255,0.75)', .35, 1, true)); }
   }
@@ -928,7 +1059,7 @@ class Laser extends Tower {
   update(dt) {
     super.update(dt); this.aim(dt, 12);
     this.firing = !!this.target && Math.abs(angDiff(this.ang, Math.atan2(this.target.y - this.y, this.target.x - this.x))) < .25;
-    if (this.firing) { this.target.hit(this.dmg * dt, R() < .3); if (R() < dt * 25) parts.push(new Part(this.target.x, this.target.y, rnd(-40, 40), rnd(-40, 40), '#ffb0a0', .2, 1)); }
+    if (this.firing) { this.target.hit(this.dmg * dt * spdMul(), R() < .3); if (R() < dt * 25) parts.push(new Part(this.target.x, this.target.y, rnd(-40, 40), rnd(-40, 40), '#ffb0a0', .2, 1)); }
   }
   draw() { this.drawBase(TSPR.laser.base); this.drawRot(TSPR.laser.barrel, 2, 3); }
   drawFx() {
@@ -1013,7 +1144,7 @@ class Glue extends Tower {
       if (e.dead || dist(this, e) > this.range) continue;
       this.active = true;
       e.slowT = .2; e.slowMul = Math.min(e.slowMul, e.boss ? Math.max(mul, .7) : mul);
-      e.hit(this.dmg * dt, false);
+      e.hit(this.dmg * dt * spdMul(), false);
       if (R() < dt * 2) parts.push(new Part(e.x, e.y + 2, rnd(-4, 4), rnd(2, 8), '#e8c24a', .5, 1));
     }
   }
@@ -1261,6 +1392,8 @@ function update(dt) {
       const bonus = 20 + G.wave * 5; G.scrap += bonus;   // 웨이브 클리어 보상
       G.banner = 1.6; G.bannerText = 'CLEAR +' + bonus;
       G.cleared = G.wave;
+      if (BON.heal && G.hp > 0) { const h = Math.min(BON.heal, G.maxHp - G.hp); if (h > 0) { G.hp += h; floats.push(new Floater(CX, CY - 20, '+' + Math.round(h) + ' HP', '#8fd06a', 1.2)); } }
+      if (G.wave % 3 === 0) giveCrate(1, CX, CY + 10);
       if (counts()) {
         if (G.wave >= 3 && !G.tookDmg) unlockAch('perfect');
         if (G.cleared >= 10 && G.maxTowers <= 3) unlockAch('minimal');
@@ -1287,7 +1420,7 @@ function update(dt) {
     G.hp = 0; G.over = true;
     document.getElementById('overWave').textContent = 'WAVE ' + G.wave + ' 까지 버팀';
     const r = endRun();
-    document.getElementById('overBat').innerHTML = !r ? '' : r.demo ? '자동 데모를 쓴 판은 배터리를 얻지 않아요' : `<span class="bat"></span>배터리 +${r.gain} · 보유 ${SAVE.bat}`;
+    document.getElementById('overBat').innerHTML = !r ? '' : r.demo ? '자동 데모를 쓴 판은 배터리를 얻지 않아요' : `<span class="bat"></span>배터리 +${r.gain} · 보유 ${SAVE.bat}` + (r.crates ? ` <span class="crt"></span>상자 +${r.crates}` : '');
     const canSubmit = !G.usedDemo && G.wave >= 1;
     $('submitRow').classList.toggle('hide', !canSubmit);
     showBest(canSubmit);
@@ -1514,7 +1647,8 @@ function openInfo(type, lvl = 0) {
     return `<div class="icard${l === lvl ? ' now' : ''}"><div class="ichead"><img src="${towerIcon(type, l)}" alt="${d.name} LV${l}"><div><div class="iclv">LV${l}</div>${l === lvl ? '<div class="icnow">지금 레벨</div>' : `<div class="icost">${cost}</div>`}</div></div>` +
       st.map(([k, v], i) => `<div class="istat"><span>${k}</span><span class="${l > 1 && String(v) !== String(base[i][1]) && i < st.length - 2 ? 'up' : ''}">${v}</span></div>`).join('') + '</div>';
   }).join('');
-  const bonus = [upEff('dmg') && `공격력 +${upEff('dmg')}%`, upEff('range') && `사거리 +${upEff('range')}%`].filter(Boolean).join(', ');
+  const bonus = [upEff('dmg') && `공격력 +${upEff('dmg')}%`, upEff('range') && `사거리 +${upEff('range')}%`].filter(Boolean).join(', ')
+    + ((BON.dmg || BON.spd) ? ` / 캐릭터·장비: ${[BON.dmg && `공격력 +${Math.round(BON.dmg * 10) / 10}%`, BON.spd && `공격 속도 +${Math.round(BON.spd * 10) / 10}%`].filter(Boolean).join(', ')}` : '');
   $('infoNote').textContent = '레벨업마다 공격력 +60%, 사거리 +12% · 초록색은 LV1보다 좋아진 수치' + (bonus ? ` · 영구 강화(${bonus}) 반영` : '');
   $('infoPanel').classList.add('show');
 }
@@ -1553,7 +1687,7 @@ function upgradeFence() {
   const cost = fenceCost(G.fence + 1);
   if (G.scrap < cost) { floats.push(new Floater(CX, CY - FENCE.ry - 6, 'NO SCRAP', '#e0412f', .8)); return false; }
   G.scrap -= cost; G.fence++;
-  const newMax = nx.maxHp + upEff('hp'), gain = newMax - G.maxHp; G.maxHp = newMax; G.hp = Math.min(G.maxHp, G.hp + gain);
+  const newMax = nx.maxHp + upEff('hp') + BON.hp, gain = newMax - G.maxHp; G.maxHp = newMax; G.hp = Math.min(G.maxHp, G.hp + gain);
   if (G.fence === FENCE_LV.length - 1 && counts()) unlockAch('fence');
   for (let i = 0; i < 16; i++) { const t = i / 16 * 6.28; fx.push(new Ring(CX + Math.cos(t) * FENCE.rx, CY + Math.sin(t) * FENCE.ry, 12, '#f5c623', .4)); }
   G.shake = Math.max(G.shake, 2);
@@ -1591,7 +1725,7 @@ function startGame(demo) {
   if (demo !== G.demo) toggleDemo();
 }
 // ───────── 업적 / 강화 화면 ─────────
-function refreshTitleBat() { $('batT').textContent = SAVE.bat; }
+function refreshTitleBat() { $('batT').textContent = SAVE.bat; $('crateT').textContent = SAVE.crate; }
 const panelOpen = () => !!document.querySelector('.mpanel.show');
 function openPanel(id) { closeMenu(); $(id).classList.add('show'); if (id === 'achPanel') renderAch(); if (id === 'upPanel') renderUp(); }
 function closePanels() { document.querySelectorAll('.mpanel').forEach(p => p.classList.remove('show')); refreshTitleBat(); }
@@ -1619,6 +1753,125 @@ function renderUp() {
     if (G.phase === 'title') reset(false, true);          // 타이틀에서 강화하면 다음 판 시작값에 바로 반영
   });
 }
+// ───────── 캐릭터·장비 픽셀 그림 ─────────
+const PX_PAL = { o: '#0f0d0b', s: '#f0c8a0', e: '#1d1915', E: '#1d1915', w: '#f1e8d6', p: '#e88a8a', m: '#8a3a3a',
+  g: '#a8a8a8', d: '#4a2f22', n: '#2f3f6a', y: '#f5c623', M: '#c8ccd2', D: '#8a8f98', h: '#3a2f25', Y: '#d8b45a', G: '#6ad06a' };
+const CH_MAP = {
+  minsu: ['................', '.....ooooo......', '....orrrrroooo..', '...orrrrrrrrrrow', '...owwwwwwwwwo..', '...ohsssssshho..',
+    '..ossssssssssO..', '..ossEEssEEsso..', '..opsssssssspo..', '..osssssmsssso..', '...ossssssssso..', '....oooooooo....', '...occcccccco...', '..occcccccccco..', '..occcccccccco..', '..oooooooooooo..'],
+  jisu: ['................', '................', '.....oooooo.....', '....oddddddo....', '...oddddddddo...', '..oddrrddrrddo..',
+    '..oddssssssddo..', '..odsessssesdo..', '..odpssssssp do.'.replace(' ', ''), '..odssssmsssdo..', '...ossssssssso..', '....oooooooo....', '...occcccccco...', '..occcrcrcccco..', '..occcccccccco..', '..oooooooooooo..'],
+  gramp: ['................', '................', '................', '................', '....oooooooo....', '...osswsssssso..',
+    '..ogssssssssgo..', '..ogsessssesgo..', '..osssssssssso..', '..oswwwwwwwwso..', '...owwwwwwwwo...', '....owwwwwwo....', '...occcccccco...', '..occcccccccco..', '..occcccccccco..', '..oooooooooooo..'],
+  guard: ['................', '................', '....oooooooo....', '...onnnyynnno...', '..onnnnnnnnnno..', '..oooooooooooo..',
+    '..ossssssssssO..', '..ossessssesso..', '..osssssssssso..', '..ossshhhhssso..', '...ossssssssso..', '....oooooooo....', '...onnnnnnnno...', '..onnnynnnnnno..', '..onnnnnnnnnno..', '..oooooooooooo..'],
+  nabi: ['................', '..oo........oo..', '..oco......oco..', '..occoooooocco..', '..occccccccccO..', '..occccccccccO..',
+    '..occGccccGcco..', '..occGccccGcco..', '..opccc pp cccpo'.replace(/ /g, ''), '..occcwwwwccco..', '...occccccccO...', '....oooooooo....', '...occcrrccco...', '..occcccccccco..', '..occcccccccco..', '..oooooooooooo..'],
+  squir: ['................', '...oo....oo.....', '..oco....oco.ooo', '..occooooocco ooo'.replace(' ', ''), '..occcccccccoYYo', '..occcccccccoYYo',
+    '..occeccccecoYYo', '..occccccccc oYYo'.replace(' ', ''), '..opcccpcccpoYYo', '..occcwwwwccoYYo', '...occccccco.YYo', '....oooooooo.YYo', '...occcccco.oYYo', '..occcccccco.YYo', '..occcccccco.oYo', '..ooooooooo...o.'],
+};
+const CH_PAL = {
+  minsu: { r: '#5a7ad8', h: '#6a4630', c: '#7aa0d8' }, jisu: { r: '#e8903a', c: '#c8653a' }, gramp: { c: '#7a5a3a' },
+  guard: { c: '#2f3f6a' }, nabi: { c: '#e8a050', r: '#e0412f' }, squir: { c: '#b0703a', Y: '#d89a5a' },
+};
+const IT_MAP = {
+  helm: ['............', '....oooo....', '..oorrrroo..', '.oMMMMMMMMo.', '.oMDDDDDDMo.', 'hoMMMMMMMMoh', 'hoMMMMMMMMoh', '.oMMMMMMMMo.', '.oMMMMMMMMo.', '..oDDDDDDo..', '...oooooo...', '............'],
+  top: ['............', '..oo....oo..', '.occo..occo.', 'occcooooccco', 'occcccccccco', 'ooocrrrrcooo', '..occccccco.', '..ocrrrrrco.', '..occccccco.', '..ocrrrrrco.', '..ooooooooo.', '............'],
+  pants: ['............', '..oooooooo..', '..orrrrrro..', '..occcccco..', '..occcccco..', '..occcoccco.', '..occo.occo.', '..ocro.orco.', '..occo.occo.', '..ocro.orco.', '..oooo.oooo.', '............'],
+  shoes: ['............', '............', '............', '......oooo..', '.....orrrro.', '....orrrrro.', '.oooorrrrro.', 'occccccccc o'.replace(' ', 'c'), 'occccccccco.', '.oooooooooo.', '............', '............'],
+  lid: ['............', '.....oo.....', '....ohho....', '..oooooooo..', '.oMMMMMMMMo.', 'oMMDDrrDDMMo', 'oMMMMMMMMMMo', 'oMMMMMMMMMMo', '.oMMMMMMMMo.', '..oooooooo..', '............', '............'],
+  broom: ['..........oo', '.........oho', '........oho.', '.......oho..', '......oho...', '.....oho....', '...oorro....', '..oYYYYo....', '.oYYYYYo....', 'oYYYYYo.....', 'oYYYYo......', '.oooo.......'],
+};
+const IT_PAL = { top: { c: '#7aa0d8' }, pants: { c: '#5a6a9a' }, shoes: { c: '#c8b090' } };
+const CRATE_MAP = ['............', '.oooooooooo.', '.oDMMMMMMDo.', '.oMDDDDDDMo.', '.oMDoyyoDMo.', '.oMDDDDDDMo.', '.oMMMMMMMMo.', '.oDDDDDDDDo.', '.oMMMMMMMMo.', '.oDMMMMMMDo.', '.oooooooooo.', '............'];
+const pxCache = {};
+function pxArt(key, map, pal, scale = 4) {
+  if (pxCache[key]) return pxCache[key];
+  const w = Math.max(...map.map(r => r.length)), c = document.createElement('canvas');
+  c.width = w * scale; c.height = map.length * scale;
+  const x = c.getContext('2d');
+  map.forEach((row, j) => [...row].forEach((ch, i) => {
+    const col = pal[ch] || PX_PAL[ch === 'O' ? 'o' : ch];
+    if (ch === '.' || !col) return;
+    x.fillStyle = col; x.fillRect(i * scale, j * scale, scale, scale);
+  }));
+  return (pxCache[key] = c.toDataURL());
+}
+const chImg = id => pxArt('ch_' + id, CH_MAP[id], CH_PAL[id] || {});
+const itImg = (sid, r) => pxArt('it_' + sid + r, IT_MAP[sid], { r: RAR[r].c, ...(IT_PAL[sid] || {}) });
+const crateImg = () => pxArt('crate', CRATE_MAP, {});
+
+// ───────── 캐릭터·장비 창 ─────────
+let bagTab = 'char';
+function openBag(tab) { closeMenu(); if (tab) bagTab = tab; $('bagPanel').classList.add('show'); renderBag(); }
+function bagHead() { $('bagBat').textContent = SAVE.bat; $('bagCrate').textContent = SAVE.crate; }
+function renderBag() {
+  bagHead();
+  document.querySelectorAll('.btab').forEach(b => b.classList.toggle('on', b.dataset.t === bagTab));
+  document.querySelectorAll('.bpage').forEach(p => p.style.display = p.id === 'bp-' + bagTab ? '' : 'none');
+  if (bagTab === 'char') renderChars(); else if (bagTab === 'gear') renderGear(); else renderPull();
+}
+function afterChange() { persist(); recalcBon(); if (G.phase === 'title') reset(false, true); }
+function renderChars() {
+  $('bp-char').innerHTML = '<div class="cgrid">' + CHARS.map(c => {
+    const own = !!SAVE.ch[c.id], on = SAVE.chEq === c.id;
+    const btn = on ? `<button class="btn on" data-ch="${c.id}">장착 중</button>`
+      : own ? `<button class="btn" data-ch="${c.id}">장착</button>`
+      : `<button class="btn${SAVE.bat < c.price ? ' poor' : ''}" data-ch="${c.id}">구매 <span class="bat"></span>${c.price}</button>`;
+    return `<div class="chcard${on ? ' on' : ''}${own ? '' : ' lock'}"><img src="${chImg(c.id)}" alt="${c.name}"><div class="chtx"><div class="t1">${c.name}</div><div class="t2">${c.desc}</div><div class="t3">${c.eff}</div></div>${btn}</div>`;
+  }).join('') + '</div><div class="bnote">캐릭터는 한 명만 데려갈 수 있어요. 장착 중을 다시 누르면 해제.</div>';
+  $('bp-char').querySelectorAll('[data-ch]').forEach(b => b.onclick = () => {
+    const c = CHARS.find(x => x.id === b.dataset.ch);
+    if (SAVE.chEq === c.id) SAVE.chEq = '';
+    else if (SAVE.ch[c.id]) SAVE.chEq = c.id;
+    else { if (SAVE.bat < c.price) { showToast(`배터리가 ${c.price - SAVE.bat}개 모자라요`, 1800); return; } SAVE.bat -= c.price; SAVE.ch[c.id] = true; SAVE.chEq = c.id; showToast(`${c.name} 합류!`, 1800); }
+    afterChange(); renderBag();
+  });
+}
+const fmtVal = (s, v) => `${s.what} +${v}${s.unit}`;
+function bonusText() {
+  const parts = [BON.hp && `HP +${BON.hp}`, BON.dmg && `공격력 +${Math.round(BON.dmg * 10) / 10}%`, BON.spd && `공격 속도 +${Math.round(BON.spd * 10) / 10}%`,
+    BON.def && `받는 피해 -${Math.round(BON.def * 10) / 10}%`, BON.loot && `처치 보상 +${BON.loot}%`, BON.scrap && `시작 스크랩 +${BON.scrap}`,
+    BON.heal && `클리어 회복 +${BON.heal}`, BON.crate && '상자 확률 2배'].filter(Boolean);
+  return parts.length ? parts.join(' · ') : '아직 효과 없음';
+}
+function renderGear() {
+  $('bp-gear').innerHTML = '<div class="ggrid">' + EQS.map(s => {
+    const id = SAVE.eq[s.id], it = id && SAVE.inv[id] !== undefined ? itemOf(id) : null, lv = it ? SAVE.inv[id] : 0;
+    const main = it ? `<img class="gimg" src="${itImg(s.id, it.r)}" style="border-color:${RAR[it.r].c}"><div class="gtx"><div class="t1" style="color:${RAR[it.r].c}">${s.names[it.r]}${lv ? ` +${lv}` : ''}</div><div class="t2">${RAR[it.r].name} · ${fmtVal(s, itemVal(s, it.r, lv))}</div><div class="pips">${Array.from({ length: EQ_MAX }, (_, i) => `<i class="${i < lv ? 'on' : ''}"></i>`).join('')}</div></div>`
+      : `<div class="gimg empty"></div><div class="gtx"><div class="t1 dim">비어 있음</div><div class="t2">뽑기에서 ${s.part}를 얻어요</div></div>`;
+    const owned = RAR.map((r, ri) => { const iid = itemId(s.id, ri), has = SAVE.inv[iid] !== undefined;
+      return `<button class="gchip${has ? '' : ' no'}${iid === id ? ' on' : ''}" data-eq="${iid}" style="--rc:${r.c}" title="${has ? s.names[ri] : '미획득'}"${has ? '' : ' disabled'}>${has ? `<img src="${itImg(s.id, ri)}">` : '?'}</button>`; }).join('');
+    return `<div class="gcard"><div class="gpart">${s.part}</div><div class="gmain">${main}</div><div class="gchips">${owned}</div></div>`;
+  }).join('') + `</div><div class="bnote">합계: <b>${bonusText()}</b></div>`;
+  $('bp-gear').querySelectorAll('[data-eq]').forEach(b => b.onclick = () => {
+    const it = itemOf(b.dataset.eq); SAVE.eq[it.s.id] = SAVE.eq[it.s.id] === b.dataset.eq ? '' : b.dataset.eq; afterChange(); renderBag();
+  });
+}
+let lastPull = null;
+function renderPull() {
+  const res = lastPull ? lastPull.map((x, i) => {
+    const tag = x.kind === 'new' ? '<span class="pnew">NEW</span>' : x.kind === 'up' ? `<span class="pup">+${x.lv} 강화</span>` : `<span class="pref">MAX · <span class="bat"></span>+${x.refund}</span>`;
+    return `<div class="pcard r${x.r}" style="--rc:${RAR[x.r].c};animation-delay:${i * .08}s"><img src="${itImg(x.s.id, x.r)}"><div class="pn">${x.s.names[x.r]}</div><div class="pr">${RAR[x.r].name} ${x.s.part}</div>${tag}</div>`;
+  }).join('') : '<div class="bnote" style="margin:auto">고철 상자를 열어 장비를 얻어요</div>';
+  $('bp-pull').innerHTML = `<div class="pleft"><img class="pcrate" src="${crateImg()}"><div class="pcount">고철 상자 <b>${SAVE.crate}</b>개</div>
+    <button class="btn main" id="bPull1"${SAVE.crate < 1 ? ' disabled' : ''}>1번 열기 (상자 1)</button>
+    <button class="btn" id="bPull10"${SAVE.crate < 10 ? ' disabled' : ''}>10번 열기 (상자 10)</button>
+    <div class="prob">${RAR.map(r => `<span style="color:${r.c}">${r.name} ${r.p}%</span>`).join(' · ')}</div>
+    <div class="pinfo">같은 장비가 또 나오면 +1 강화 (최대 +${EQ_MAX}).<br>+${EQ_MAX} 장비가 또 나오면 배터리로 돌려받아요.<br>상자는 벌레 처치(가끔), 보스(2개), 웨이브 3·6·9…클리어 때 얻어요.</div></div>
+    <div class="presult${lastPull && lastPull.length > 1 ? ' many' : ''}">${res}</div>`;
+  $('bPull1').onclick = () => doPull(1); $('bPull10').onclick = () => doPull(10);
+}
+function doPull(n) {
+  const r = pull(n);
+  if (!r) { showToast('고철 상자가 모자라요. 게임에서 벌레를 잡으면 가끔 떨어져요', 2400); return; }
+  lastPull = r;
+  const best = Math.max(...r.map(x => x.r));
+  if (best === 3) showToast('전설 장비 획득!', 2000);
+  if (G.phase === 'title') reset(false, true);
+  renderBag();
+}
+document.querySelectorAll('.btab').forEach(b => b.onclick = () => { bagTab = b.dataset.t; renderBag(); });
 // ───────── 기록 옮기기: 저장 데이터를 코드 한 줄로 (백업·기기 이동용) ─────────
 function sum(str) { let h = 7; for (let i = 0; i < str.length; i++) h = (h * 31 + str.charCodeAt(i)) % 999983; return h.toString(36); }
 function makeCode() { const b = btoa(JSON.stringify(SAVE)); return `RD1-${b}-${sum(b)}`; }
@@ -1639,7 +1892,8 @@ $('bLoad').onclick = () => {
   if (!d) { showToast('코드가 올바르지 않아요. 처음부터 끝까지 다 붙여넣었는지 확인해 주세요', 2600); return; }
   if (!loadArm) { loadArm = true; $('bLoad').textContent = '덮어쓸까요? 한 번 더'; setTimeout(() => { loadArm = false; $('bLoad').textContent = '불러오기'; }, 3000); return; }
   loadArm = false; $('bLoad').textContent = '불러오기';
-  SAVE.bat = d.bat; SAVE.ach = d.ach; SAVE.up = d.up; SAVE.st = { kills: 0, mosq: 0, moves: 0, ...(d.st || {}) }; persist();
+  SAVE.bat = d.bat; SAVE.ach = d.ach; SAVE.up = d.up; SAVE.st = { kills: 0, mosq: 0, moves: 0, ...(d.st || {}) };
+  SAVE.crate = d.crate || 0; SAVE.ch = d.ch || {}; SAVE.chEq = d.chEq || ''; SAVE.inv = d.inv || {}; SAVE.eq = d.eq || {}; persist(); recalcBon();
   if (G.phase === 'title') reset(false, true);
   closePanels(); showToast(`기록을 불러왔어요 · 배터리 ${SAVE.bat}`, 2400);
 };
@@ -1647,8 +1901,10 @@ let wipeArm = false;
 $('bWipe').onclick = () => {
   if (!wipeArm) { wipeArm = true; $('bWipe').textContent = '한 번 더 누르면 초기화'; setTimeout(() => { wipeArm = false; $('bWipe').textContent = '기록 초기화'; }, 3000); return; }
   wipeArm = false; $('bWipe').textContent = '기록 초기화';
-  SAVE.bat = 0; SAVE.ach = {}; SAVE.up = {}; SAVE.st = { kills: 0, mosq: 0, moves: 0 }; persist();
-  renderUp(); showToast('업적·배터리·강화 기록을 초기화했어요', 2200);
+  SAVE.bat = 0; SAVE.ach = {}; SAVE.up = {}; SAVE.st = { kills: 0, mosq: 0, moves: 0 };
+  SAVE.crate = 0; SAVE.ch = {}; SAVE.chEq = ''; SAVE.inv = {}; SAVE.eq = {}; persist(); recalcBon();
+  if (G.phase === 'title') reset(false, true);
+  renderUp(); showToast('업적·배터리·강화·캐릭터·장비 기록을 초기화했어요', 2200);
 };
 // ───────── 온라인 순위표 (Firebase Firestore REST API) ─────────
 // apiKey는 공개돼도 되는 값이고, 아무나 기록을 고치지 못하게 막는 건 Firestore 보안 규칙이 한다.
@@ -1776,6 +2032,7 @@ function feedbackUrl() {
 }
 document.querySelectorAll('.fbbtn').forEach(a => { a.href = feedbackUrl(); a.addEventListener('click', () => { a.href = feedbackUrl(); }); });
 $('bAch').onclick = () => openPanel('achPanel');
+$('bBag').onclick = () => openBag();
 $('bUp').onclick = () => openPanel('upPanel');
 $('bAch2').onclick = () => openPanel('achPanel');
 document.querySelectorAll('.mclose').forEach(b => b.onclick = closePanels);
