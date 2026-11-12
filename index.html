@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
-<title>룸 디펜스 프로토타입 v0.28</title>
+<title>룸 디펜스 프로토타입 v0.28.1</title>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Do+Hyeon&display=swap">
 <style>
   html,body{margin:0;height:100%;background:#0f0d0b;overflow:hidden;user-select:none;-webkit-user-select:none;-webkit-touch-callout:none;touch-action:none;overscroll-behavior:none}
@@ -421,7 +421,7 @@
 
 <script>
 'use strict';
-const VERSION = 'v0.28';
+const VERSION = 'v0.28.1';
 // 터치 기기인지 (휴대폰·태블릿이면 터치 UI로)
 const TOUCH = matchMedia('(pointer: coarse)').matches || navigator.maxTouchPoints > 0;
 
@@ -945,7 +945,7 @@ class Enemy {
 
 // ───────── 타워 (부모 클래스) ─────────
 const TDEF = {   // 해금 순서 = 가격 순서 = 단축키 순서
-  fan:     { name: '강풍기',     cost: 40, range: 72,  dmg: 3,  unlock: 0, key: '1', desc: '앞쪽 적을 바람으로 밀어낸다' },
+  fan:     { name: '강풍기',     cost: 40, range: 72,  dmg: 3,  unlock: 0, key: '1', desc: '바람을 켰다 껐다 하며 앞쪽 적을 밀어낸다' },
   laser:   { name: '레이저 포탑', cost: 50, range: 96,  dmg: 15, unlock: 0, key: '2', desc: '한 마리에게 끊김 없는 빔' },
   glue:    { name: '끈끈이 덫',   cost: 55, range: 64,  dmg: 1,  slow: .5, unlock: 1, key: '3', desc: '범위 안 적의 발을 묶어 느리게 만든다' },
   hammer:  { name: '뿅망치 기계', cost: 60, range: 62,  dmg: 24, rate: .9, unlock: 2, key: '4', desc: '근처 적을 한꺼번에 내려찍기' },
@@ -1032,25 +1032,88 @@ class Tower {
 
 // 강풍기: 앞쪽 부채꼴 안의 적을 밀어내고 약한 지속 피해
 class Fan extends Tower {
+  // 켜졌다(2초) 꺼졌다 반복. 쉬는 시간은 레벨이 오를수록 짧아진다 (LV1 4초 → LV2 3초 → LV3 2초)
+  get offT() { return FAN_OFF[this.lvl - 1]; }
   update(dt) {
     super.update(dt); this.aim(dt, 5);
-    this.anim += dt * (this.target ? 30 : 6);
-    if (!this.target) return;
+    if (this.wind === undefined) { this.wind = 0; this.wcd = 0; }
+    const blowing = this.wind > 0;
+    this.anim += dt * (blowing ? 34 : this.wcd <= 0 ? 10 : 3);
+    if (blowing) this.wind -= dt;
+    else {
+      this.wcd -= dt * spdMul();
+      if (this.wcd <= 0 && this.target && Math.abs(angDiff(this.ang, Math.atan2(this.target.y - this.y, this.target.x - this.x))) < .35) this.gust();
+      return;
+    }
+    const pw = 1 + .25 * (this.lvl - 1);
     for (const e of enemies) {
       if (e.dead) continue;
       const d = dist(this, e); if (d > this.range) continue;
       const a = Math.atan2(e.y - this.y, e.x - this.x);
       if (Math.abs(angDiff(this.ang, a)) > .55) continue;
-      const push = (e.boss ? 10 : 46) * (1 + .25 * (this.lvl - 1)) * dt;
+      const push = (e.boss ? 10 : 46) * pw * dt;
       e.x += Math.cos(a) * push; e.y += Math.sin(a) * push; e.state = 'move';
       e.hit(this.dmg * dt * spdMul(), false);
     }
-    if (R() < dt * 40) { const a = this.ang + rnd(-.45, .45), s = rnd(90, 140); parts.push(new Part(this.x + Math.cos(a) * 6, this.y + Math.sin(a) * 6, Math.cos(a) * s, Math.sin(a) * s, 'rgba(225,242,255,0.75)', .35, 1, true)); }
+    if (R() < dt * 55) { const a = this.ang + rnd(-.45, .45), s = rnd(100, 160); parts.push(new Part(this.x + Math.cos(a) * 6, this.y + Math.sin(a) * 6, Math.cos(a) * s, Math.sin(a) * s, 'rgba(225,242,255,0.8)', .35, 1, true)); }
+  }
+  // 돌풍: 켜지는 순간 앞쪽 적을 한 번 크게 날려 보내고 순간 피해
+  gust() {
+    this.wind = FAN_ON; this.wcd = this.offT;
+    const pw = 1 + .25 * (this.lvl - 1), R2 = this.range * 1.15;
+    for (const e of enemies) {
+      if (e.dead) continue;
+      const d = dist(this, e); if (d > R2) continue;
+      const a = Math.atan2(e.y - this.y, e.x - this.x);
+      if (Math.abs(angDiff(this.ang, a)) > .65) continue;
+      const kb = (e.boss ? 6 : 24) * pw;
+      e.x += Math.cos(a) * kb; e.y += Math.sin(a) * kb; e.state = 'move'; e.flash = .1;
+      e.hit(this.dmg * FAN_BURST);
+      parts.push(new Part(e.x, e.y, Math.cos(a) * 60, Math.sin(a) * 60, '#e1f2ff', .3, 2));
+    }
+    fx.push(new Gust(this.x, this.y, this.ang, R2, this.lvl));
+    for (let i = 0; i < 16; i++) { const a = this.ang + rnd(-.6, .6), s = rnd(140, 230); parts.push(new Part(this.x + Math.cos(a) * 8, this.y + Math.sin(a) * 8, Math.cos(a) * s, Math.sin(a) * s, i % 3 ? 'rgba(225,242,255,0.9)' : '#ffffff', rnd(.25, .45), R() < .4 ? 2 : 1, true)); }
+    G.shake = Math.max(G.shake, 1 + this.lvl * .5);
+    floats.push(new Floater(this.x, this.y - 12, '돌풍!', '#cfe8ff', .7));
   }
   draw() {
     this.drawBase(TSPR.fan.base);
     const b = TSPR.fan.blades[Math.floor(this.anim) % 2];
     ctx.drawImage(b, Math.round(this.x - 6), Math.round(this.y - 8));
+  }
+  drawFx() {
+    if (this.wind === undefined) return;
+    ctx.save();
+    if (this.wind > 0) {                         // 바람이 남은 시간: 하늘색 고리가 줄어든다
+      ctx.strokeStyle = 'rgba(160,215,255,.85)'; ctx.lineWidth = 1.5;
+      ctx.beginPath(); ctx.arc(this.x, this.y - 1, 10, -Math.PI / 2, -Math.PI / 2 + Math.PI * 2 * (this.wind / FAN_ON)); ctx.stroke();
+    } else if (this.wcd > 0) {                   // 충전 중: 회색 고리가 차오른다
+      ctx.strokeStyle = 'rgba(15,13,11,.6)'; ctx.lineWidth = 2.5; ctx.beginPath(); ctx.arc(this.x, this.y - 1, 10, 0, 7); ctx.stroke();
+      ctx.strokeStyle = 'rgba(200,204,210,.75)'; ctx.lineWidth = 1.5;
+      ctx.beginPath(); ctx.arc(this.x, this.y - 1, 10, -Math.PI / 2, -Math.PI / 2 + Math.PI * 2 * (1 - this.wcd / this.offT)); ctx.stroke();
+    } else {                                     // 준비 완료: 깜빡이는 고리
+      ctx.globalAlpha = .5 + .5 * Math.sin(G.time * 10);
+      ctx.strokeStyle = '#9fe8ff'; ctx.lineWidth = 1.5; ctx.beginPath(); ctx.arc(this.x, this.y - 1, 10, 0, 7); ctx.stroke();
+    }
+    ctx.restore();
+  }
+}
+const FAN_ON = 2, FAN_OFF = [4, 3, 2], FAN_BURST = 4;   // 바람 켜짐 2초, 레벨별 쉬는 시간, 돌풍 순간 피해 = 초당 피해 × 4
+// 돌풍 이펙트: 부채꼴로 퍼지는 바람 물결
+class Gust {
+  constructor(x, y, ang, r, lvl) { Object.assign(this, { x, y, ang, r, lvl, life: .45, max: .45, dead: false }); }
+  update(dt) { this.life -= dt; if (this.life <= 0) this.dead = true; }
+  draw() {
+    const k = 1 - this.life / this.max;
+    ctx.save(); ctx.globalCompositeOperation = 'lighter';
+    ctx.fillStyle = `rgba(150,210,255,${.18 * (1 - k)})`;
+    ctx.beginPath(); ctx.moveTo(this.x, this.y); ctx.arc(this.x, this.y, this.r * Math.min(1, k * 1.6), this.ang - .65, this.ang + .65); ctx.closePath(); ctx.fill();
+    for (let i = 0; i < 3; i++) {
+      const kk = k * 1.3 - i * .18; if (kk <= 0 || kk > 1) continue;
+      ctx.strokeStyle = `rgba(225,242,255,${(1 - kk) * .95})`; ctx.lineWidth = 2.5 - i * .6 + (this.lvl - 1) * .5;
+      ctx.beginPath(); ctx.arc(this.x, this.y, 8 + (this.r - 8) * kk, this.ang - .6 + i * .05, this.ang + .6 - i * .05); ctx.stroke();
+    }
+    ctx.restore();
   }
 }
 
@@ -1605,7 +1668,7 @@ function towerIcon(type, lvl) {
   return c.toDataURL();
 }
 const TINFO = {
-  fan:     { tags: ['지속 피해', '밀어내기', '부채꼴'], tip: '앞쪽 벌레를 바람으로 밀어내 울타리에서 떼어놔요. 피해는 약하니 다른 타워와 함께 쓰세요.' },
+  fan:     { tags: ['돌풍', '밀어내기', '부채꼴'], tip: '바람이 켜지는 순간 돌풍으로 앞쪽 벌레를 날려 보내고, 2초 동안 계속 밀어내요. 그다음엔 쉬면서 충전해요(고리가 차오름). 레벨이 오를수록 쉬는 시간이 짧아져요.' },
   glue:    { tags: ['감속', '범위'], tip: '범위 안 벌레의 발을 묶어요. 레이저·대포 옆에 두면 맞는 시간이 늘어나요. 보스는 덜 느려져요.' },
   laser:   { tags: ['단일', '지속 빔'], tip: '침대에 가장 가까운 한 마리를 끊김 없이 지져요. 초반 주력 타워예요.' },
   coil:    { tags: ['범위', '지속 독', '모기 특효'], tip: '연기 범위 안 모두에게 독 피해. 모기에게는 3배라 모기 떼에 강해요.' },
@@ -1619,7 +1682,7 @@ function infoStats(type, lvl) {
   const t = towerAt(type, lvl), d = TDEF[type], one = v => Math.round(v), dec = v => v.toFixed(1);
   const st = [['사거리', one(t.range)]];
   switch (type) {
-    case 'fan':     st.push(['초당 피해', dec(t.dmg)], ['밀어내는 힘', one(46 * (1 + .25 * (lvl - 1)))]); break;
+    case 'fan':     st.push(['바람', `${FAN_ON}초 켜짐 · ${FAN_OFF[lvl - 1]}초 쉼`], ['돌풍 순간 피해', one(t.dmg * FAN_BURST)], ['바람 초당 피해', dec(t.dmg)], ['밀어내는 힘', one(46 * (1 + .25 * (lvl - 1)))]); break;
     case 'glue':    st.push(['적 이동 속도', one(Math.max(.25, d.slow - .1 * (lvl - 1)) * 100) + '%'], ['초당 피해', dec(t.dmg)]); break;
     case 'laser':   st.push(['초당 피해', dec(t.dmg)]); break;
     case 'coil':    st.push(['초당 독 피해', dec(t.dmg)], ['모기에게', dec(t.dmg * 3) + '/초']); break;
