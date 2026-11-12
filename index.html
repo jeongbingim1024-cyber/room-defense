@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
-<title>룸 디펜스 프로토타입 v0.25</title>
+<title>룸 디펜스 프로토타입 v0.26</title>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Do+Hyeon&display=swap">
 <style>
   html,body{margin:0;height:100%;background:#0f0d0b;overflow:hidden;user-select:none;-webkit-user-select:none;-webkit-touch-callout:none;touch-action:none;overscroll-behavior:none}
@@ -332,7 +332,7 @@
 
 <script>
 'use strict';
-const VERSION = 'v0.25';
+const VERSION = 'v0.26';
 // 터치 기기인지 (휴대폰·태블릿이면 터치 UI로)
 const TOUCH = matchMedia('(pointer: coarse)').matches || navigator.maxTouchPoints > 0;
 
@@ -795,6 +795,20 @@ const TDEF = {   // 해금 순서 = 가격 순서 = 단축키 순서
   cannon:  { name: '대포',       cost: 85, range: 115,  dmg: 28, rate: 1.3, splash: 22, unlock: 6, key: '8', desc: '포탄 폭발로 범위 피해' },
   sling:   { name: '고무줄 새총', cost: 95, range: 170, dmg: 48, rate: 1.6, unlock: 7, key: '9', desc: '초장거리 저격, 체력 높은 적부터' },
 };
+// ───────── 레벨별 외형: LV2 은색 테두리, LV3 금색 테두리 + 왕관, 레벨마다 조금씩 커짐 ─────────
+const LVC = new Map();
+function lvSprite(img, lvl) {
+  if (lvl <= 1) return img;
+  let m = LVC.get(img); if (!m) LVC.set(img, m = {});
+  if (!m[lvl]) m[lvl] = lvl === 2 ? outlined(img, '#d6dbe3') : outlined(outlined(img, '#f5c623'), '#7a5208');
+  return m[lvl];
+}
+const lvScale = lvl => 1 + .1 * (lvl - 1);
+function drawCrown(g, x, y) {          // LV3 왕관 (x = 가운데, y = 아래쪽)
+  g.fillStyle = '#7a5208'; g.fillRect(x - 4, y - 5, 9, 5);
+  g.fillStyle = '#f5c623'; g.fillRect(x - 3, y - 2, 7, 2); g.fillRect(x - 3, y - 4, 1, 2); g.fillRect(x, y - 4, 1, 2); g.fillRect(x + 3, y - 4, 1, 2);
+  g.fillStyle = '#e0412f'; g.fillRect(x, y - 2, 1, 1);
+}
 class Tower {
   constructor(type, slot) {
     this.type = type; this.def = TDEF[type]; this.slot = slot; this.x = slot.x; this.y = slot.y;
@@ -817,12 +831,15 @@ class Tower {
     const sy = 1 + this.pop * 1.4;
     ctx.fillStyle = 'rgba(0,0,0,0.3)'; ctx.beginPath(); ctx.ellipse(this.x, this.y + 6, 8, 3, 0, 0, 7); ctx.fill();
     if (this.lvl > 1) { ctx.strokeStyle = this.lvl === 2 ? '#c0c6d0' : '#f5c623'; ctx.lineWidth = this.lvl === 2 ? 1 : 2; ctx.beginPath(); ctx.ellipse(this.x, this.y + 6, 10, 4, 0, 0, 7); ctx.stroke(); }   // 레벨 표시 받침 (LV2 은색, LV3 금색)
-    ctx.save(); ctx.translate(this.x, this.y); ctx.scale(1, sy); ctx.drawImage(img, -9, -9); ctx.restore();
+    const im = lvSprite(img, this.lvl), k = lvScale(this.lvl);
+    ctx.save(); ctx.translate(this.x, this.y); ctx.scale(k, k * sy); ctx.drawImage(im, -im.width / 2, -im.height / 2); ctx.restore();
+    if (this.lvl === 3) drawCrown(ctx, Math.round(this.x), Math.round(this.y - im.height / 2 * k - 1));
     if (this.lvl === 3 && Math.floor(G.time * 3 + this.x) % 4 === 0) { ctx.fillStyle = '#fff6b0'; ctx.fillRect(this.x + 6, this.y - 8, 1, 1); ctx.fillRect(this.x - 7, this.y - 2, 1, 1); }
     for (let i = 0; i < this.lvl - 1; i++) { ctx.fillStyle = '#120d0a'; ctx.fillRect(this.x - 5 + i * 5, this.y + 9, 4, 4); ctx.fillStyle = '#f5c623'; ctx.fillRect(this.x - 4 + i * 5, this.y + 10, 2, 2); }
   }
   drawRot(img, ox, oy, recoil = 0) {
-    ctx.save(); ctx.translate(this.x, this.y); ctx.rotate(this.ang); ctx.drawImage(img, -ox - recoil, -oy); ctx.restore();
+    const im = lvSprite(img, this.lvl), o = this.lvl - 1, k = lvScale(this.lvl);
+    ctx.save(); ctx.translate(this.x, this.y); ctx.rotate(this.ang); ctx.scale(k, k); ctx.drawImage(im, -ox - o - recoil, -oy - o); ctx.restore();
   }
   draw() {}
   drawFx() {}
@@ -891,7 +908,8 @@ class Hammer extends Tower {
     this.drawBase(TSPR.hammer.base);
     const r = Math.max(0, this.cd) / this.def.rate;
     const lift = this.anim > 0 ? -5 : -7 - 6 * (1 - r);
-    ctx.drawImage(TSPR.hammer.head, Math.round(this.x - 6.5), Math.round(this.y + lift - 4));
+    const hd = lvSprite(TSPR.hammer.head, this.lvl), o = this.lvl - 1;
+    ctx.drawImage(hd, Math.round(this.x - 6.5 - o), Math.round(this.y + lift - 4 - o - (this.lvl - 1) * 2));
   }
 }
 
@@ -1379,15 +1397,17 @@ $('tmInfo').onclick = () => { if (menuT) { const t = menuT; openInfo(t.type, t.l
 // ───────── 타워 정보: 레벨별 수치 (영구 강화까지 반영한 실제 값) ─────────
 function towerAt(type, lvl) { const t = Object.create(TCLASS[type].prototype); t.def = TDEF[type]; t.type = type; t.lvl = lvl; return t; }
 function towerIcon(type, lvl) {
-  const [c, g] = mk(40, 40); const T = TSPR[type];
-  g.fillStyle = 'rgba(0,0,0,.3)'; g.beginPath(); g.ellipse(20, 28, 9, 3, 0, 0, 7); g.fill();
-  if (lvl > 1) { g.strokeStyle = lvl === 2 ? '#c0c6d0' : '#f5c623'; g.lineWidth = lvl === 2 ? 1 : 2; g.beginPath(); g.ellipse(20, 28, 11, 4, 0, 0, 7); g.stroke(); }
-  g.drawImage(T.base, 11, 13);
-  if (T.barrel) { g.save(); g.translate(20, 22); g.rotate(-.5); g.drawImage(T.barrel, -2, -Math.floor(T.barrel.height / 2)); g.restore(); }
-  if (type === 'fan') g.drawImage(T.blades[0], 14, 14);
-  if (type === 'hammer') g.drawImage(T.head, 14, 6);
-  for (let i = 0; i < lvl - 1; i++) { g.fillStyle = '#120d0a'; g.fillRect(15 + i * 6, 32, 5, 5); g.fillStyle = '#f5c623'; g.fillRect(16 + i * 6, 33, 3, 3); }
-  if (lvl === 3) { g.fillStyle = '#fff6b0'; [[31, 10], [8, 16], [30, 20]].forEach(([x, y]) => g.fillRect(x, y, 1, 1)); }
+  const [c, g] = mk(48, 48); const T = TSPR[type], k = lvScale(lvl), o = lvl - 1;
+  g.fillStyle = 'rgba(0,0,0,.3)'; g.beginPath(); g.ellipse(24, 33, 10, 3, 0, 0, 7); g.fill();
+  if (lvl > 1) { g.strokeStyle = lvl === 2 ? '#c0c6d0' : '#f5c623'; g.lineWidth = lvl === 2 ? 1 : 2; g.beginPath(); g.ellipse(24, 33, 12, 4, 0, 0, 7); g.stroke(); }
+  g.save(); g.translate(24, 27); g.scale(k, k);
+  const base = lvSprite(T.base, lvl); g.drawImage(base, -base.width / 2, -base.height / 2);
+  if (T.barrel) { const br = lvSprite(T.barrel, lvl); g.save(); g.rotate(-.5); g.drawImage(br, -2 - o, -Math.floor(T.barrel.height / 2) - o); g.restore(); }
+  if (type === 'fan') g.drawImage(T.blades[0], -6, -8);
+  if (type === 'hammer') { const hd = lvSprite(T.head, lvl); g.drawImage(hd, -6 - o, -18 - o - o * 2); }
+  g.restore();
+  if (lvl === 3) drawCrown(g, 24, Math.round(27 - (base => base)(lvSprite(T.base, 3)).height / 2 * k - (type === 'hammer' ? 8 : 0)));
+  for (let i = 0; i < lvl - 1; i++) { g.fillStyle = '#120d0a'; g.fillRect(19 + i * 6, 39, 5, 5); g.fillStyle = '#f5c623'; g.fillRect(20 + i * 6, 40, 3, 3); }
   return c.toDataURL();
 }
 const TINFO = {
