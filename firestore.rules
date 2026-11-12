@@ -47,6 +47,15 @@ service cloud.firestore {
         && request.resource.data.crate is int && request.resource.data.crate >= 0 && request.resource.data.crate <= 1000
         && request.resource.data.on is bool;
     }
+    // 공지: 누구나 읽기, 관리자만 쓰기
+    match /notice/{id} {
+      allow get: if true;
+      allow create, update: if isAdmin()
+        && request.resource.data.keys().hasOnly(['on', 'id', 'body', 'code', 'ts'])
+        && request.resource.data.on is bool
+        && request.resource.data.body is string && request.resource.data.body.size() <= 500
+        && request.resource.data.code is string && request.resource.data.code.size() <= 20;
+    }
     // 그 밖의 모든 데이터는 접근 금지 (예전 scores 순위표 포함)
     match /{document=**} {
       allow read, write: if false;
