@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
-<title>룸 디펜스 프로토타입 v0.50</title>
+<title>룸 디펜스 프로토타입 v0.50.1</title>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Do+Hyeon&display=swap">
 <style>
   html,body{margin:0;height:100%;background:#0f0d0b;overflow:hidden;user-select:none;-webkit-user-select:none;-webkit-touch-callout:none;touch-action:none;overscroll-behavior:none}
@@ -644,7 +644,7 @@
 
 <script>
 'use strict';
-const VERSION = 'v0.50';
+const VERSION = 'v0.50.1';
 // 터치 기기인지 (휴대폰·태블릿이면 터치 UI로)
 const TOUCH = matchMedia('(pointer: coarse)').matches || navigator.maxTouchPoints > 0;
 
@@ -1583,33 +1583,33 @@ const TDEF = {   // 기본 9종 (grade 0 일반 · 1 희귀 · 2 영웅 · 3 전
   fan: { base: 'fan', grade: 0, name: '강풍기',     cost: 40, range: 72,  dmg: 3,  unlock: 0, key: '1', desc: '바람을 켰다 껐다 하며 앞쪽 적을 밀어낸다' },
   laser: { base: 'laser', grade: 0, name: '레이저 포탑', cost: 50, range: 96,  dmg: 15, unlock: 0, key: '2', desc: '한 마리에게 끊김 없는 빔' },
   glue: { base: 'glue', grade: 0, name: '끈끈이 덫',   cost: 55, range: 64,  dmg: 1,  slow: .5, unlock: 1, key: '3', desc: '범위 안 적의 발을 묶어 느리게 만든다' },
-  hammer: { base: 'hammer', grade: 1, name: '뿅망치 기계', cost: 60, range: 62,  dmg: 24, rate: .9, unlock: 2, key: '4', desc: '근처 적을 한꺼번에 내려찍기' },
-  coil: { base: 'coil', grade: 1, name: '모기향',     cost: 65, range: 62,  dmg: 4,  unlock: 3, key: '5', desc: '범위 안 모두에게 독 연기, 모기는 3배' },
+  hammer: { base: 'hammer', grade: 1, name: '뿅망치 기계', cost: 60, range: 65,  dmg: 27, rate: .9, unlock: 2, key: '4', desc: '근처 적을 한꺼번에 내려찍기' },
+  coil: { base: 'coil', grade: 1, name: '모기향',     cost: 65, range: 66,  dmg: 11,  unlock: 3, key: '5', desc: '범위 안 모두에게 독 연기, 모기는 3배' },
   swatter: { base: 'swatter', grade: 1, name: '전기 파리채', cost: 70, range: 70,  dmg: 32, rate: .75, unlock: 4, key: '6', desc: '강한 한 방, 모기는 즉사' },
-  tesla: { base: 'tesla', grade: 2, name: '테슬라 코일', cost: 75, range: 82,  dmg: 9,  rate: .75, chain: 4, unlock: 5, key: '7', desc: '여러 마리를 잇는 연쇄 번개' },
-  cannon: { base: 'cannon', grade: 2, name: '대포',       cost: 85, range: 115,  dmg: 28, rate: 1.3, splash: 22, unlock: 6, key: '8', desc: '포탄 폭발로 범위 피해' },
+  tesla: { base: 'tesla', grade: 2, name: '테슬라 코일', cost: 75, range: 82,  dmg: 18, rate: .7, chain: 5, unlock: 5, key: '7', desc: '여러 마리를 잇는 연쇄 번개' },
+  cannon: { base: 'cannon', grade: 2, name: '대포',       cost: 85, range: 115,  dmg: 32, rate: 1.3, splash: 22, unlock: 6, key: '8', desc: '포탄 폭발로 범위 피해' },
   sling: { base: 'sling', grade: 3, leg: 'headshot', name: '고무줄 새총', cost: 95, range: 170, dmg: 48, rate: 1.6, unlock: 7, key: '9', desc: '초장거리 저격, 체력 높은 적부터' },
 };
 // 변형 18종: 기본 타워의 공격 방식(base)을 쓰고 수치·속성만 다르다. fx: slow [속도 배율, 초], burn [타워 피해 대비 초당, 초], stun 초
 const TVAR = {
-  deskfan:   { base: 'fan',     grade: 0, name: '탁상 선풍기',    cost: 30,  range: 60,  dmg: 2,   coneMul: .8, offMul: .8, desc: '작고 싸지만 자주 분다' },
+  deskfan:   { base: 'fan',     grade: 0, name: '탁상 선풍기',    cost: 30,  range: 64,  dmg: 3,   coneMul: .8, offMul: .8, desc: '작고 싸지만 자주 분다' },
   magnifier: { base: 'laser',   grade: 0, name: '돋보기',        cost: 45,  range: 90,  dmg: 10,  fx: { burn: [.6, 2] }, beam: [255, 200, 60], desc: '햇빛을 모아 태운다' },
   tape:      { base: 'glue',    grade: 0, name: '박스 테이프',    cost: 45,  range: 76,  dmg: .5,  slow: .6, desc: '넓게 붙지만 덜 끈적하다' },
-  scratcher: { base: 'hammer',  grade: 0, name: '효자손',        cost: 45,  range: 54,  dmg: 14,  rate: .6, desc: '약하지만 빠르게 긁는다' },
-  watergun:  { base: 'swatter', grade: 0, name: '물총',          cost: 50,  range: 80,  dmg: 16,  rate: .5, noKill: true, fx: { slow: [.6, 1] }, desc: '맞은 적이 잠깐 느려진다' },
+  scratcher: { base: 'hammer',  grade: 0, name: '효자손',        cost: 45,  range: 56,  dmg: 11,  rate: .6, desc: '약하지만 빠르게 긁는다' },
+  watergun:  { base: 'swatter', grade: 0, name: '물총',          cost: 50,  range: 80,  dmg: 11,  rate: .6, noKill: true, fx: { slow: [.6, 1] }, desc: '맞은 적이 잠깐 느려진다' },
   popcorn:   { base: 'cannon',  grade: 0, name: '팝콘 대포',      cost: 55,  range: 100, dmg: 16,  rate: 1, splash: 18, desc: '작은 폭발을 자주 터뜨린다' },
   coolfan:   { base: 'fan',     grade: 1, name: '냉풍기',        cost: 60,  range: 76,  dmg: 3,   fx: { slow: [.6, 1.5] }, desc: '찬 바람에 맞은 적이 느려진다' },
-  fridge:    { base: 'laser',   grade: 1, name: '냉장고 빔',      cost: 70,  range: 96,  dmg: 13,  fx: { slow: [.65, .5] }, beam: [120, 200, 255], desc: '얼리는 빔, 맞는 동안 느려진다' },
-  candle:    { base: 'coil',    grade: 1, name: '향초',          cost: 75,  range: 70,  dmg: 5,   fly: 2, fx: { burn: [.5, 2] }, desc: '연기 대신 불꽃, 화상이 남는다' },
-  powerstrip:{ base: 'tesla',   grade: 1, name: '멀티탭',        cost: 80,  range: 78,  dmg: 7,   rate: .6, chain: 6, desc: '약한 번개를 더 많이 잇는다' },
-  bbgun:     { base: 'sling',   grade: 1, name: '비비탄총',      cost: 80,  range: 140, dmg: 22,  rate: .7, desc: '사거리는 짧지만 빠르게 쏜다' },
-  aircon:    { base: 'fan',     grade: 2, name: '에어컨',        cost: 110, range: 90,  dmg: 6,   coneMul: 1.2, fx: { slow: [.5, 2] }, desc: '넓고 강한 냉기 바람' },
+  fridge:    { base: 'laser',   grade: 1, name: '냉장고 빔',      cost: 70,  range: 96,  dmg: 16,  fx: { slow: [.65, .5] }, beam: [120, 200, 255], desc: '얼리는 빔, 맞는 동안 느려진다' },
+  candle:    { base: 'coil',    grade: 1, name: '향초',          cost: 75,  range: 70,  dmg: 12,   fly: 2, fx: { burn: [.5, 2] }, desc: '연기 대신 불꽃, 화상이 남는다' },
+  powerstrip:{ base: 'tesla',   grade: 1, name: '멀티탭',        cost: 80,  range: 78,  dmg: 12,   rate: .6, chain: 6, desc: '약한 번개를 더 많이 잇는다' },
+  bbgun:     { base: 'sling',   grade: 1, name: '비비탄총',      cost: 80,  range: 140, dmg: 13,  rate: .8, desc: '사거리는 짧지만 빠르게 쏜다' },
+  aircon:    { base: 'fan',     grade: 2, name: '에어컨',        cost: 110, range: 90,  dmg: 5,   coneMul: 1.2, fx: { slow: [.6, 1.5] }, desc: '넓고 강한 냉기 바람' },
   microwave: { base: 'laser',   grade: 2, name: '전자레인지',     cost: 120, range: 100, dmg: 26,  fx: { burn: [.6, 2.5] }, beam: [255, 90, 220], desc: '강한 빔에 화상까지' },
-  iron:      { base: 'hammer',  grade: 2, name: '다리미',        cost: 110, range: 66,  dmg: 34,  rate: 1, fx: { burn: [.4, 2] }, desc: '뜨겁게 내려찍어 화상을 남긴다' },
-  spray:     { base: 'coil',    grade: 2, name: '살충 스프레이',   cost: 115, range: 72,  dmg: 8,   fly: 5, desc: '모기에게 5배, 독 피해도 강하다' },
+  iron:      { base: 'hammer',  grade: 2, name: '다리미',        cost: 110, range: 66,  dmg: 30,  rate: 1, fx: { burn: [.4, 2] }, desc: '뜨겁게 내려찍어 화상을 남긴다' },
+  spray:     { base: 'coil',    grade: 2, name: '살충 스프레이',   cost: 115, range: 72,  dmg: 16,   fly: 5, desc: '모기에게 5배, 독 피해도 강하다' },
   fireworks: { base: 'cannon',  grade: 3, leg: 'finale', name: '불꽃놀이 발사대', cost: 160, range: 125, dmg: 30,  rate: 1.4, splash: 26, shots: 3, fx: { burn: [.3, 2] }, desc: '포탄 3발에 화상까지' },
   lightningrod:{ base: 'tesla', grade: 3, leg: 'strike', name: '피뢰침',        cost: 170, range: 95,  dmg: 22,  rate: .9, chain: 6, fx: { stun: .4 }, desc: '강한 번개가 맞은 적을 잠깐 멈춘다' },
-  railgun:   { base: 'sling',   grade: 3, leg: 'pierce', name: '레일건',        cost: 180, range: 200, dmg: 110, rate: 2.2, desc: '맵 끝까지 닿는 아주 강한 한 방' },
+  railgun:   { base: 'sling',   grade: 3, leg: 'pierce', name: '레일건',        cost: 180, range: 200, dmg: 95, rate: 2.2, desc: '맵 끝까지 닿는 아주 강한 한 방' },
 };
 Object.assign(TDEF, TVAR);
 // 전설 타워 전용 능력 (임시, v0.46). 다른 등급은 데이터가 모이면 추가
@@ -2219,7 +2219,7 @@ function startWave() {
   G.banner = 2; G.bannerText = 'WAVE ' + G.wave; sfx(G.wave % 5 === 0 ? 'boss' : 'wave');
   if (G.wave === 5 && !G.demo) setTimeout(() => showToast('새 벌레: 폭탄먼지벌레! 울타리 밖에서 산성액을 쏴요. 사거리 긴 타워로 잡으세요', 3600), 600);
   const NEWBUG = { [EWAVE.wasp]: ['새 벌레: 말벌! 하늘로 빠르게 날아와요', 'New bug: Wasp! Flies in fast'], [EWAVE.beetle]: ['새 벌레: 장수풍뎅이! 단단해서 피해를 35% 덜 받아요', 'New bug: Rhino Beetle! Armored, takes 35% less damage'], [EWAVE.flea]: ['새 벌레: 벼룩! 폴짝폴짝 뛰어서 갑자기 다가와요', 'New bug: Flea! Hops in suddenly'] };
-  if (NEWBUG[G.wave] && !G.demo) setTimeout(() => showToast(L(...NEWBUG[G.wave]), 3200), 600);
+  const nb = NEWBUG[G.wave]; if (nb && !G.demo) setTimeout(() => showToast(L(...nb), 3200), 600);
   if (G.wave === ENDING_WAVE) { G.bannerText = 'FINAL WAVE'; G.banner = 2.6; }
 }
 
