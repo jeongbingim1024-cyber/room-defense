@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
-<title>룸 디펜스 프로토타입 v0.21</title>
+<title>룸 디펜스 프로토타입 v0.22</title>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Do+Hyeon&display=swap">
 <style>
   html,body{margin:0;height:100%;background:#0f0d0b;overflow:hidden;user-select:none;-webkit-user-select:none;-webkit-touch-callout:none;touch-action:none;overscroll-behavior:none}
@@ -33,7 +33,7 @@
   .card .ttl{font-family:'Press Start 2P',monospace;font-size:14px;color:#f5a623;text-align:center;letter-spacing:2px}
   .card .cfoot{display:flex;align-items:center;justify-content:space-between;font-family:'Do Hyeon',sans-serif;font-size:17px;color:#8a7e6c;border-top:2px solid #4a3f33;padding-top:10px}
   .tcard{width:380px;margin-top:6px}
-  .tcard .row3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px}
+  .tcard .row3{display:grid;grid-template-columns:1fr 1fr;gap:10px}
   .tcard .row3 .btn{padding:10px 4px;white-space:nowrap}
   .pcard{width:400px}
   .ocard{width:440px;text-align:center}
@@ -180,6 +180,21 @@
   .hr em{font-style:normal}
   .hl{font-family:'Do Hyeon',sans-serif;font-size:17px;color:#cfc3ae;line-height:1.25;padding-left:14px;position:relative}
   .hl::before{content:'';position:absolute;left:0;top:7px;width:6px;height:6px;background:#f5a623}
+  #submitRow{display:grid;grid-template-columns:1fr 120px;gap:10px}
+  #submitRow.hide{display:none}
+  #nick{font-family:'Do Hyeon',sans-serif;font-size:20px;color:#f1e8d6;background:#0f0d0b;border:2px solid #4a3f33;padding:8px 10px;user-select:text;-webkit-user-select:text;touch-action:auto;min-width:0}
+  #nick:focus{outline:none;border-color:#f5a623}
+  #bSubmit[disabled]{opacity:.5;cursor:default}
+  #rankSub{font-family:'Do Hyeon',sans-serif;font-size:16px;color:#8a7e6c}
+  .rhead,.rrow{display:grid;grid-template-columns:56px 1fr 110px 110px 90px;gap:8px;align-items:center;padding:4px 12px}
+  .rhead{font-family:'Press Start 2P',monospace;font-size:9px;color:#f5a623}
+  #rankList{display:flex;flex-direction:column;gap:4px;overflow-y:auto;touch-action:pan-y;max-height:360px}
+  .rrow{background:#2c2620;border:2px solid #0f0d0b;font-family:'Do Hyeon',sans-serif;font-size:20px;color:#f1e8d6}
+  .rrow .rk{font-family:'Press Start 2P',monospace;font-size:11px;color:#cfc3ae}
+  .rrow.top1 .rk{color:#f5c623} .rrow.top2 .rk{color:#d0d4da} .rrow.top3 .rk{color:#e8a06a}
+  .rrow.me{box-shadow:inset 0 0 0 2px #f5a623}
+  .rrow .sm{font-size:15px;color:#8a7e6c}
+  .rmsg{font-family:'Do Hyeon',sans-serif;font-size:19px;color:#8a7e6c;text-align:center;padding:30px 0}
   #achPop{position:absolute;left:50%;top:128px;transform:translate(-50%,-20px);opacity:0;transition:opacity .3s,transform .3s;pointer-events:none;background:rgba(29,25,21,.95);border:3px solid #0f0d0b;box-shadow:inset 0 0 0 2px #f5a623;padding:10px 22px;text-align:center}
   #achPop.show{opacity:1;transform:translate(-50%,0)}
   .ap1{font-family:'Press Start 2P',monospace;font-size:9px;color:#f5a623}
@@ -212,7 +227,7 @@
     <div class="tag">세상은 망했다. 내 방만 빼고.</div>
     <div class="card tcard">
       <button class="btn" id="bStart">START</button>
-      <div class="row3"><button class="btn" id="bHelp">게임 방법</button><button class="btn" id="bAch">업적</button><button class="btn" id="bUp">강화</button></div>
+      <div class="row3"><button class="btn" id="bHelp">게임 방법</button><button class="btn" id="bRank">순위</button><button class="btn" id="bAch">업적</button><button class="btn" id="bUp">강화</button></div>
       <div class="cfoot"><span>보유 배터리</span><span class="batbox"><span class="bat"></span><span id="batT">0</span></span></div>
     </div>
     <div class="press"><span class="pcOnly2">PRESS ENTER</span><span class="tOnly">TAP START</span></div>
@@ -231,6 +246,7 @@
     <h1>침대가 함락됐다...</h1>
     <p id="overWave">WAVE 0</p>
     <div id="overBat"></div>
+    <div id="submitRow"><input id="nick" maxlength="12" placeholder="닉네임 (최대 12자)" autocomplete="off"><button class="btn" id="bSubmit">순위 등록</button></div>
     <div class="grid2"><button class="btn main" id="bRetry">다시 하기</button><button class="btn" id="bOverTitle">타이틀로</button></div>
   </div></div>
   <div id="achPanel" class="mpanel"><div class="mbox"><div class="mhead"><span>업적</span><span id="achCount"></span><button class="btn mclose">닫기</button></div><div class="alist" id="achList"></div></div></div>
@@ -260,6 +276,10 @@
         <div class="hl">배터리로 <b>강화</b>에서 영구 업그레이드!</div>
       </div>
     </div></div></div>
+  <div id="rankPanel" class="mpanel"><div class="mbox"><div class="mhead"><span>순위</span><span id="rankSub"></span><button class="btn mclose">닫기</button></div>
+    <div class="rhead"><span>#</span><span>닉네임</span><span>웨이브</span><span>처치</span><span>버전</span></div>
+    <div id="rankList"></div>
+  </div></div>
   <div id="achPop"></div>
 </div>
 <div id="side">
@@ -273,7 +293,7 @@
 
 <script>
 'use strict';
-const VERSION = 'v0.21';
+const VERSION = 'v0.22';
 // 터치 기기인지 (휴대폰·태블릿이면 터치 UI로)
 const TOUCH = matchMedia('(pointer: coarse)').matches || navigator.maxTouchPoints > 0;
 
@@ -622,7 +642,7 @@ const G = {};
 let enemies, towers, shells, parts, fx, floats;
 function reset(keepDemo, title = false) {
   const baseHp = 100 + 10 * upLv('hp');
-  Object.assign(G, { hp: baseHp, maxHp: baseHp, scrap: 200 + 20 * upLv('scrap'), awarded: false, usedDemo: false, tookDmg: false, maxTowers: 0, wave: 0, phase: title ? 'title' : 'break', ambT: 0, paused: false, cleared: 0, fence: 0, breakT: 8, queue: [], waveT: 0, over: false, time: 0,
+  Object.assign(G, { hp: baseHp, maxHp: baseHp, scrap: 200 + 20 * upLv('scrap'), awarded: false, submitted: false, runKills: 0, usedDemo: false, tookDmg: false, maxTowers: 0, wave: 0, phase: title ? 'title' : 'break', ambT: 0, paused: false, cleared: 0, fence: 0, breakT: 8, queue: [], waveT: 0, over: false, time: 0,
     shake: 0, baseFlash: 0, banner: 0, bannerText: '', demo: keepDemo ? G.demo : false, demoT: 0 });
   if (G.demo) { G.scrap = 400; G.usedDemo = true; }
   selType = 'laser';
@@ -692,7 +712,7 @@ class Enemy {
     this.dead = true;
     const rew = Math.round(this.d.reward * (this.boss ? 8 : 1) * (1 + .05 * upLv('loot')));
     if (counts()) {
-      SAVE.st.kills++; if (this.type === 'mosq') SAVE.st.mosq++; saveDirty = true;
+      SAVE.st.kills++; G.runKills++; if (this.type === 'mosq') SAVE.st.mosq++; saveDirty = true;
       if (SAVE.st.kills >= 100) unlockAch('kill100');
       if (SAVE.st.mosq >= 50) unlockAch('mosq50');
       if (this.boss) unlockAch('boss');
@@ -1153,6 +1173,10 @@ function update(dt) {
     document.getElementById('overWave').textContent = 'WAVE ' + G.wave + ' 까지 버팀';
     const r = endRun();
     document.getElementById('overBat').innerHTML = !r ? '' : r.demo ? '자동 데모를 쓴 판은 배터리를 얻지 않아요' : `<span class="bat"></span>배터리 +${r.gain} · 보유 ${SAVE.bat}`;
+    const canSubmit = !G.usedDemo && G.wave >= 1;
+    $('submitRow').classList.toggle('hide', !canSubmit);
+    $('bSubmit').disabled = false; $('bSubmit').textContent = '순위 등록';
+    try { $('nick').value = localStorage.getItem('roomdef_nick') || ''; } catch (e) {}
     document.getElementById('over').classList.add('show');
   }
 }
@@ -1438,6 +1462,56 @@ $('bWipe').onclick = () => {
   SAVE.bat = 0; SAVE.ach = {}; SAVE.up = {}; SAVE.st = { kills: 0, mosq: 0, moves: 0 }; persist();
   renderUp(); showToast('업적·배터리·강화 기록을 초기화했어요', 2200);
 };
+// ───────── 온라인 순위표 (Firebase Firestore REST API) ─────────
+// apiKey는 공개돼도 되는 값이고, 아무나 기록을 고치지 못하게 막는 건 Firestore 보안 규칙이 한다.
+const FB = { apiKey: 'AIzaSyD2aPHmBuH_RARc0btJeKoWyhNe616PKDI', projectId: 'room-defense' };
+const FS_URL = `https://firestore.googleapis.com/v1/projects/${FB.projectId}/databases/(default)/documents`;
+let myLastId = null;
+const esc = t => String(t).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+async function submitScore(name) {
+  const body = { fields: {
+    name: { stringValue: name }, wave: { integerValue: String(G.wave) }, kills: { integerValue: String(G.runKills) },
+    ts: { timestampValue: new Date().toISOString() }, ver: { stringValue: VERSION } } };
+  const r = await fetch(`${FS_URL}/scores?key=${FB.apiKey}`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) });
+  if (!r.ok) throw new Error('submit ' + r.status);
+  const d = await r.json(); return d.name ? d.name.split('/').pop() : null;
+}
+async function fetchTop() {
+  const q = { structuredQuery: { from: [{ collectionId: 'scores' }], orderBy: [{ field: { fieldPath: 'wave' }, direction: 'DESCENDING' }], limit: 50 } };
+  const r = await fetch(`${FS_URL}:runQuery?key=${FB.apiKey}`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(q) });
+  if (!r.ok) throw new Error('query ' + r.status);
+  const rows = (await r.json()).filter(x => x.document).map(x => {
+    const f = x.document.fields;
+    return { id: x.document.name.split('/').pop(), name: f.name?.stringValue || '?', wave: +(f.wave?.integerValue || 0), kills: +(f.kills?.integerValue || 0), ts: f.ts?.timestampValue || '', ver: f.ver?.stringValue || '' };
+  });
+  rows.sort((a, b) => b.wave - a.wave || b.kills - a.kills || (a.ts < b.ts ? -1 : 1));   // 같은 웨이브면 처치 수, 그다음 먼저 달성한 순
+  return rows.slice(0, 20);
+}
+async function openRank() {
+  closeMenu(); $('rankPanel').classList.add('show');
+  $('rankSub').textContent = 'TOP 20';
+  $('rankList').innerHTML = '<div class="rmsg">불러오는 중...</div>';
+  try {
+    const rows = await fetchTop();
+    $('rankList').innerHTML = rows.length ? rows.map((r, i) =>
+      `<div class="rrow${i < 3 ? ' top' + (i + 1) : ''}${r.id === myLastId ? ' me' : ''}"><span class="rk">${i + 1}</span><span>${esc(r.name)}</span><span>WAVE ${r.wave}</span><span class="sm">${r.kills}마리</span><span class="sm">${esc(r.ver)}</span></div>`).join('')
+      : '<div class="rmsg">아직 기록이 없어요. 첫 번째 주인공이 되어 보세요!</div>';
+  } catch (e) {
+    $('rankList').innerHTML = '<div class="rmsg">순위표에 연결할 수 없어요.<br>인터넷 연결을 확인하거나, itch.io에서 플레이해 주세요.</div>';
+  }
+}
+$('bSubmit').onclick = async () => {
+  if (G.submitted) return;
+  const name = $('nick').value.replace(/[\u0000-\u001f]/g, '').trim().slice(0, 12);
+  if (!name) { showToast('닉네임을 입력해 주세요', 1800); $('nick').focus(); return; }
+  try { localStorage.setItem('roomdef_nick', name); } catch (e) {}
+  $('bSubmit').disabled = true; $('bSubmit').textContent = '등록 중...';
+  $('nick').blur();
+  try { myLastId = await submitScore(name); G.submitted = true; $('bSubmit').textContent = '등록 완료!'; openRank(); }
+  catch (e) { $('bSubmit').disabled = false; $('bSubmit').textContent = '다시 시도'; showToast('등록하지 못했어요. 인터넷 연결을 확인해 주세요', 2400); }
+};
+$('nick').addEventListener('keydown', e => { if (e.key === 'Escape') { $('nick').blur(); return; } e.stopPropagation(); if (e.key === 'Enter') $('bSubmit').click(); });   // 닉네임 칠 때 게임 단축키가 눌리지 않게
+$('bRank').onclick = openRank;
 $('bAch').onclick = () => openPanel('achPanel');
 $('bUp').onclick = () => openPanel('upPanel');
 $('bAch2').onclick = () => openPanel('achPanel');
