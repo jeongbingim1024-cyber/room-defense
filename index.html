@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
-<title>룸 디펜스 프로토타입 v0.30.1</title>
+<title>룸 디펜스 프로토타입 v0.31</title>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Do+Hyeon&display=swap">
 <style>
   html,body{margin:0;height:100%;background:#0f0d0b;overflow:hidden;user-select:none;-webkit-user-select:none;-webkit-touch-callout:none;touch-action:none;overscroll-behavior:none}
@@ -335,6 +335,11 @@
   .lbox .grid2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
   .lbox .grid2 .btn{font-family:'Do Hyeon',sans-serif;font-size:19px;padding:8px}
   .lbox .btn.main{background:#f5a623;color:#1d1915;box-shadow:inset 0 0 0 3px #ffd27a,0 4px 0 #0f0d0b}
+  #danger{position:absolute;inset:0;pointer-events:none;opacity:0;box-shadow:inset 0 0 60px 14px rgba(224,40,30,.85);transition:opacity .3s}
+  #danger.on{animation:dblink .7s ease-in-out infinite}
+  #danger.on2{animation-duration:.4s;box-shadow:inset 0 0 80px 24px rgba(255,30,20,.95)}
+  #danger .dtx{position:absolute;left:50%;top:96px;transform:translateX(-50%);font-family:'Do Hyeon',sans-serif;font-size:24px;color:#ffd0c8;text-shadow:2px 2px 0 #4a0a08;white-space:nowrap}
+  @keyframes dblink{0%,100%{opacity:.15}50%{opacity:1}}
   #tut{position:absolute;inset:0;display:none;pointer-events:none;z-index:5}
   #tut.show{display:block}
   .tutting #hint{visibility:hidden}
@@ -388,6 +393,7 @@
   </div>
   <div id="tmenu" class="hud panel"><div class="tmh"><span id="tmName"></span><span id="tmLv"></span></div><button class="btn" id="tmUp">업그레이드 <b id="tmUpC"></b></button><button class="btn" id="tmSell">판매 <b id="tmSellC"></b></button><button class="btn" id="tmInfo">정보 <b>i</b></button></div>
   <div id="toast">H 키, 또는 오른쪽 위에 마우스를 올리면 UI가 다시 보여요</div>
+  <div id="danger"><div class="dtx">벌레가 너무 많아요!</div></div>
   <div id="tut"><div id="tutHi"></div><div class="tutbox" id="tutBox"><div class="tuthead"><span>TUTORIAL</span><span id="tutStep"></span></div><div class="tuttx" id="tutText"></div>
     <div class="tutbtns"><button class="btn" id="tutSkip">튜토리얼 건너뛰기</button><button class="btn main" id="tutNext">다음</button></div></div></div>
   <div id="pause"><div class="card pcard">
@@ -460,7 +466,7 @@
 
 <script>
 'use strict';
-const VERSION = 'v0.30.1';
+const VERSION = 'v0.31';
 // 터치 기기인지 (휴대폰·태블릿이면 터치 UI로)
 const TOUCH = matchMedia('(pointer: coarse)').matches || navigator.maxTouchPoints > 0;
 
@@ -966,7 +972,7 @@ let enemies, towers, shells, parts, fx, floats;
 function reset(keepDemo, title = false) {
   recalcBon();
   const baseHp = 100 + upEff('hp') + BON.hp;
-  Object.assign(G, { hp: baseHp, maxHp: baseHp, scrap: 200 + upEff('scrap') + BON.scrap, runCrates: 0, awarded: false, submitted: false, submitting: false, runKills: 0, usedDemo: false, tookDmg: false, maxTowers: 0, wave: 0, phase: title ? 'title' : 'break', ambT: 0, paused: false, cleared: 0, fence: 0, breakT: 8, queue: [], waveT: 0, over: false, time: 0,
+  Object.assign(G, { hp: baseHp, maxHp: baseHp, scrap: 200 + upEff('scrap') + BON.scrap, runCrates: 0, overT: null, awarded: false, submitted: false, submitting: false, runKills: 0, usedDemo: false, tookDmg: false, maxTowers: 0, wave: 0, phase: title ? 'title' : 'break', ambT: 0, paused: false, cleared: 0, fence: 0, breakT: 8, queue: [], waveT: 0, over: false, time: 0,
     shake: 0, baseFlash: 0, banner: 0, bannerText: '', demo: keepDemo ? G.demo : false, demoT: 0 });
   if (G.demo) { G.scrap = 400; G.usedDemo = true; }
   selType = 'laser';
@@ -1585,7 +1591,7 @@ function makeWave(n) {
   return q;
 }
 function startWave() {
-  G.wave++; G.phase = 'wave'; G.queue = makeWave(G.wave); G.waveT = 0; G.tookDmg = false;
+  G.wave++; G.phase = 'wave'; G.queue = makeWave(G.wave); G.waveT = 0; G.tookDmg = false; G.overT = null;
   G.banner = 2; G.bannerText = 'WAVE ' + G.wave;
   if (G.wave === 5 && !G.demo) setTimeout(() => showToast('새 벌레: 폭탄먼지벌레! 울타리 밖에서 산성액을 쏴요. 사거리 긴 타워로 잡으세요', 3600), 600);
 }
@@ -1624,6 +1630,29 @@ function upgrade(t) {
 }
 
 // ───────── 데모 모드 (영상 촬영용 자동 플레이) ─────────
+// 웨이브 끝: 다 잡으면(forced=false) 쉬는 시간, 시간이 다 되면(forced=true) 남은 적은 그대로 두고 바로 다음 웨이브
+const waveOvertime = n => Math.max(12, 22 - n * .3);           // 다 나온 뒤 기다려 주는 시간(초)
+function waveDone(forced) {
+  const bonus = Math.round((20 + G.wave * 5) * (forced ? .5 : 1)); G.scrap += bonus;   // 웨이브 클리어 보상 (시간 초과면 절반)
+  G.cleared = G.wave;
+  if (BON.heal && G.hp > 0) { const h = Math.min(BON.heal, G.maxHp - G.hp); if (h > 0) { G.hp += h; floats.push(new Floater(CX, CY - 20, '+' + Math.round(h) + ' HP', '#8fd06a', 1.2)); } }
+  if (G.wave % 3 === 0) giveCrate(1, CX, CY + 10);
+  if (counts() && !G.usedDemo) {
+    const st = SAVE.st;
+    st.maxWave = Math.max(st.maxWave, G.cleared);
+    if (!forced && !G.tookDmg) st.perfect = Math.max(st.perfect, G.wave);
+    if (G.maxTowers <= 3) st.minimal = Math.max(st.minimal, G.cleared);
+    saveDirty = true; checkAch();
+  }
+  const fresh = Object.keys(TDEF).filter(k => TDEF[k].unlock === G.cleared);   // 이번에 새로 풀린 타워
+  if (fresh.length) {
+    showToast('새 타워 해금! ' + fresh.map(k => TDEF[k].name).join(', '), 2600);
+    fresh.forEach(k => { const el = palEls[k]; el.classList.remove('new'); void el.offsetWidth; el.classList.add('new'); });
+    floats.push(new Floater(CX, 165, 'NEW TOWER!', '#f1e8d6', 1.5));
+  }
+  if (forced) { startWave(); G.bannerText = 'TIME! WAVE ' + G.wave; G.banner = 2; floats.push(new Floater(CX, 120, '+' + bonus, '#f5a623', 1.2)); }
+  else { G.phase = 'break'; G.breakT = G.demo ? 2.5 : 6; G.banner = 1.6; G.bannerText = 'CLEAR +' + bonus; }
+}
 // 자동 데모: 해금된 타워 중 상위 3종 위주로 설치하고, 상위 타워가 풀리면 하위 타워를 팔고 바꿔 단다
 function demoAI(dt) {
   G.demoT -= dt; if (G.demoT > 0) return; G.demoT = .5;
@@ -1664,27 +1693,12 @@ function update(dt) {
   } else {
     G.waveT += dt;
     while (G.queue.length && G.queue[0].t <= G.waveT) { const s = G.queue.shift(); enemies.push(new Enemy(s.type, s.ang, G.wave, !!s.boss, s.vid || null, s.cyc || 0)); }
-    if (!G.queue.length && !enemies.length) {
-      G.phase = 'break'; G.breakT = G.demo ? 2.5 : 6;
-      const bonus = 20 + G.wave * 5; G.scrap += bonus;   // 웨이브 클리어 보상
-      G.banner = 1.6; G.bannerText = 'CLEAR +' + bonus;
-      G.cleared = G.wave;
-      if (BON.heal && G.hp > 0) { const h = Math.min(BON.heal, G.maxHp - G.hp); if (h > 0) { G.hp += h; floats.push(new Floater(CX, CY - 20, '+' + Math.round(h) + ' HP', '#8fd06a', 1.2)); } }
-      if (G.wave % 3 === 0) giveCrate(1, CX, CY + 10);
-      if (counts() && !G.usedDemo) {
-        const st = SAVE.st;
-        st.maxWave = Math.max(st.maxWave, G.cleared);
-        if (!G.tookDmg) st.perfect = Math.max(st.perfect, G.wave);
-        if (G.maxTowers <= 3) st.minimal = Math.max(st.minimal, G.cleared);
-        saveDirty = true; checkAch();
-      }
-      const fresh = Object.keys(TDEF).filter(k => TDEF[k].unlock === G.cleared);   // 이번에 새로 풀린 타워
-      if (fresh.length) {
-        showToast('새 타워 해금! ' + fresh.map(k => TDEF[k].name).join(', '), 2600);
-        fresh.forEach(k => { const el = palEls[k]; el.classList.remove('new'); void el.offsetWidth; el.classList.add('new'); });
-        floats.push(new Floater(CX, 165, 'NEW TOWER!', '#f1e8d6', 1.5));
-      }
+    if (!G.queue.length) {                     // 다 나온 뒤부터 시간 제한: 다 못 잡아도 시간이 되면 다음 웨이브가 온다
+      if (G.overT === null) G.overT = waveOvertime(G.wave);
+      if (!TUT.on) G.overT -= dt;
     }
+    if (!G.queue.length && !enemies.length) waveDone(false);
+    else if (!G.queue.length && G.overT <= 0) waveDone(true);
   }
   enemies.forEach(e => e.update(dt));
   towers.forEach(t => { if (t !== drag?.tower || !drag.active) t.update(dt); });   // 들고 있는 타워는 잠시 멈춘다
@@ -1810,10 +1824,19 @@ Object.entries(TDEF).forEach(([k, d]) => {
   pal.appendChild(el); palEls[k] = el;
 });
 let lastHud = '';
+// 벌레가 너무 많으면 화면 가장자리가 빨갛게 깜빡인다 (많을수록 더 빠르고 진하게)
+function danger() {
+  const on = !G.over && G.phase === 'wave' && !G.paused;
+  const n = on ? enemies.length : 0, near = on ? enemies.filter(e => e.state === 'attack').length : 0;
+  const lv = n >= 45 || near >= 22 ? 2 : n >= 28 || near >= 12 ? 1 : 0;
+  const el = $('danger'); el.classList.toggle('on', lv >= 1); el.classList.toggle('on2', lv >= 2);
+}
 function hud() {
-  const sub = G.phase === 'break' ? (G.wave === 0 ? `타워를 배치하세요 · ${Math.ceil(G.breakT)}초 후 시작` : `다음 웨이브까지 ${Math.ceil(G.breakT)}초 · SPACE 바로 시작`) : `남은 적 ${enemies.length + G.queue.length}`;
+  const sub = G.phase === 'break' ? (G.wave === 0 ? `타워를 배치하세요 · ${Math.ceil(G.breakT)}초 후 시작` : `다음 웨이브까지 ${Math.ceil(G.breakT)}초 · SPACE 바로 시작`)
+    : `남은 적 ${enemies.length + G.queue.length}` + (!G.queue.length && G.overT !== null && !TUT.on ? ` · 다음 웨이브 ${Math.max(0, Math.ceil(G.overT))}초` : '');
   refreshMenu();
-  $('bNext').classList.toggle('show', G.phase === 'break');
+  $('bNext').classList.toggle('show', G.phase === 'break' || (G.phase === 'wave' && !G.queue.length && !TUT.on));   // 다 나온 뒤엔 NEXT로 바로 다음 웨이브
+  danger();
   const key = [G.hp | 0, G.maxHp, G.scrap, G.wave, sub, selType, G.cleared, G.fence].join('|');
   if (key === lastHud) return; lastHud = key;
   const fl = FENCE_LV[G.fence], fn = FENCE_LV[G.fence + 1];
@@ -1992,7 +2015,8 @@ function setPause(on) {
 function runRewardToast() { const r = endRun(); if (r && r.gain > 0) showToast(`배터리 +${r.gain} 획득 · 보유 ${SAVE.bat}`, 2600); }
 function goTitle() { runRewardToast(); setPause(false); if (G.demo) toggleDemo(); reset(false, true); $('stage').classList.add('in-title'); fit(); refreshTitleBat(); }
 $('bPause').onclick = () => setPause(!G.paused);
-$('bNext').onclick = () => { if (G.phase === 'break' && !G.over && !G.paused) G.breakT = 0; };
+const skipWait = () => { if (G.over || G.paused) return; if (G.phase === 'break') G.breakT = 0; else if (G.phase === 'wave' && !G.queue.length && !TUT.on) G.overT = 0; };
+$('bNext').onclick = skipWait;
 $('bFence').onclick = () => upgradeFence();
 $('bResume').onclick = () => setPause(false);
 $('bRestart').onclick = () => { runRewardToast(); const d = G.demo; setPause(false); reset(false); if (d) toggleDemo(); };
@@ -2423,7 +2447,7 @@ addEventListener('keydown', e => {
   if (k === 'escape' || k === 'p') { e.preventDefault(); setPause(!G.paused); return; }
   if (G.paused) return;
   const byKey = Object.entries(TDEF).find(([, d]) => d.key === k); if (byKey) { if (!isUnlocked(byKey[0])) { openLock(byKey[0]); return; } selType = byKey[0]; }
-  if (k === ' ') { e.preventDefault(); if (G.phase === 'break' && !G.over) G.breakT = 0; }
+  if (k === ' ') { e.preventDefault(); skipWait(); }
   if (k === 'h') toggleHide();
   if (k === 'd') toggleDemo();
   if (k === 'f') cycleSpeed();
