@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
-<title>룸 디펜스 프로토타입 v0.26</title>
+<title>룸 디펜스 프로토타입 v0.26.1</title>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Do+Hyeon&display=swap">
 <style>
   html,body{margin:0;height:100%;background:#0f0d0b;overflow:hidden;user-select:none;-webkit-user-select:none;-webkit-touch-callout:none;touch-action:none;overscroll-behavior:none}
@@ -332,7 +332,7 @@
 
 <script>
 'use strict';
-const VERSION = 'v0.26';
+const VERSION = 'v0.26.1';
 // 터치 기기인지 (휴대폰·태블릿이면 터치 UI로)
 const TOUCH = matchMedia('(pointer: coarse)').matches || navigator.maxTouchPoints > 0;
 
@@ -797,13 +797,31 @@ const TDEF = {   // 해금 순서 = 가격 순서 = 단축키 순서
 };
 // ───────── 레벨별 외형: LV2 은색 테두리, LV3 금색 테두리 + 왕관, 레벨마다 조금씩 커짐 ─────────
 const LVC = new Map();
+// 금속(회색) 부분을 레벨 색으로 바꾼다: LV2 파란 강철, LV3 금. 색 있는 부분은 그대로 두고 더 선명하게.
+function metalSwap(img, lvl) {
+  const [c, g] = mk(img.width, img.height); g.drawImage(img, 0, 0);
+  const d = g.getImageData(0, 0, c.width, c.height), p = d.data;
+  for (let i = 0; i < p.length; i += 4) {
+    if (!p[i + 3]) continue;
+    const r = p[i] / 255, gr = p[i + 1] / 255, b = p[i + 2] / 255, mx = Math.max(r, gr, b), mn = Math.min(r, gr, b), L = (mx + mn) / 2, S = mx === mn ? 0 : (mx - mn) / (1 - Math.abs(2 * L - 1));
+    if (L < .13) continue;                                   // 검은 외곽선은 그대로
+    let H, S2, L2;
+    if (S < .22) { H = lvl === 2 ? 212 : 44; S2 = lvl === 2 ? .45 : .8; L2 = Math.min(.9, L * (lvl === 2 ? 1.05 : 1.15)); }
+    else { const h0 = mx === r ? ((gr - b) / (mx - mn)) % 6 : mx === gr ? (b - r) / (mx - mn) + 2 : (r - gr) / (mx - mn) + 4; H = (h0 * 60 + 360) % 360; S2 = Math.min(1, S * 1.25); L2 = Math.min(.85, L * 1.08); }
+    const C = (1 - Math.abs(2 * L2 - 1)) * S2, X = C * (1 - Math.abs((H / 60) % 2 - 1)), m = L2 - C / 2;
+    const [r1, g1, b1] = H < 60 ? [C, X, 0] : H < 120 ? [X, C, 0] : H < 180 ? [0, C, X] : H < 240 ? [0, X, C] : H < 300 ? [X, 0, C] : [C, 0, X];
+    p[i] = (r1 + m) * 255; p[i + 1] = (g1 + m) * 255; p[i + 2] = (b1 + m) * 255;
+  }
+  g.putImageData(d, 0, 0); return c;
+}
 function lvSprite(img, lvl) {
   if (lvl <= 1) return img;
   let m = LVC.get(img); if (!m) LVC.set(img, m = {});
-  if (!m[lvl]) m[lvl] = lvl === 2 ? outlined(img, '#d6dbe3') : outlined(outlined(img, '#f5c623'), '#7a5208');
+  if (!m[lvl]) m[lvl] = lvl === 2 ? outlined(metalSwap(img, 2), '#d6dbe3') : outlined(outlined(metalSwap(img, 3), '#fff0a0'), '#7a5208');
   return m[lvl];
 }
-const lvScale = lvl => 1 + .1 * (lvl - 1);
+const lvScale = lvl => 1 + .2 * (lvl - 1);              // LV2 1.2배, LV3 1.4배
+const lvBarrels = lvl => lvl === 1 ? [0] : lvl === 2 ? [-2, 2] : [-3, 0, 3];   // 포신 개수 1 → 2 → 3
 function drawCrown(g, x, y) {          // LV3 왕관 (x = 가운데, y = 아래쪽)
   g.fillStyle = '#7a5208'; g.fillRect(x - 4, y - 5, 9, 5);
   g.fillStyle = '#f5c623'; g.fillRect(x - 3, y - 2, 7, 2); g.fillRect(x - 3, y - 4, 1, 2); g.fillRect(x, y - 4, 1, 2); g.fillRect(x + 3, y - 4, 1, 2);
@@ -830,7 +848,12 @@ class Tower {
   drawBase(img) {
     const sy = 1 + this.pop * 1.4;
     ctx.fillStyle = 'rgba(0,0,0,0.3)'; ctx.beginPath(); ctx.ellipse(this.x, this.y + 6, 8, 3, 0, 0, 7); ctx.fill();
-    if (this.lvl > 1) { ctx.strokeStyle = this.lvl === 2 ? '#c0c6d0' : '#f5c623'; ctx.lineWidth = this.lvl === 2 ? 1 : 2; ctx.beginPath(); ctx.ellipse(this.x, this.y + 6, 10, 4, 0, 0, 7); ctx.stroke(); }   // 레벨 표시 받침 (LV2 은색, LV3 금색)
+    if (this.lvl > 1) {                                  // 레벨 오라: LV2 파란빛, LV3 금빛이 은은하게 맥동
+      const a = (this.lvl === 2 ? .18 : .3) + .1 * Math.sin(G.time * 4 + this.x);
+      ctx.save(); ctx.globalCompositeOperation = 'lighter'; ctx.fillStyle = this.lvl === 2 ? `rgba(90,150,255,${a})` : `rgba(255,200,60,${a})`;
+      ctx.beginPath(); ctx.ellipse(this.x, this.y + 5, 12 + this.lvl * 2, 5 + this.lvl, 0, 0, 7); ctx.fill(); ctx.restore();
+      ctx.strokeStyle = this.lvl === 2 ? '#9fc4ff' : '#f5c623'; ctx.lineWidth = this.lvl === 2 ? 1 : 2; ctx.beginPath(); ctx.ellipse(this.x, this.y + 6, 11 + this.lvl, 4 + this.lvl * .5, 0, 0, 7); ctx.stroke();
+    }
     const im = lvSprite(img, this.lvl), k = lvScale(this.lvl);
     ctx.save(); ctx.translate(this.x, this.y); ctx.scale(k, k * sy); ctx.drawImage(im, -im.width / 2, -im.height / 2); ctx.restore();
     if (this.lvl === 3) drawCrown(ctx, Math.round(this.x), Math.round(this.y - im.height / 2 * k - 1));
@@ -839,7 +862,9 @@ class Tower {
   }
   drawRot(img, ox, oy, recoil = 0) {
     const im = lvSprite(img, this.lvl), o = this.lvl - 1, k = lvScale(this.lvl);
-    ctx.save(); ctx.translate(this.x, this.y); ctx.rotate(this.ang); ctx.scale(k, k); ctx.drawImage(im, -ox - o - recoil, -oy - o); ctx.restore();
+    ctx.save(); ctx.translate(this.x, this.y); ctx.rotate(this.ang); ctx.scale(k, k);
+    for (const dy of lvBarrels(this.lvl)) ctx.drawImage(im, -ox - o - recoil, -oy - o + dy);
+    ctx.restore();
   }
   draw() {}
   drawFx() {}
@@ -1399,10 +1424,11 @@ function towerAt(type, lvl) { const t = Object.create(TCLASS[type].prototype); t
 function towerIcon(type, lvl) {
   const [c, g] = mk(48, 48); const T = TSPR[type], k = lvScale(lvl), o = lvl - 1;
   g.fillStyle = 'rgba(0,0,0,.3)'; g.beginPath(); g.ellipse(24, 33, 10, 3, 0, 0, 7); g.fill();
-  if (lvl > 1) { g.strokeStyle = lvl === 2 ? '#c0c6d0' : '#f5c623'; g.lineWidth = lvl === 2 ? 1 : 2; g.beginPath(); g.ellipse(24, 33, 12, 4, 0, 0, 7); g.stroke(); }
+  if (lvl > 1) { g.fillStyle = lvl === 2 ? 'rgba(90,150,255,.35)' : 'rgba(255,200,60,.45)'; g.beginPath(); g.ellipse(24, 33, 14 + lvl, 5 + lvl * .5, 0, 0, 7); g.fill();
+    g.strokeStyle = lvl === 2 ? '#9fc4ff' : '#f5c623'; g.lineWidth = lvl === 2 ? 1 : 2; g.beginPath(); g.ellipse(24, 33, 13 + lvl, 4 + lvl * .5, 0, 0, 7); g.stroke(); }
   g.save(); g.translate(24, 27); g.scale(k, k);
   const base = lvSprite(T.base, lvl); g.drawImage(base, -base.width / 2, -base.height / 2);
-  if (T.barrel) { const br = lvSprite(T.barrel, lvl); g.save(); g.rotate(-.5); g.drawImage(br, -2 - o, -Math.floor(T.barrel.height / 2) - o); g.restore(); }
+  if (T.barrel) { const br = lvSprite(T.barrel, lvl); g.save(); g.rotate(-.5); for (const dy of lvBarrels(lvl)) g.drawImage(br, -2 - o, -Math.floor(T.barrel.height / 2) - o + dy); g.restore(); }
   if (type === 'fan') g.drawImage(T.blades[0], -6, -8);
   if (type === 'hammer') { const hd = lvSprite(T.head, lvl); g.drawImage(hd, -6 - o, -18 - o - o * 2); }
   g.restore();
