@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
-<title>룸 디펜스 프로토타입 v0.52.2</title>
+<title>룸 디펜스 프로토타입 v0.52.3</title>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Do+Hyeon&display=swap">
 <style>
   html,body{margin:0;height:100%;background:#0f0d0b;overflow:hidden;user-select:none;-webkit-user-select:none;-webkit-touch-callout:none;touch-action:none;overscroll-behavior:none}
@@ -299,7 +299,8 @@
   .pinfo{font-family:'Do Hyeon',sans-serif;font-size:14px;color:#8a7e6c;line-height:1.3}
   .presult{flex:1;display:flex;flex-wrap:wrap;align-content:flex-start;gap:8px;background:#151210;border:2px solid #2c2620;padding:10px;overflow-y:auto}
   .gpc{width:150px;display:flex;flex-direction:column;align-items:center;gap:2px;background:#2c2620;border:3px solid var(--rc);padding:8px 4px;animation:pflip .35s both}
-  .presult.many .gpc{width:96px;padding:5px 2px}
+  .presult:not(.many){justify-content:center;align-content:center} .presult:not(.many) .gpc{width:200px;padding:14px 6px} .presult:not(.many) .gpc img{width:80px;height:80px}
+  .presult.many:not(.sum){display:grid;grid-template-columns:repeat(5,minmax(0,1fr));align-content:center} .presult.many .gpc{width:auto;padding:5px 2px}
   .gpc img{width:56px;height:56px;image-rendering:pixelated}
   .presult.many .gpc img{width:40px;height:40px}
   .presult.sum{gap:5px} .presult.sum .gpc{width:calc(33.3% - 4px);flex-direction:row;flex-wrap:wrap;justify-content:flex-start;padding:4px 6px;gap:0 6px;text-align:left} .presult.sum .gpc img{width:32px;height:32px;flex:none} .presult.sum .gpc>div{flex:1 1 60%;min-width:0} .presult.sum .pn{font-size:14px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis} .presult.sum .pr{font-size:12px} .presult.sum .pn b{color:#f5a623;font-weight:400}
@@ -656,7 +657,7 @@
 
 <script>
 'use strict';
-const VERSION = 'v0.52.2';
+const VERSION = 'v0.52.3';
 // 터치 기기인지 (휴대폰·태블릿이면 터치 UI로)
 const TOUCH = matchMedia('(pointer: coarse)').matches || navigator.maxTouchPoints > 0;
 
@@ -810,18 +811,18 @@ const synText = c => { const tn = TDEF[SYN[c.id][0]].name, pn = EQS.find(e => e.
   return L(`시너지: ${tn} 계열 타워 공격력 +${synTwPct(c.id)}% · ${pn} 효과 +${synEqPct(c.id)}%`, `Synergy: ${trCore(tn) ?? tn} towers ATK +${synTwPct(c.id)}% · ${trCore(pn) ?? pn} bonus +${synEqPct(c.id)}%`); };
 // 장비: 부위 6 × 등급 7 × 별 4단계 = 168종 (v0.39에 신화·초월 추가) (메이플 키우기처럼 같은 등급 안에서도 ★1~★4)
 const RAR = [
-  { name: '일반', c: '#b8b0a0', p: 66, refund: 2 },
+  { name: '일반', c: '#b8b0a0', p: 66.395, refund: 2 },
   { name: '고급', c: '#6ad06a', p: 28, refund: 4 },
   { name: '희귀', c: '#5aa0e8', p: 5, refund: 8 },
-  { name: '영웅', c: '#b07ae8', p: .8, refund: 20 },
-  { name: '전설', c: '#f5a623', p: .15, refund: 50 },
-  { name: '신화', c: '#ff5a7a', p: .04, refund: 120 },
-  { name: '초월', c: '#5ff0e0', p: .01, refund: 300 },
+  { name: '영웅', c: '#b07ae8', p: .5, refund: 20 },
+  { name: '전설', c: '#f5a623', p: .08, refund: 50 },
+  { name: '신화', c: '#ff5a7a', p: .02, refund: 120 },
+  { name: '초월', c: '#5ff0e0', p: .005, refund: 300 },
 ];
 // 뽑기 레벨: 통조림을 딸 때마다(장비·타워 같이) 경험치 +1. 레벨이 오를 때마다 높은 등급 확률이 영구히 올라간다.
 // GL_NEED[lv] = 다음 레벨까지 필요한 통조림 수 (레벨이 오를수록 많이 필요). SAVE.gl {lv, xp}
 const GL_NEED = [20, 40, 70, 110, 160, 220, 300, 400, 520, 660, 820, 1000, 1200, 1450, 1700, 2000, 2350, 2700, 3100, 3500], GL_MAX = GL_NEED.length;
-const GL_GEAR = .06, GL_TOWER = .06;                 // 레벨마다 높은 등급 확률 배율 +6%(장비 영웅 이상) / +6%(타워 영웅·전설)
+const GL_GEAR = .04, GL_TOWER = .04;                 // 레벨마다 높은 등급 확률 배율 +4%(장비 영웅 이상) / +4%(타워 영웅·전설)
 const glLv = () => (SAVE.gl && SAVE.gl.lv) || 0;
 const glMul = (lv, k) => Math.round((1 + k * lv) * 100) / 100;
 function scaleRates(base, hiFrom, mul) {            // 높은 등급은 mul배, 나머지는 합이 100이 되게 줄인다
@@ -1673,7 +1674,7 @@ function addTowerKill(k) {                         // 처치 1마리 기록, 단
   if (after > before) { const bat = TA_BAT[after - 1]; SAVE.bat += bat; achPop({ head: L('TOWER MASTERY', 'TOWER MASTERY'), name: L(`${TDEF[k].name} ${fmtK(TA_AT[after - 1])}마리`, `${trCore(TDEF[k].name) ?? TDEF[k].name} ${fmtK(TA_AT[after - 1])} kills`), bat }); persist(); checkAch(); }
 }
 const krOf = n => KR_AT.filter(v => n >= v).length;
-const TW_P = [74, 20, 5, 1];
+const TW_P = [78, 18.5, 3, .5];
 const towerRates = (lv = glLv()) => scaleRates(TW_P, 2, glMul(lv, GL_TOWER));
 const twLv = k => (SAVE.tw && SAVE.tw[k]) || 0;                       // 모은 중복 수
 const twStar = k => { const d = twLv(k); let s = 1; while (s < TW_STAR_MAX && d >= TW_STAR_AT[s]) s++; return s; };
@@ -3148,7 +3149,7 @@ function pullSummary(r) {
     return `<div class="gpc mini r${T ? TGRADE_RAR[x.g] : x.g}" style="--rc:${c};animation-delay:${Math.min(i, 30) * .03}s"><img src="${img}"><div class="pn">${nm} <b>×${o.n}</b></div><div class="pr">${sub}</div>${tag}</div>`;
   }).join('');
 }
-const pct = r => r < 1 ? r.toFixed(2) : Math.round(r * 10) / 10;
+const pct = r => r < .1 ? +r.toFixed(3) : r < 1 ? +r.toFixed(2) : Math.round(r * 10) / 10;
 function renderPull() {
   const T = pullKind === 'tower';
   const res = lastPull && lastPull.length > 10 ? pullSummary(lastPull) : lastPull ? lastPull.map((x, i) => {
