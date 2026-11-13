@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
-<title>룸 디펜스 프로토타입 v0.56</title>
+<title>룸 디펜스 프로토타입 v0.56.1</title>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Do+Hyeon&display=swap">
 <style>
   html,body{margin:0;height:100%;background:#0f0d0b;overflow:hidden;user-select:none;-webkit-user-select:none;-webkit-touch-callout:none;touch-action:none;overscroll-behavior:none}
@@ -15,7 +15,7 @@
   .in-title #side,.hide-ui #side{display:none}
   button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-visible,[tabindex="0"]:focus-visible{outline:3px solid #f5a623 !important;outline-offset:2px;position:relative;z-index:3}
   /* v0.54: 가로 화면에서는 타워 목록을 게임 화면 아래쪽 서랍으로 (접었다 폈다) */
-  #stage:not(.portrait) #side{position:absolute;left:0;right:0;bottom:0;width:auto;height:auto !important;z-index:5;border-left:none;border-top:3px solid #0f0d0b;box-shadow:inset 0 2px 0 #4a3f33;background:rgba(29,25,21,.94);padding:6px 10px 8px;display:grid;grid-template-columns:1fr;gap:5px;transition:transform .22s ease-out}
+  #stage:not(.portrait) #side{position:absolute;left:0;right:0;bottom:0;width:auto;height:auto !important;z-index:5;border-left:none;border-top:3px solid #0f0d0b;box-shadow:inset 0 2px 0 #4a3f33;background:rgba(29,25,21,.94);padding:6px 46px 8px 10px;display:grid;grid-template-columns:1fr;gap:5px;transition:transform .22s ease-out}
   #stage:not(.portrait).dock-off #side{transform:translateY(100%)}
   #stage.no-dock:not(.portrait) #side{visibility:hidden}
   #stage:not(.portrait) #side .sidettl{position:absolute;top:-27px;left:50%;transform:translateX(-50%);background:#1d1915;border:3px solid #0f0d0b;border-bottom:none;box-shadow:inset 0 2px 0 #4a3f33;padding:6px 14px 5px;cursor:pointer;white-space:nowrap;display:flex;gap:8px;align-items:center}
@@ -128,7 +128,7 @@
   #wave{font-size:16px;padding:10px 18px;display:flex;flex-direction:column;align-items:center;gap:4px}
   #wave small{font-family:'Do Hyeon',sans-serif;font-size:13px;color:#e8903a;letter-spacing:0}
   #sub{font-family:'Do Hyeon',sans-serif;font-size:17px;color:#f1e8d6;text-shadow:2px 2px 0 #0f0d0b} #sub.boss{color:#ff8a5a;font-size:19px} #sub.low{animation:subBlink .5s steps(2) infinite} @keyframes subBlink{50%{color:#fff}}
-  #tr{right:12px;top:12px;display:flex;gap:6px}
+  #tr{right:12px;top:12px;display:flex;gap:6px;flex-wrap:wrap;justify-content:flex-end;max-width:calc(50% - 100px)} #tr .btn{white-space:nowrap}
   .btn{font-family:'Press Start 2P',monospace;font-size:9px;color:#f1e8d6;background:#2c2620;border:3px solid #0f0d0b;box-shadow:inset 0 0 0 2px #4a3f33,0 3px 0 #0f0d0b;padding:8px 9px;cursor:pointer}
   .btn:active{transform:translateY(2px);box-shadow:inset 0 0 0 2px #4a3f33,0 1px 0 #0f0d0b}
   .btn.on{background:#f5a623;color:#1d1915;box-shadow:inset 0 0 0 2px #ffd27a,0 3px 0 #0f0d0b}
@@ -681,7 +681,7 @@
 
 <script>
 'use strict';
-const VERSION = 'v0.56';
+const VERSION = 'v0.56.1';
 // 터치 기기인지 (휴대폰·태블릿이면 터치 UI로)
 const TOUCH = matchMedia('(pointer: coarse)').matches || navigator.maxTouchPoints > 0;
 
@@ -2956,14 +2956,21 @@ function moveTower(t, to) {
 }
 // ───────── 타워 메뉴 (클릭하면 업그레이드 / 판매) ─────────
 let menuT = null;
-function openMenu(t) { menuT = t; refreshMenu(); $('tmenu').classList.add('show'); }
+function openMenu(t) { menuT = t; $('tmenu').classList.add('show'); refreshMenu(); }
 function closeMenu() { menuT = null; $('tmenu').classList.remove('show'); }
+// v0.56.1: 타워 메뉴가 화면 밖으로 잘리지 않게. 위에 공간이 없으면 타워 아래로 뒤집고, 좌우도 화면 안으로
+function placeMenu(m, t) {
+  const fw = VW * 2, fh = VH * 2, mw = m.offsetWidth || 150, mh = m.offsetHeight || 140, cx = (t.x + OX) * 2, cy = (t.y + OY) * 2;
+  const above = cy - 30 - mh >= 6;
+  m.style.transform = above ? 'translate(-50%,-100%)' : 'translate(-50%,0)';
+  m.style.left = Math.min(fw - mw / 2 - 6, Math.max(mw / 2 + 6, cx)) + 'px';
+  m.style.top = (above ? cy - 30 : Math.min(fh - mh - 6, cy + 26)) + 'px';
+}
 function refreshMenu() {
   const t = menuT; if (!t) return;
   if (!towers.includes(t)) { closeMenu(); return; }
   const m = $('tmenu');
-  m.style.left = Math.min(VW * 2 - 80, Math.max(80, (t.x + OX) * 2)) + 'px';
-  m.style.top = Math.max(110, (t.y + OY) * 2 - 30) + 'px';
+  placeMenu(m, t);
   $('tmName').textContent = t.def.name; $('tmLv').textContent = 'LV' + t.lvl;
   const kr = t.kr || 0, kn = t.kills || 0;
   $('tmKr').textContent = `숙련 ${kr}` + (kr ? ` (공격력 +${Math.round(kr * KR_DMG * 100)}%)` : '') + ` · 처치 ${kn}` + (kr < KR_AT.length ? ` / ${KR_AT[kr]}` : ' · MAX');
