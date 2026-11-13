@@ -44,6 +44,13 @@ jobs:
       - name: Upload to itch.io
         if: (steps.v.outputs.new == 'true' || github.event_name == 'workflow_dispatch') && env.BUTLER_API_KEY != '' && env.ITCH_USER != ''
         run: |
-          curl -sSL -o butler.zip https://broth.itch.zone/butler/linux-amd64/LATEST/archive/default
+          ok=0
+          for url in https://broth.itch.zone/butler/linux-amd64/LATEST/archive/default https://broth.itch.ovh/butler/linux-amd64/LATEST/archive/default; do
+            for i in 1 2 3; do
+              if curl -fsSL --retry 2 -o butler.zip "$url" && unzip -tq butler.zip >/dev/null 2>&1; then ok=1; break 2; fi
+              echo "butler 다운로드 실패 ($url, $i번째)"; head -c 200 butler.zip 2>/dev/null; echo; sleep 10
+            done
+          done
+          [ "$ok" = 1 ] || { echo "butler를 받지 못했어요"; exit 1; }
           unzip -q butler.zip -d butler && chmod +x butler/butler
           ./butler/butler push "${{ steps.build.outputs.zip }}" "$ITCH_USER/room-defense:html5" --userversion "${{ steps.v.outputs.ver }}"
