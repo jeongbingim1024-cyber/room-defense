@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
-<title>룸 디펜스 프로토타입 v0.58.1</title>
+<title>룸 디펜스 프로토타입 v0.58.2</title>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Do+Hyeon&display=swap">
 <style>
   html,body{margin:0;height:100%;background:#1d1424;overflow:hidden;user-select:none;-webkit-user-select:none;-webkit-touch-callout:none;touch-action:none;overscroll-behavior:none}
@@ -549,31 +549,31 @@
   .ap3{font-family:'Press Start 2P',monospace;font-size:10px;color:#8fd06a;display:flex;align-items:center;justify-content:center;gap:8px}
 
   /* ───── v0.58.1 타이틀: 장난감 방 카툰 (로고 위 · 메뉴 판 아래 · 가운데는 방이 보이게) ───── */
-  #title{justify-content:space-between;gap:0;padding:20px 0 16px;box-sizing:border-box;background:radial-gradient(ellipse at 50% 50%,rgba(29,20,36,0) 0%,rgba(29,20,36,.18) 42%,rgba(29,20,36,.62) 100%)}
-  #title .tlogo{display:flex;flex-direction:column;align-items:center;gap:6px}
+  #title{justify-content:space-between;gap:0;padding:24px 0 22px;box-sizing:border-box;background:radial-gradient(ellipse at 50% 50%,rgba(29,20,36,0) 0%,rgba(29,20,36,.18) 42%,rgba(29,20,36,.62) 100%)}
+  #title .tlogo{display:flex;flex-direction:column;align-items:center;gap:10px}
   #title .eyebrow{background:#ff6b7a;color:#fff;border:3px solid #1d1424;box-shadow:0 3px 0 #1d1424;padding:5px 10px 4px;font-size:9px;letter-spacing:2px}
-  #title h1{font-size:74px;color:#ffd84a;letter-spacing:1px;animation:tbob 2.4s ease-in-out infinite;
+  #title h1{font-size:72px;line-height:1.15;color:#ffd84a;letter-spacing:4px;animation:tbob 2.4s ease-in-out infinite;
     text-shadow:-4px 0 0 #1d1424,4px 0 0 #1d1424,0 -4px 0 #1d1424,0 4px 0 #1d1424,-4px -4px 0 #1d1424,4px -4px 0 #1d1424,-4px 4px 0 #1d1424,4px 4px 0 #1d1424,-2px -4px 0 #1d1424,2px 4px 0 #1d1424,0 10px 0 #1d1424,4px 10px 0 #1d1424,-4px 10px 0 #1d1424}
   @keyframes tbob{50%{transform:translateY(-4px)}}
   #title .tag{background:#fff4dc;color:#1d1424;text-shadow:none;border:3px solid #1d1424;box-shadow:0 4px 0 #1d1424;padding:3px 16px 4px;font-size:21px;margin:8px 0 0;transform:rotate(-1.5deg)}
-  #title .tcard{width:640px;margin:0;display:grid;grid-template-columns:1fr auto;align-items:center;gap:8px 10px;background:#fff4dc;border:4px solid #1d1424;box-shadow:inset 0 0 0 3px #ffffff,0 6px 0 #1d1424;padding:10px 12px;color:#1d1424}
+  #title .tcard{width:600px;margin:0;display:grid;grid-template-columns:1fr auto;align-items:center;gap:12px 12px;background:#fff4dc;border:4px solid #1d1424;box-shadow:inset 0 0 0 3px #ffffff,0 6px 0 #1d1424;padding:16px 18px;color:#1d1424}
   #title .tcard>#bStart,#title .tcard>.row3{grid-column:1 / -1}
   #title .btn{font-family:'Do Hyeon',sans-serif;border:3px solid #1d1424;transition:transform .08s}
   #title .btn:hover{transform:translateY(-2px)} #title .btn:active{transform:translateY(2px)}
-  #title #bStart{background:#ffd84a;color:#1d1424;font-size:28px;letter-spacing:3px;padding:4px 10px 5px;border-width:4px;box-shadow:inset 0 -6px 0 #f5a623,inset 0 3px 0 #fff3a8,0 5px 0 #1d1424}
-  #title .tcard .row3{grid-template-columns:repeat(6,minmax(0,1fr));gap:7px}
-  #title .tcard .row3 .btn{color:#fff;font-size:17px;text-shadow:2px 2px 0 #1d1424;padding:6px 2px;min-height:48px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;line-height:1.05;box-shadow:inset 0 -4px 0 rgba(0,0,0,.2),inset 0 3px 0 rgba(255,255,255,.4),0 4px 0 #1d1424}
+  #title #bStart{background:#ffd84a;color:#1d1424;font-size:30px;letter-spacing:6px;padding:9px 10px 11px;border-width:4px;box-shadow:inset 0 -6px 0 #f5a623,inset 0 3px 0 #fff3a8,0 5px 0 #1d1424}
+  #title .tcard .row3{grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}
+  #title .tcard .row3 .btn{color:#fff;font-size:20px;text-shadow:2px 2px 0 #1d1424;padding:8px 6px;min-height:52px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;line-height:1.05;box-shadow:inset 0 -4px 0 rgba(0,0,0,.2),inset 0 3px 0 rgba(255,255,255,.4),0 4px 0 #1d1424}
   #title #bHelp{background:#5fbfff} #title #bRank{background:#c79bff} #title #bAch{background:#ff9db8} #title #bGacha{background:#ff6b7a} #title #bUpg{background:#6fdc7a} #title #bBag{background:#ffb46a}
-  #title .tmain small{font-size:9px;color:#fff;text-shadow:1px 1px 0 #1d1424;letter-spacing:-.4px}
-  #title .tcard .cfoot{border-top:none;padding:0;color:#1d1424;font-size:16px;background:#ffeac4;border:3px solid #1d1424;padding:3px 10px;gap:14px}
+  #title .tmain small{font-size:11px;color:#fff;text-shadow:1px 1px 0 #1d1424;letter-spacing:-.4px}
+  #title .tcard .cfoot{border-top:none;padding:0;color:#1d1424;font-size:17px;background:#ffeac4;border:3px solid #1d1424;padding:6px 12px;gap:14px}
   #title .tcard .cfoot .batbox{color:#1d1424}
-  #title .tcard .tbot{display:flex;gap:8px;margin:0} #title .tcard .tbot .btn{background:#ffffff;color:#1d1424;font-size:15px;padding:5px 12px;box-shadow:inset 0 -3px 0 #e6dcc8,0 3px 0 #1d1424;border-style:solid}
+  #title .tcard .tbot{display:flex;gap:8px;margin:0} #title .tcard .tbot .btn{background:#ffffff;color:#1d1424;font-size:16px;padding:7px 14px;box-shadow:inset 0 -3px 0 #e6dcc8,0 3px 0 #1d1424;border-style:solid}
   #title #bFullT,#title #bNotice{background:#fff4dc;color:#1d1424;box-shadow:0 3px 0 #1d1424;font-size:15px;padding:5px 12px}
   #title .press{margin:0;color:#fff4dc;text-shadow:2px 2px 0 #1d1424}
   #title .ver{color:#fff4dc;text-shadow:1px 1px 0 #1d1424}
-  html[lang=en] #title .tcard{width:680px} html[lang=en] #title .tcard .row3 .btn{font-size:14px} html[lang=en] #title h1{font-size:72px}
-  .touch #title .tcard .btn{font-size:18px} .touch #title #bStart{font-size:28px} .touch #title h1{font-size:68px} .touch #title{padding:12px 0 10px}
-  .portrait #title{padding:150px 0 60px} .portrait #title .tmain small{display:none} .portrait #title .tlogo{zoom:1.3} .portrait #title .tcard{zoom:1.42} .portrait #title #bFullT,.portrait #title #bNotice{zoom:2} .portrait #title .ver{zoom:2}   /* 세로 폰: 화면이 작게 줄어드니 타이틀 UI를 키운다 */
+  html[lang=en] #title .tcard{width:620px} html[lang=en] #title .tcard .row3 .btn{font-size:18px} html[lang=en] #title h1{font-size:72px}
+  .touch #title .tcard .btn{font-size:18px} .touch:not(.portrait) #title .tcard{padding:12px 16px;gap:9px} .touch #title .tlogo{gap:6px} .touch #title .tcard .row3 .btn{min-height:46px} .touch #title #bStart{font-size:28px} .touch #title h1{font-size:68px} .touch #title{padding:12px 0 10px}
+  .portrait #title{padding:150px 0 60px}  .portrait #title .tlogo{zoom:1.3} .portrait #title .tcard{zoom:1.42} .portrait #title #bFullT,.portrait #title #bNotice{zoom:2} .portrait #title .ver{zoom:2}   /* 세로 폰: 화면이 작게 줄어드니 타이틀 UI를 키운다 */
 </style>
 </head>
 <body>
@@ -711,7 +711,7 @@
 
 <script>
 'use strict';
-const VERSION = 'v0.58.1';
+const VERSION = 'v0.58.2';
 // 터치 기기인지 (휴대폰·태블릿이면 터치 UI로)
 const TOUCH = matchMedia('(pointer: coarse)').matches || navigator.maxTouchPoints > 0;
 
