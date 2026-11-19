@@ -3,25 +3,25 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
-<title>룸 디펜스 프로토타입 v0.57</title>
+<title>룸 디펜스 프로토타입 v0.58</title>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Do+Hyeon&display=swap">
 <style>
-  html,body{margin:0;height:100%;background:#0f0d0b;overflow:hidden;user-select:none;-webkit-user-select:none;-webkit-touch-callout:none;touch-action:none;overscroll-behavior:none}
+  html,body{margin:0;height:100%;background:#1d1424;overflow:hidden;user-select:none;-webkit-user-select:none;-webkit-touch-callout:none;touch-action:none;overscroll-behavior:none}
   #wrap{position:fixed;inset:0;display:flex;align-items:center;justify-content:center}
   #stage{position:relative;display:flex;height:540px;flex:none;transform-origin:center center}
   #field{position:relative;width:960px;height:540px;flex:none}
   /* 타워 구매 칸은 게임 화면 바깥 오른쪽 사이드바로 (몹을 가리지 않게) */
-  #side{width:214px;height:540px;flex:none;box-sizing:border-box;background:#1d1915;border-left:3px solid #0f0d0b;box-shadow:inset 2px 0 0 #4a3f33;padding:14px 10px;display:flex;flex-direction:column;gap:10px;color:#f1e8d6}
+  #side{width:214px;height:540px;flex:none;box-sizing:border-box;background:#2b2140;border-left:3px solid #1d1424;box-shadow:inset 2px 0 0 #5a4a7a;padding:14px 10px;display:flex;flex-direction:column;gap:10px;color:#f1e8d6}
   .in-title #side,.hide-ui #side{display:none}
   button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-visible,[tabindex="0"]:focus-visible{outline:3px solid #f5a623 !important;outline-offset:2px;position:relative;z-index:3}
   /* v0.54: 가로 화면에서는 타워 목록을 게임 화면 아래쪽 서랍으로 (접었다 폈다) */
-  #stage:not(.portrait) #side{position:absolute;left:0;right:0;bottom:0;width:auto;height:auto !important;z-index:5;border-left:none;border-top:3px solid #0f0d0b;box-shadow:inset 0 2px 0 #4a3f33;background:rgba(29,25,21,.94);padding:6px 46px 8px 10px;display:grid;grid-template-columns:1fr;gap:5px;transition:transform .22s ease-out}
+  #stage:not(.portrait) #side{position:absolute;left:0;right:0;bottom:0;width:auto;height:auto !important;z-index:5;border-left:none;border-top:3px solid #1d1424;box-shadow:inset 0 2px 0 #5a4a7a;background:rgba(43,33,64,.94);padding:6px 46px 8px 10px;display:grid;grid-template-columns:1fr;gap:5px;transition:transform .22s ease-out}
   #stage:not(.portrait).dock-off #side{transform:translateY(100%)}
   #stage.no-dock:not(.portrait) #side{visibility:hidden}
-  #stage:not(.portrait) #side .sidettl{position:absolute;top:-27px;left:50%;transform:translateX(-50%);background:#1d1915;border:3px solid #0f0d0b;border-bottom:none;box-shadow:inset 0 2px 0 #4a3f33;padding:6px 14px 5px;cursor:pointer;white-space:nowrap;display:flex;gap:8px;align-items:center}
+  #stage:not(.portrait) #side .sidettl{position:absolute;top:-27px;left:50%;transform:translateX(-50%);background:#2b2140;border:3px solid #1d1424;border-bottom:none;box-shadow:inset 0 2px 0 #5a4a7a;padding:6px 14px 5px;cursor:pointer;white-space:nowrap;display:flex;gap:8px;align-items:center}
   #stage:not(.portrait) #side .sidettl::after{content:'▼';font-size:8px} #stage:not(.portrait).dock-off #side .sidettl::after{content:'▲'}
   #stage:not(.portrait) #palette{display:grid !important;grid-template-columns:repeat(9,minmax(0,1fr));gap:4px !important}
-  #stage:not(.portrait) #next{position:absolute;right:10px;top:-24px;font-size:13px;line-height:1.1;text-align:right;text-shadow:2px 2px 0 #0f0d0b;color:#cfc3ae;pointer-events:none;white-space:nowrap} #stage:not(.portrait) #next br{display:none} #stage:not(.portrait) #next b::after{content:'\00a0·\00a0'}
+  #stage:not(.portrait) #next{position:absolute;right:10px;top:-26px;background:rgba(29,20,36,.72);padding:1px 6px;font-size:13px;line-height:1.1;text-align:right;text-shadow:2px 2px 0 #1d1424;color:#ddd2ee;pointer-events:none;white-space:nowrap} #stage:not(.portrait) #next br{display:none} #stage:not(.portrait) #next b::after{content:'\00a0·\00a0'}
   #stage:not(.portrait) #info{display:none}
   #stage:not(.portrait) .tw{position:relative;display:grid;grid-template-columns:20px 1fr;grid-template-rows:auto auto;column-gap:3px;row-gap:2px;align-items:center;padding:3px 4px 3px 3px}
   #stage:not(.portrait) .tw canvas{grid-row:1 / 3;width:20px;height:22px}
@@ -32,38 +32,38 @@
   #side .sidettl{font-family:'Press Start 2P',monospace;font-size:10px;color:#f5a623;letter-spacing:1px}
   #palette{gap:4px !important}
   .tw.locked{opacity:.38;filter:grayscale(1)}
-  .tw.locked .ct2{color:#8a7e6c}
+  .tw.locked .ct2{color:#a99cc0}
   .tw.new{animation:newtw .5s steps(2) 6}
   @keyframes newtw{50%{background:#f5a623;box-shadow:inset 0 0 0 2px #ffd27a}}
-  #next{font-family:'Do Hyeon',sans-serif;font-size:14px;color:#8a7e6c;line-height:1.3}
-  #next b{color:#cfc3ae;font-weight:400}
-  #info{margin-top:auto;background:#2c2620;border:3px solid #0f0d0b;box-shadow:inset 0 0 0 2px #4a3f33;padding:7px 9px;display:flex;flex-direction:column;gap:4px}
+  #next{font-family:'Do Hyeon',sans-serif;font-size:14px;color:#a99cc0;line-height:1.3}
+  #next b{color:#ddd2ee;font-weight:400}
+  #info{margin-top:auto;background:#352a4e;border:3px solid #1d1424;box-shadow:inset 0 0 0 2px #5a4a7a;padding:7px 9px;display:flex;flex-direction:column;gap:4px}
   #info .in1{font-family:'Do Hyeon',sans-serif;font-size:18px;color:#f5a623}
   #info .in2{font-family:'Do Hyeon',sans-serif;font-size:14px;line-height:1.3;color:#f1e8d6;white-space:normal}
-  #info .in3{font-family:'Do Hyeon',sans-serif;font-size:14px;color:#8a7e6c}
+  #info .in3{font-family:'Do Hyeon',sans-serif;font-size:14px;color:#a99cc0}
   /* ───── 메뉴 카드 (시작·일시정지·게임오버 공통) ───── */
-  .card{background:rgba(29,25,21,.96);border:3px solid #0f0d0b;box-shadow:inset 0 0 0 2px #4a3f33,0 8px 0 rgba(15,13,11,.6);padding:20px 22px;display:flex;flex-direction:column;align-items:stretch;gap:12px;box-sizing:border-box}
+  .card{background:rgba(43,33,64,.96);border:3px solid #1d1424;box-shadow:inset 0 0 0 2px #5a4a7a,0 8px 0 rgba(15,13,11,.6);padding:20px 22px;display:flex;flex-direction:column;align-items:stretch;gap:12px;box-sizing:border-box}
   .card .btn{font-family:'Do Hyeon',sans-serif;font-size:20px;padding:10px 12px}
-  .card .btn.main{background:#f5a623;color:#1d1915;box-shadow:inset 0 0 0 3px #ffd27a,0 4px 0 #0f0d0b}
+  .card .btn.main{background:#f5a623;color:#2b2140;box-shadow:inset 0 0 0 3px #ffd27a,0 4px 0 #1d1424}
   .card .grid2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
   .card .ttl{font-family:'Press Start 2P',monospace;font-size:14px;color:#f5a623;text-align:center;letter-spacing:2px}
-  .card .cfoot{display:flex;align-items:center;justify-content:space-between;font-family:'Do Hyeon',sans-serif;font-size:17px;color:#8a7e6c;border-top:2px solid #4a3f33;padding-top:10px}
+  .card .cfoot{display:flex;align-items:center;justify-content:space-between;font-family:'Do Hyeon',sans-serif;font-size:17px;color:#a99cc0;border-top:2px solid #5a4a7a;padding-top:10px}
   .tcard{width:420px;margin-top:6px}
-  #testBadge{position:absolute;top:4px;left:50%;transform:translateX(-50%);z-index:60;pointer-events:none;font-family:'Press Start 2P',monospace;font-size:10px;color:#fff;background:#c0302a;padding:4px 8px;border:2px solid #0f0d0b}
+  #testBadge{position:absolute;top:4px;left:50%;transform:translateX(-50%);z-index:60;pointer-events:none;font-family:'Press Start 2P',monospace;font-size:10px;color:#fff;background:#c0302a;padding:4px 8px;border:2px solid #1d1424}
   .ssec.admin{border-color:#c0302a} .ssec.admin .sh{color:#ff8070}
   .admlist{display:flex;flex-direction:column;gap:3px;max-height:150px;overflow-y:auto}
   .arow{display:flex;align-items:center;gap:10px;font-size:14px;padding:2px 4px;background:#1a1612} .arow span{flex:1} .arow .btn{padding:2px 10px;font-size:13px}
   .ssec.admin input:not([type=range]){width:150px} .ssec.admin input.nin{width:80px} .ssec.admin .btn{white-space:nowrap}
-  .card a.fbbtn{display:block;text-align:center;text-decoration:none;font-size:17px;padding:7px 10px;color:#cfc3ae;background:#1d1915;border-style:dashed;border-color:#4a3f33;box-shadow:none}
+  .card a.fbbtn{display:block;text-align:center;text-decoration:none;font-size:17px;padding:7px 10px;color:#ddd2ee;background:#2b2140;border-style:dashed;border-color:#5a4a7a;box-shadow:none}
   .card a.fbbtn:hover{color:#f5a623;border-color:#f5a623}
   .tcard .row3{display:grid;grid-template-columns:1fr 1fr;gap:10px}
   .tcard .row3 .btn{padding:10px 4px;white-space:nowrap}
   .pcard{width:400px}
   .ocard{width:440px;text-align:center}
-  #pause .keys2{font-family:'Do Hyeon',sans-serif;font-size:15px;line-height:1.6;color:#8a7e6c;text-align:center;border-top:2px solid #4a3f33;padding-top:10px}
+  #pause .keys2{font-family:'Do Hyeon',sans-serif;font-size:15px;line-height:1.6;color:#a99cc0;text-align:center;border-top:2px solid #5a4a7a;padding-top:10px}
   #pause .keys2 b{font-family:'Press Start 2P',monospace;font-size:9px;color:#f5a623;font-weight:400}
-  #side .keys{margin-top:auto;font-family:'Do Hyeon',sans-serif;font-size:14px;line-height:1.5;color:#8a7e6c}
-  #side .keys b{font-family:'Press Start 2P',monospace;font-size:8px;color:#cfc3ae;font-weight:400}
+  #side .keys{margin-top:auto;font-family:'Do Hyeon',sans-serif;font-size:14px;line-height:1.5;color:#a99cc0}
+  #side .keys b{font-family:'Press Start 2P',monospace;font-size:8px;color:#ddd2ee;font-weight:400}
   #game{width:960px;height:540px;display:block;touch-action:none;image-rendering:pixelated;image-rendering:crisp-edges;cursor:crosshair}
   .hud{position:absolute;font-family:'Press Start 2P',monospace;color:#f1e8d6;transition:opacity .25s}
   .hide-ui .hud{opacity:0;pointer-events:none}
@@ -84,7 +84,7 @@
   #bNext{display:none} #bNext.show{display:block}
   /* ───── 세로 화면: 사이드바를 게임 아래로 ───── */
   .portrait#stage{flex-direction:column}
-  .portrait #side{width:960px;height:auto;border-left:none;border-top:3px solid #0f0d0b;box-shadow:inset 0 2px 0 #4a3f33;padding:16px;flex-direction:row;flex-wrap:wrap;gap:12px}
+  .portrait #side{width:960px;height:auto;border-left:none;border-top:3px solid #1d1424;box-shadow:inset 0 2px 0 #5a4a7a;padding:16px;flex-direction:row;flex-wrap:wrap;gap:12px}
   .portrait #side .sidettl{width:100%}
   .portrait #palette{display:grid !important;grid-template-columns:repeat(3,1fr);gap:8px !important;width:100%}
   .portrait .tw{height:78px;padding:4px 10px;gap:10px}
@@ -94,7 +94,7 @@
   .portrait #next{width:42%;font-size:22px}
   .portrait #info{margin-top:0;flex:1}
   .portrait #info .in1{font-size:26px} .portrait #info .in2{font-size:21px} .portrait #info .in3{font-size:19px}
-  #rotate{display:none;font-family:'Do Hyeon',sans-serif;font-size:22px;color:#8a7e6c;width:100%;text-align:center}
+  #rotate{display:none;font-family:'Do Hyeon',sans-serif;font-size:22px;color:#a99cc0;width:100%;text-align:center}
   .portrait.touch #rotate{display:block}
   #tmenu{position:absolute;display:none;flex-direction:column;gap:6px;padding:8px;width:150px;box-sizing:border-box;transform:translate(-50%,-100%)}
   #tmenu.show{display:flex}
@@ -104,184 +104,184 @@
   #tmenu .btn b{font-family:'Press Start 2P',monospace;font-size:8px;font-weight:400;align-self:center}
   #tmUp b{color:#f5a623} #tmSell b{color:#8fd06a}
   #tmUp.poor{opacity:.45} #tmUp.max{opacity:.45;cursor:default}
-  #toast{position:absolute;left:50%;bottom:24px;transform:translateX(-50%);font-family:'Do Hyeon',sans-serif;font-size:18px;color:#f1e8d6;background:rgba(29,25,21,.9);border:3px solid #0f0d0b;box-shadow:inset 0 0 0 2px #4a3f33;padding:8px 14px;white-space:nowrap;opacity:0;transition:opacity .4s;pointer-events:none}
+  #toast{position:absolute;left:50%;bottom:24px;transform:translateX(-50%);font-family:'Do Hyeon',sans-serif;font-size:18px;color:#f1e8d6;background:rgba(43,33,64,.9);border:3px solid #1d1424;box-shadow:inset 0 0 0 2px #5a4a7a;padding:8px 14px;white-space:nowrap;opacity:0;transition:opacity .4s;pointer-events:none}
   #toast.show{opacity:1}
-  .panel{background:rgba(29,25,21,.9);border:3px solid #0f0d0b;box-shadow:inset 0 0 0 2px #4a3f33}
+  .panel{background:rgba(43,33,64,.9);border:3px solid #1d1424;box-shadow:inset 0 0 0 2px #5a4a7a}
   #tl{left:12px;top:12px;padding:9px 11px;display:flex;flex-direction:column;gap:9px}
-  .fencerow{display:flex;align-items:center;gap:8px;border-top:2px solid #4a3f33;padding-top:8px}
+  .fencerow{display:flex;align-items:center;gap:8px;border-top:2px solid #5a4a7a;padding-top:8px}
   .fencerow .fn{font-family:'Do Hyeon',sans-serif;font-size:17px;color:#f1e8d6}
-  .fencerow .fi{font-family:'Do Hyeon',sans-serif;font-size:14px;color:#8a7e6c;margin-top:2px}
+  .fencerow .fi{font-family:'Do Hyeon',sans-serif;font-size:14px;color:#a99cc0;margin-top:2px}
   #bFence{margin-left:auto;font-size:8px;padding:7px 8px}
   #bFence.poor{opacity:.45}
-  #bFence.max{background:#3a3d44;color:#8a7e6c;cursor:default}
+  #bFence.max{background:#3a3d44;color:#a99cc0;cursor:default}
   .row{display:flex;align-items:center;gap:8px;font-size:10px}
   .heart{color:#e0412f;font-size:12px}
-  .hptx{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-family:'Press Start 2P',monospace;font-size:8px;color:#fff;text-shadow:1px 1px 0 #0f0d0b,-1px 0 0 #0f0d0b,0 -1px 0 #0f0d0b,1px 0 0 #0f0d0b;letter-spacing:-.5px}
+  .hptx{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-family:'Press Start 2P',monospace;font-size:8px;color:#fff;text-shadow:1px 1px 0 #1d1424,-1px 0 0 #1d1424,0 -1px 0 #1d1424,1px 0 0 #1d1424;letter-spacing:-.5px}
   .hptx b{color:#9fe8ff;font-weight:400;margin-left:4px}
-  .hpbar{width:150px;height:16px;background:#3a1512;border:2px solid #0f0d0b;position:relative}
+  .hpbar{width:150px;height:16px;background:#3a1512;border:2px solid #1d1424;position:relative}
   .shfill{position:absolute;left:0;top:0;height:4px;width:0;background:#9fe8ff}
   .hpfill{position:absolute;left:0;top:0;bottom:0;width:100%;background:#e0412f;box-shadow:inset 0 -3px 0 #a52a1e}
-  .gear{width:12px;height:12px;background:#f5a623;border:2px solid #0f0d0b;box-sizing:border-box}
+  .gear{width:12px;height:12px;background:#f5a623;border:2px solid #1d1424;box-sizing:border-box}
   #scrap{color:#f5a623}
-  .lbl{font-family:'Do Hyeon',sans-serif;font-size:16px;color:#cfc3ae}
+  .lbl{font-family:'Do Hyeon',sans-serif;font-size:16px;color:#ddd2ee}
   #tc{left:50%;top:12px;transform:translateX(-50%);text-align:center;display:flex;flex-direction:column;align-items:center;gap:6px}
   #wave{font-size:16px;padding:10px 18px;display:flex;flex-direction:column;align-items:center;gap:4px}
   #wave small{font-family:'Do Hyeon',sans-serif;font-size:13px;color:#e8903a;letter-spacing:0}
-  #sub{font-family:'Do Hyeon',sans-serif;font-size:17px;color:#f1e8d6;text-shadow:2px 2px 0 #0f0d0b} #sub.boss{color:#ff8a5a;font-size:19px} #sub.low{animation:subBlink .5s steps(2) infinite} @keyframes subBlink{50%{color:#fff}}
+  #sub{font-family:'Do Hyeon',sans-serif;font-size:17px;color:#f1e8d6;text-shadow:2px 2px 0 #1d1424;background:rgba(29,20,36,.72);padding:1px 10px 2px;box-shadow:0 0 0 2px rgba(29,20,36,.35)} #sub:empty{display:none} #sub.boss{color:#ff8a5a;font-size:19px} #sub.low{animation:subBlink .5s steps(2) infinite} @keyframes subBlink{50%{color:#fff}}
   #tr{right:12px;top:12px;display:flex;gap:6px;flex-wrap:wrap;justify-content:flex-end;max-width:calc(50% - 100px)} #tr .btn{white-space:nowrap}
-  .btn{font-family:'Press Start 2P',monospace;font-size:9px;color:#f1e8d6;background:#2c2620;border:3px solid #0f0d0b;box-shadow:inset 0 0 0 2px #4a3f33,0 3px 0 #0f0d0b;padding:8px 9px;cursor:pointer}
-  .btn:active{transform:translateY(2px);box-shadow:inset 0 0 0 2px #4a3f33,0 1px 0 #0f0d0b}
-  .btn.on{background:#f5a623;color:#1d1915;box-shadow:inset 0 0 0 2px #ffd27a,0 3px 0 #0f0d0b}
+  .btn{font-family:'Press Start 2P',monospace;font-size:9px;color:#f1e8d6;background:#352a4e;border:3px solid #1d1424;box-shadow:inset 0 0 0 2px #5a4a7a,0 3px 0 #1d1424;padding:8px 9px;cursor:pointer}
+  .btn:active{transform:translateY(2px);box-shadow:inset 0 0 0 2px #5a4a7a,0 1px 0 #1d1424}
+  .btn.on{background:#f5a623;color:#2b2140;box-shadow:inset 0 0 0 2px #ffd27a,0 3px 0 #1d1424}
   #palette{display:flex;flex-direction:column;gap:7px}
-  .tw{display:flex;align-items:center;gap:6px;width:100%;white-space:nowrap;padding:1px 6px 1px 4px;background:#2c2620;border:3px solid #0f0d0b;box-shadow:inset 0 0 0 2px #4a3f33;cursor:pointer;box-sizing:border-box}
+  .tw{display:flex;align-items:center;gap:6px;width:100%;white-space:nowrap;padding:1px 6px 1px 4px;background:#352a4e;border:3px solid #1d1424;box-shadow:inset 0 0 0 2px #5a4a7a;cursor:pointer;box-sizing:border-box}
   .tw.sel{background:#3d3226;box-shadow:inset 0 0 0 2px #f5a623}
   .tw.poor{opacity:.45}
   .tw canvas{width:24px;height:26px;image-rendering:pixelated;flex:none}
   .tw .nm{font-family:'Do Hyeon',sans-serif;font-size:15px;line-height:1;flex:1 1 auto;min-width:0;overflow:hidden;text-overflow:ellipsis;display:flex;flex-direction:column;gap:1px}
-  .tw{border-left-color:var(--gc,#0f0d0b)}
+  .tw{border-left-color:var(--gc,#1d1424)}
   .tw{touch-action:none;user-select:none;-webkit-user-select:none}
-  .tw .role{font-size:11px;line-height:1.1;color:#8a7e6c}
+  .tw .role{font-size:11px;line-height:1.1;color:#a99cc0}
   .portrait .tw .role{font-size:16px}
   .tw .ct2{flex:none;margin-left:auto;font-family:'Press Start 2P',monospace;font-size:8px;color:#f5a623}
   .tw .ct{font-size:8px;color:#f5a623;margin-top:5px}
-  .tw .key{font-size:7px;color:#8a7e6c;margin-left:auto;align-self:flex-start}
-  #hint{left:12px;bottom:10px;font-family:'Do Hyeon',sans-serif;font-size:15px;color:#cfc3ae;text-shadow:2px 2px 0 #0f0d0b}
+  .tw .key{font-size:7px;color:#a99cc0;margin-left:auto;align-self:flex-start}
+  #hint{left:12px;bottom:10px;font-family:'Do Hyeon',sans-serif;font-size:15px;color:#ddd2ee;text-shadow:2px 2px 0 #1d1424;background:rgba(29,20,36,.72);padding:2px 8px}
   .in-title .hud{opacity:0;pointer-events:none}
   #title{position:absolute;inset:0;display:none;flex-direction:column;align-items:center;justify-content:center;gap:8px;background:radial-gradient(ellipse at center,rgba(15,13,11,.72) 0%,rgba(15,13,11,.9) 70%);color:#f1e8d6;text-align:center}
   .in-title #title{display:flex}
   #title .eyebrow{font-family:'Press Start 2P',monospace;font-size:12px;color:#f5a623;letter-spacing:2px}
-  #title h1{margin:0;font-family:'Do Hyeon',sans-serif;font-weight:400;font-size:72px;line-height:1.05;text-shadow:5px 5px 0 #0f0d0b}
-  #title .tag{font-family:'Do Hyeon',sans-serif;font-size:24px;color:#cfc3ae;text-shadow:2px 2px 0 #0f0d0b;margin-bottom:8px}
-  #bStart{font-family:'Press Start 2P',monospace !important;font-size:18px !important;padding:16px !important;background:#f5a623;color:#1d1915;box-shadow:inset 0 0 0 3px #ffd27a,0 5px 0 #0f0d0b}
-  #title .press{font-family:'Press Start 2P',monospace;font-size:10px;color:#8a7e6c;margin-top:8px;animation:blink 1s steps(1) infinite}
+  #title h1{margin:0;font-family:'Do Hyeon',sans-serif;font-weight:400;font-size:72px;line-height:1.05;text-shadow:5px 5px 0 #1d1424}
+  #title .tag{font-family:'Do Hyeon',sans-serif;font-size:24px;color:#ddd2ee;text-shadow:2px 2px 0 #1d1424;margin-bottom:8px}
+  #bStart{font-family:'Press Start 2P',monospace !important;font-size:18px !important;padding:16px !important;background:#f5a623;color:#2b2140;box-shadow:inset 0 0 0 3px #ffd27a,0 5px 0 #1d1424}
+  #title .press{font-family:'Press Start 2P',monospace;font-size:10px;color:#a99cc0;margin-top:8px;animation:blink 1s steps(1) infinite}
   #title #bFullT{position:absolute;top:12px;left:14px;font-family:'Do Hyeon',sans-serif;font-size:16px;padding:6px 14px;z-index:2} #bFull{font-size:12px}
   #title #bNotice{position:absolute;top:12px;right:14px;font-family:'Do Hyeon',sans-serif;font-size:16px;padding:6px 14px;color:#f5a623;z-index:2}
-  #title .ver{position:absolute;right:14px;bottom:10px;font-family:'Press Start 2P',monospace;font-size:8px;color:#8a7e6c}
+  #title .ver{position:absolute;right:14px;bottom:10px;font-family:'Press Start 2P',monospace;font-size:8px;color:#a99cc0}
   @keyframes blink{50%{opacity:0}}
   #pause{position:absolute;inset:0;display:none;flex-direction:column;align-items:center;justify-content:center;gap:16px;background:rgba(15,13,11,.6);color:#f1e8d6}
   #pause.show{display:flex}
   #pause .ttl{font-size:22px;animation:blink 1.2s steps(1) infinite}
-  #pause .keys{font-family:'Do Hyeon',sans-serif;font-size:17px;color:#cfc3ae}
+  #pause .keys{font-family:'Do Hyeon',sans-serif;font-size:17px;color:#ddd2ee}
   #over{position:absolute;inset:0;display:none;flex-direction:column;align-items:center;justify-content:center;gap:18px;background:rgba(15,13,11,.7);color:#f1e8d6;text-align:center}
   #over.show{display:flex}
-  #over h1{margin:0;font-family:'Do Hyeon',sans-serif;font-weight:400;font-size:44px;text-shadow:3px 3px 0 #0f0d0b}
+  #over h1{margin:0;font-family:'Do Hyeon',sans-serif;font-weight:400;font-size:44px;text-shadow:3px 3px 0 #1d1424}
   #over .ttl{color:#e0412f}
   #over p{margin:0;font-family:'Press Start 2P',monospace;font-size:12px;color:#f5a623}
-  #over #overBat{font-family:'Do Hyeon',sans-serif;font-size:22px;color:#8fd06a;display:flex;align-items:center;justify-content:center;gap:8px;border-top:2px solid #4a3f33;border-bottom:2px solid #4a3f33;padding:8px 0}
+  #over #overBat{font-family:'Do Hyeon',sans-serif;font-size:22px;color:#8fd06a;display:flex;align-items:center;justify-content:center;gap:8px;border-top:2px solid #5a4a7a;border-bottom:2px solid #5a4a7a;padding:8px 0}
   /* ───── 배터리 · 업적 · 영구 강화 ───── */
   .bat{display:inline-block;width:16px;height:9px;border:2px solid #8fd06a;position:relative;vertical-align:middle;background:linear-gradient(90deg,#8fd06a 70%,transparent 70%);flex:none}
   .bat::after{content:'';position:absolute;right:-5px;top:2px;width:3px;height:5px;background:#8fd06a}
   .batbox{display:flex;align-items:center;gap:9px;font-family:'Press Start 2P',monospace;font-size:12px;color:#8fd06a}
   .mpanel{position:absolute;inset:0;display:none;align-items:center;justify-content:center;background:rgba(15,13,11,.84)}
   .mpanel.show{display:flex}
-  .mbox{width:820px;max-height:516px;box-sizing:border-box;background:#1d1915;border:3px solid #0f0d0b;box-shadow:inset 0 0 0 2px #4a3f33;padding:16px 18px;display:flex;flex-direction:column;gap:12px;color:#f1e8d6}
+  .mbox{width:820px;max-height:516px;box-sizing:border-box;background:#2b2140;border:3px solid #1d1424;box-shadow:inset 0 0 0 2px #5a4a7a;padding:16px 18px;display:flex;flex-direction:column;gap:12px;color:#f1e8d6}
   .mhead{display:flex;align-items:center;gap:16px;font-family:'Do Hyeon',sans-serif;font-size:30px}
   .mhead .mclose{margin-left:auto;font-family:'Do Hyeon',sans-serif;font-size:18px;padding:6px 14px}
   #achCount{font-family:'Press Start 2P',monospace;font-size:11px;color:#f5a623}
   .alist{display:grid;grid-template-columns:1fr 1fr;gap:8px;overflow-y:auto;touch-action:pan-y}
-  .ach{display:flex;gap:10px;align-items:center;background:#2c2620;border:3px solid #0f0d0b;box-shadow:inset 0 0 0 2px #4a3f33;padding:7px 10px;opacity:.6}
+  .ach{display:flex;gap:10px;align-items:center;background:#352a4e;border:3px solid #1d1424;box-shadow:inset 0 0 0 2px #5a4a7a;padding:7px 10px;opacity:.6}
   .ach.done{opacity:1;box-shadow:inset 0 0 0 2px #f5a623}
-  .ach .ic{width:30px;height:30px;flex:none;display:flex;align-items:center;justify-content:center;font-family:'Press Start 2P',monospace;font-size:10px;background:#0f0d0b;color:#8a7e6c}
-  .ach.done .ic{background:#f5a623;color:#1d1915}
+  .ach .ic{width:30px;height:30px;flex:none;display:flex;align-items:center;justify-content:center;font-family:'Press Start 2P',monospace;font-size:10px;background:#1d1424;color:#a99cc0}
+  .ach.done .ic{background:#f5a623;color:#2b2140}
   .ach .t1{font-family:'Do Hyeon',sans-serif;font-size:20px;line-height:1.1}
-  .ach .t2{font-family:'Do Hyeon',sans-serif;font-size:15px;color:#cfc3ae;line-height:1.2}
+  .ach .t2{font-family:'Do Hyeon',sans-serif;font-size:15px;color:#ddd2ee;line-height:1.2}
   .ach .rw{margin-left:auto;display:flex;flex-direction:column;align-items:flex-end;gap:4px;font-family:'Press Start 2P',monospace;font-size:9px;color:#8fd06a;white-space:nowrap}
-  .ach .pg{color:#8a7e6c;font-size:8px}
+  .ach .pg{color:#a99cc0;font-size:8px}
   .ach .amid{flex:1;min-width:0}
   .ach .prev{font-size:13px;color:#8fd06a}
-  .abar{height:5px;background:#0f0d0b;margin-top:4px;border:1px solid #4a3f33}
+  .abar{height:5px;background:#1d1424;margin-top:4px;border:1px solid #5a4a7a}
   .abar b{display:block;height:100%;background:#f5a623}
   .ach.done .abar b{background:#8fd06a}
   .apips{gap:2px} .apips i{width:8px;height:8px;border-width:1px}
   .ach .ic{font-size:8px !important}
-  .unlnote{font-family:'Do Hyeon',sans-serif;font-size:15px;color:#8a7e6c;padding:0 2px 2px}
+  .unlnote{font-family:'Do Hyeon',sans-serif;font-size:15px;color:#a99cc0;padding:0 2px 2px}
   .ulist{display:flex;flex-direction:column;gap:6px;overflow-y:auto;touch-action:pan-y}
   .unlhead{font-family:'Do Hyeon',sans-serif;font-size:18px;color:#f5a623;padding:8px 2px 0} .uprow.unl .t1{white-space:nowrap} .uprow.unl .t2{flex:1} .uprow.unl.own{opacity:.7}
   .upall .btn{font-family:'Do Hyeon',sans-serif;font-size:18px;padding:6px 16px;white-space:nowrap}
-  .upall{display:flex;align-items:center;gap:12px;font-family:'Do Hyeon',sans-serif;font-size:14px;color:#8a7e6c;padding:0 2px 2px}
-  .uprow{display:flex;align-items:center;gap:14px;background:#2c2620;border:3px solid #0f0d0b;box-shadow:inset 0 0 0 2px #4a3f33;padding:4px 12px}
+  .upall{display:flex;align-items:center;gap:12px;font-family:'Do Hyeon',sans-serif;font-size:14px;color:#a99cc0;padding:0 2px 2px}
+  .uprow{display:flex;align-items:center;gap:14px;background:#352a4e;border:3px solid #1d1424;box-shadow:inset 0 0 0 2px #5a4a7a;padding:4px 12px}
   .uprow .t1{font-family:'Do Hyeon',sans-serif;font-size:22px;width:118px;flex:none}
   .uprow.unl .t1{width:170px}
-  .uprow .t2{font-family:'Do Hyeon',sans-serif;font-size:17px;color:#cfc3ae;width:190px;flex:none}
+  .uprow .t2{font-family:'Do Hyeon',sans-serif;font-size:17px;color:#ddd2ee;width:190px;flex:none}
   .uprow .cur{font-family:'Do Hyeon',sans-serif;font-size:17px;color:#f5a623;width:64px;flex:none;text-align:right}
   .uprow .pips{gap:3px} .uprow .pips i{width:11px;height:13px}
-  .pips{display:flex;gap:4px} .pips i{width:14px;height:14px;background:#0f0d0b;border:2px solid #4a3f33} .pips i.on{background:#f5a623;border-color:#ffd27a}
+  .pips{display:flex;gap:4px} .pips i{width:14px;height:14px;background:#1d1424;border:2px solid #5a4a7a} .pips i.on{background:#f5a623;border-color:#ffd27a}
   .uprow .btn{margin-left:auto;font-family:'Do Hyeon',sans-serif;font-size:18px;padding:4px 12px;display:flex;align-items:center;gap:8px;min-width:116px;justify-content:center}
   .uprow .btn.poor,.uprow .btn.max{opacity:.45}
-  .crt{display:inline-block;width:12px;height:14px;background:linear-gradient(#e6e9ee 0 3px,#d04a3a 3px 11px,#a8adb6 11px);border:2px solid #0f0d0b;border-radius:2px;vertical-align:middle;margin:0 6px 0 4px}
+  .crt{display:inline-block;width:12px;height:14px;background:linear-gradient(#e6e9ee 0 3px,#d04a3a 3px 11px,#a8adb6 11px);border:2px solid #1d1424;border-radius:2px;vertical-align:middle;margin:0 6px 0 4px}
   html[lang=en] .tcard{width:440px} html[lang=en] .tcard .row3 .btn{min-width:0;font-size:17px;padding-left:2px;padding-right:2px}
   html[lang=en] #title .tmain small{display:none} html[lang=en] #title h1{font-size:64px}
   .touch .tcard .btn{white-space:nowrap} .touch #title .press{display:none}
   .touch #title{gap:6px} .touch #title h1{font-size:58px} .touch #title .tag{margin-bottom:2px}
-  .tcard .row3{grid-template-columns:1fr 1fr 1fr} #title .tmain{color:#f5a623;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;line-height:1.1} #title .tmain small{font-size:11px;color:#cfc3ae;white-space:nowrap;letter-spacing:-.5px} .tcard .row3 .btn{min-width:0} #title .tmain{padding-left:0;padding-right:0;overflow:hidden}
+  .tcard .row3{grid-template-columns:1fr 1fr 1fr} #title .tmain{color:#f5a623;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;line-height:1.1} #title .tmain small{font-size:11px;color:#ddd2ee;white-space:nowrap;letter-spacing:-.5px} .tcard .row3 .btn{min-width:0} #title .tmain{padding-left:0;padding-right:0;overflow:hidden}
   .gtabs .btab{padding:5px 11px;font-size:17px}
   .dexinfo{display:flex;align-items:center;gap:12px} .dexinfo2{flex:1;display:flex;align-items:center;gap:12px}
   .dexlist{display:flex;flex-direction:column;gap:10px}
   .bagbox{height:516px}
   .bpage{flex:1;min-height:0;overflow-y:auto;touch-action:pan-y;display:flex;flex-direction:column;gap:10px}
-  .bnote{font-family:'Do Hyeon',sans-serif;font-size:16px;color:#8a7e6c}
+  .bnote{font-family:'Do Hyeon',sans-serif;font-size:16px;color:#a99cc0}
   .bnote b{color:#f1e8d6;font-weight:400}
   .cgrid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
-  .chfilt{display:flex;align-items:center;gap:6px;font-family:'Do Hyeon',sans-serif} .chfilt .chcnt{margin-right:auto;font-size:16px;color:#cfc3ae} .chfilt .btn{font-family:'Do Hyeon',sans-serif;font-size:15px;padding:3px 10px}
-  .pmate{color:#8a7e6c} .pmate.on{color:#8fd06a}
-  .chcard{border-left:4px solid var(--gc,#0f0d0b) !important} .chg{font-size:14px} #bp-char .chcard .t3{font-size:15px;line-height:1.25} #bp-char .chcard .t4{font-size:13px;line-height:1.25} #bp-char .chcard .t1{white-space:nowrap}
-  .chcard{display:flex;align-items:center;gap:10px;background:#2c2620;border:3px solid #0f0d0b;box-shadow:inset 0 0 0 2px #4a3f33;padding:6px 10px}
+  .chfilt{display:flex;align-items:center;gap:6px;font-family:'Do Hyeon',sans-serif} .chfilt .chcnt{margin-right:auto;font-size:16px;color:#ddd2ee} .chfilt .btn{font-family:'Do Hyeon',sans-serif;font-size:15px;padding:3px 10px}
+  .pmate{color:#a99cc0} .pmate.on{color:#8fd06a}
+  .chcard{border-left:4px solid var(--gc,#1d1424) !important} .chg{font-size:14px} #bp-char .chcard .t3{font-size:15px;line-height:1.25} #bp-char .chcard .t4{font-size:13px;line-height:1.25} #bp-char .chcard .t1{white-space:nowrap}
+  .chcard{display:flex;align-items:center;gap:10px;background:#352a4e;border:3px solid #1d1424;box-shadow:inset 0 0 0 2px #5a4a7a;padding:6px 10px}
   .chcard.on{box-shadow:inset 0 0 0 2px #f5a623}
-  .chcard img{width:64px;height:64px;image-rendering:pixelated;flex:none;background:#0f0d0b}
+  .chcard img{width:64px;height:64px;image-rendering:pixelated;flex:none;background:#1d1424}
   .chcard.lock img{filter:brightness(.55)}
   .chtx{flex:1;min-width:0}
   .chtx .t1{font-family:'Do Hyeon',sans-serif;font-size:21px;line-height:1.1}
-  .chtx .t2{font-family:'Do Hyeon',sans-serif;font-size:14px;color:#8a7e6c}
+  .chtx .t2{font-family:'Do Hyeon',sans-serif;font-size:14px;color:#a99cc0}
   .chtx .t4{font-family:'Do Hyeon',sans-serif;font-size:13px;color:#ffd27a}
   #tmenu .tmkr{font-family:'Do Hyeon',sans-serif;font-size:13px;color:#8fd06a;white-space:nowrap}
   .chtx .t3{font-family:'Do Hyeon',sans-serif;font-size:16px;color:#8fd06a}
   .chcard .btn{font-family:'Do Hyeon',sans-serif;font-size:17px;padding:6px 10px;display:flex;align-items:center;gap:6px;white-space:nowrap}
-  .chcard .btn.on{background:#f5a623;color:#1d1915}
+  .chcard .btn.on{background:#f5a623;color:#2b2140}
   .chcard .btn.poor{opacity:.45}
   .ggrid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
-  .gcard{display:grid;grid-template-columns:46px 1fr;grid-template-rows:auto auto;gap:4px 10px;background:#2c2620;border:3px solid #0f0d0b;box-shadow:inset 0 0 0 2px #4a3f33;padding:6px 10px}
+  .gcard{display:grid;grid-template-columns:46px 1fr;grid-template-rows:auto auto;gap:4px 10px;background:#352a4e;border:3px solid #1d1424;box-shadow:inset 0 0 0 2px #5a4a7a;padding:6px 10px}
   .gpart{grid-row:1 / 3;font-family:'Do Hyeon',sans-serif;font-size:18px;color:#f5a623;display:flex;align-items:center}
   .gmain{display:flex;align-items:center;gap:10px}
-  .gimg{width:44px;height:44px;image-rendering:pixelated;border:2px solid #4a3f33;background:#0f0d0b;flex:none}
+  .gimg{width:44px;height:44px;image-rendering:pixelated;border:2px solid #5a4a7a;background:#1d1424;flex:none}
   .gimg.empty{border-style:dashed}
   .gtx .t1{font-family:'Do Hyeon',sans-serif;font-size:19px;line-height:1.1}
   .gtx .t1.dim{color:#6a5f50}
-  .gtx .t2{font-family:'Do Hyeon',sans-serif;font-size:14px;color:#cfc3ae}
+  .gtx .t2{font-family:'Do Hyeon',sans-serif;font-size:14px;color:#ddd2ee}
   .gtx .pips{gap:3px;margin-top:3px} .gtx .pips i{width:9px;height:9px}
   .gchips{display:flex;gap:6px}
-  .gchip{width:30px;height:30px;padding:0;background:#0f0d0b;border:2px solid var(--rc);opacity:.85;cursor:pointer;font-family:'Press Start 2P',monospace;font-size:9px;color:#4a3f33}
+  .gchip{width:30px;height:30px;padding:0;background:#1d1424;border:2px solid var(--rc);opacity:.85;cursor:pointer;font-family:'Press Start 2P',monospace;font-size:9px;color:#5a4a7a}
   .gchip img{width:100%;height:100%;image-rendering:pixelated;display:block}
-  .gchip.no{border-color:#2c2620;cursor:default;opacity:.6}
+  .gchip.no{border-color:#352a4e;cursor:default;opacity:.6}
   .gchip.on{box-shadow:0 0 0 2px #f1e8d6;opacity:1}
   #bp-pull{flex-direction:row;gap:14px}
   .gwrap{display:flex;gap:12px;flex:1;min-height:0}
   .gslots{width:300px;flex:none;display:flex;flex-direction:column;gap:5px}
-  .gslot{display:flex;align-items:center;gap:8px;background:#2c2620;border:3px solid #0f0d0b;box-shadow:inset 0 0 0 2px #4a3f33;padding:4px 8px;cursor:pointer;color:#f1e8d6;text-align:left;font:inherit}
+  .gslot{display:flex;align-items:center;gap:8px;background:#352a4e;border:3px solid #1d1424;box-shadow:inset 0 0 0 2px #5a4a7a;padding:4px 8px;cursor:pointer;color:#f1e8d6;text-align:left;font:inherit}
   .gslot.sel{box-shadow:inset 0 0 0 2px #f5a623;background:#3d3226}
   .gslot .gpart{font-family:'Do Hyeon',sans-serif;font-size:16px;color:#f5a623;width:30px;flex:none}
   .gslot .gimg{width:36px;height:36px}
   .gslot .gtx{display:flex;flex-direction:column;flex:1;min-width:0}
   .gslot .t1{font-size:16px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
   .gslot .t2{font-size:13px}
-  .gcnt{font-family:'Press Start 2P',monospace;font-size:8px;color:#8a7e6c}
+  .gcnt{font-family:'Press Start 2P',monospace;font-size:8px;color:#a99cc0}
   .gcol{flex:1;display:flex;flex-direction:column;gap:6px;min-width:0}
   .ghead{display:flex;justify-content:space-between;font-family:'Do Hyeon',sans-serif;font-size:18px;color:#f1e8d6}
-  .gown{color:#8a7e6c;font-size:15px}
+  .gown{color:#a99cc0;font-size:15px}
   .gcells{display:flex;flex-direction:column;gap:4px}
   .grow{display:grid;grid-template-columns:40px repeat(4,1fr);gap:5px;align-items:center}
   html[lang=en] .grow{grid-template-columns:84px repeat(4,1fr)} html[lang=en] .glab{font-size:12px;white-space:nowrap}
   html[lang=en] .gslot .gpart{width:46px;font-size:13px}
   .glab{font-family:'Do Hyeon',sans-serif;font-size:15px}
-  .gcell{position:relative;height:38px;padding:0;background:#0f0d0b;border:2px solid var(--rc);cursor:pointer;display:flex;align-items:center;justify-content:center}
+  .gcell{position:relative;height:38px;padding:0;background:#1d1424;border:2px solid var(--rc);cursor:pointer;display:flex;align-items:center;justify-content:center}
   .gcell img{width:28px;height:28px;image-rendering:pixelated}
-  .gcell.no{border-color:#2c2620;cursor:default}
+  .gcell.no{border-color:#352a4e;cursor:default}
   .gcell.on{box-shadow:0 0 0 2px #f1e8d6,inset 0 0 10px var(--rc)}
   .gst{position:absolute;left:3px;bottom:1px;font-size:9px;color:var(--rc);letter-spacing:-1px}
-  .gst.dim{color:#4a3f33}
+  .gst.dim{color:#5a4a7a}
   .gfu{position:absolute;left:3px;top:1px;font-family:'Press Start 2P',monospace;font-size:6px;color:#f5a623}
   .glv{position:absolute;right:3px;top:1px;font-family:'Press Start 2P',monospace;font-size:7px;color:#8fd06a}
-  .gq{font-family:'Press Start 2P',monospace;font-size:10px;color:#4a3f33}
-  .gfoot{display:flex;align-items:center;gap:10px;font-family:'Do Hyeon',sans-serif;font-size:14px;color:#8a7e6c}
+  .gq{font-family:'Press Start 2P',monospace;font-size:10px;color:#5a4a7a}
+  .gfoot{display:flex;align-items:center;gap:10px;font-family:'Do Hyeon',sans-serif;font-size:14px;color:#a99cc0}
   .gfoot .btn{font-family:'Do Hyeon',sans-serif;font-size:16px;padding:5px 10px}
   .gpc.r4{box-shadow:0 0 14px #f5a623}
   .gpc.r3{box-shadow:0 0 8px #b07ae8}
@@ -292,179 +292,179 @@
   .pleft .btn{font-family:'Do Hyeon',sans-serif;font-size:19px;padding:8px}
   .pleft .btn[disabled]{opacity:.4;cursor:default}
   .prob{font-family:'Do Hyeon',sans-serif;font-size:15px;text-align:center}
-  .pity{display:flex;flex-direction:column;gap:3px;font-family:'Do Hyeon',sans-serif;font-size:13px;color:#cfc3ae}
+  .pity{display:flex;flex-direction:column;gap:3px;font-family:'Do Hyeon',sans-serif;font-size:13px;color:#ddd2ee}
   .pity .ptl{display:flex;justify-content:space-between;gap:6px} .pity .ptl span{white-space:nowrap} .pity b{color:#f5a623;font-weight:400}
-  .pity .pbar{position:relative;height:8px;background:#0f0d0b;border:2px solid #4a3f33}
+  .pity .pbar{position:relative;height:8px;background:#1d1424;border:2px solid #5a4a7a}
   .pity .pbar i{position:absolute;left:0;top:0;bottom:0;background:linear-gradient(90deg,#b07ae8,#f5a623)}
   html[lang=en] .gtabs .btn,.portrait .gtabs .btn{font-size:14px;padding-left:6px;padding-right:6px} .gtabs{flex-wrap:nowrap}
   .chbtns .btn{font-size:14px;padding:4px 8px}
   .chbtns{display:flex;flex-direction:column;gap:4px} .chbtns .btn{white-space:nowrap} .chlv{font-size:14px;color:#f5a623}
   .dwrap{display:flex;gap:12px;flex:1;min-height:0}
   .dslots{width:250px;flex:none;display:flex;flex-direction:column;gap:4px;overflow-y:auto}
-  .dslot{display:flex;align-items:center;gap:6px;padding:2px 8px;background:#2c2620;border:3px solid #0f0d0b;box-shadow:inset 4px 0 0 var(--gc);color:#f1e8d6;font:inherit;cursor:pointer;text-align:left}
+  .dslot{display:flex;align-items:center;gap:6px;padding:2px 8px;background:#352a4e;border:3px solid #1d1424;box-shadow:inset 4px 0 0 var(--gc);color:#f1e8d6;font:inherit;cursor:pointer;text-align:left}
   .dslot.on{border-color:#f5a623} .dslot img{width:30px;height:30px;image-rendering:pixelated} .dslot .dsn{font-family:'Press Start 2P',monospace;font-size:9px;color:var(--gc);width:12px}
-  .dslot .dsname{flex:1;font-family:'Do Hyeon',sans-serif;font-size:16px;white-space:nowrap;overflow:hidden} .dslot .dsw{font-family:'Press Start 2P',monospace;font-size:8px;color:#8a7e6c}
+  .dslot .dsname{flex:1;font-family:'Do Hyeon',sans-serif;font-size:16px;white-space:nowrap;overflow:hidden} .dslot .dsw{font-family:'Press Start 2P',monospace;font-size:8px;color:#a99cc0}
   .dright{flex:1;display:flex;flex-direction:column;gap:6px;min-width:0}
-  .dhead{display:flex;justify-content:space-between;font-family:'Do Hyeon',sans-serif;font-size:18px} .dhead b{font-weight:400} .dcount{color:#8a7e6c;font-size:15px}
+  .dhead{display:flex;justify-content:space-between;font-family:'Do Hyeon',sans-serif;font-size:18px} .dhead b{font-weight:400} .dcount{color:#a99cc0;font-size:15px}
   .dlist{flex:1;overflow-y:auto;display:grid;grid-template-columns:repeat(2,1fr);gap:6px;align-content:start}
-  .twc{position:relative;display:flex;align-items:center;gap:6px;padding:4px 6px;background:#2c2620;border:3px solid #0f0d0b;box-shadow:inset 0 0 0 2px #4a3f33;color:#f1e8d6;font:inherit;text-align:left;cursor:pointer}
+  .twc{position:relative;display:flex;align-items:center;gap:6px;padding:4px 6px;background:#352a4e;border:3px solid #1d1424;box-shadow:inset 0 0 0 2px #5a4a7a;color:#f1e8d6;font:inherit;text-align:left;cursor:pointer}
   .twc.on{border-color:#f5a623} .twc.lock{opacity:.45;cursor:default} .twc img{width:40px;height:40px;image-rendering:pixelated}
-  .twc .twt{min-width:0} .twc .t1{font-family:'Do Hyeon',sans-serif;font-size:16px;white-space:nowrap} .twc .t2{font-size:11px;color:#cfc3ae;white-space:nowrap} .twc .t3{font-size:11px;color:#8a7e6c}
-  .twc .twup{position:absolute;bottom:3px;right:4px;font-family:'Press Start 2P',monospace;font-size:7px;color:#1d1915;background:#f5a623;padding:3px 4px;display:flex;align-items:center;gap:3px;cursor:pointer;border:2px solid #0f0d0b}
-  .twupn{display:flex;align-items:center;gap:4px;margin-left:auto;margin-right:12px;font-size:14px;color:#8a7e6c} .twupn .btn{font-family:'Do Hyeon',sans-serif;font-size:14px;padding:2px 8px}
+  .twc .twt{min-width:0} .twc .t1{font-family:'Do Hyeon',sans-serif;font-size:16px;white-space:nowrap} .twc .t2{font-size:11px;color:#ddd2ee;white-space:nowrap} .twc .t3{font-size:11px;color:#a99cc0}
+  .twc .twup{position:absolute;bottom:3px;right:4px;font-family:'Press Start 2P',monospace;font-size:7px;color:#2b2140;background:#f5a623;padding:3px 4px;display:flex;align-items:center;gap:3px;cursor:pointer;border:2px solid #1d1424}
+  .twupn{display:flex;align-items:center;gap:4px;margin-left:auto;margin-right:12px;font-size:14px;color:#a99cc0} .twupn .btn{font-family:'Do Hyeon',sans-serif;font-size:14px;padding:2px 8px}
   .twskin{color:#f5a623;cursor:pointer;text-decoration:underline dotted} .twskin.off{color:#6a5e4c;cursor:default;text-decoration:none}
-  .twc .twup.poor{background:#6a5a42;color:#cfc3ae} .twc .twup.max{background:none;color:#8a7e6c;border-color:transparent;cursor:default}
-  .twc .twup .bat{transform:scale(.7)} .twstar{color:#ffd27a;letter-spacing:-1px} .twdup{color:#8a7e6c;font-size:10px}
+  .twc .twup.poor{background:#6a5a42;color:#ddd2ee} .twc .twup.max{background:none;color:#a99cc0;border-color:transparent;cursor:default}
+  .twc .twup .bat{transform:scale(.7)} .twstar{color:#ffd27a;letter-spacing:-1px} .twdup{color:#a99cc0;font-size:10px}
   .twc .tta{font-size:10px;color:#8fd06a;white-space:nowrap}
-  .twc .twi{position:absolute;top:2px;right:4px;font-family:'Press Start 2P',monospace;font-size:8px;color:#8a7e6c;padding:2px 4px;border:1px solid #4a3f33}
+  .twc .twi{position:absolute;top:2px;right:4px;font-family:'Press Start 2P',monospace;font-size:8px;color:#a99cc0;padding:2px 4px;border:1px solid #5a4a7a}
   .portrait .dwrap{flex-direction:column;overflow-y:auto} .portrait .dslots{width:auto;display:grid;grid-template-columns:repeat(3,1fr)} .portrait .dlist{grid-template-columns:repeat(2,1fr);flex:none}
   .pkind{display:grid;grid-template-columns:1fr 1fr} .pkind .btn{font-size:15px;padding:4px}
   .pcount .pcan{width:28px;height:28px;image-rendering:pixelated;vertical-align:middle;margin-right:6px}
-  .pinfo{font-family:'Do Hyeon',sans-serif;font-size:14px;color:#8a7e6c;line-height:1.3}
-  .presult{flex:1;display:flex;flex-wrap:wrap;align-content:flex-start;gap:8px;background:#151210;border:2px solid #2c2620;padding:10px;overflow-y:auto}
-  .gpc{width:150px;display:flex;flex-direction:column;align-items:center;gap:2px;background:#2c2620;border:3px solid var(--rc);padding:8px 4px;animation:pflip .35s both}
+  .pinfo{font-family:'Do Hyeon',sans-serif;font-size:14px;color:#a99cc0;line-height:1.3}
+  .presult{flex:1;display:flex;flex-wrap:wrap;align-content:flex-start;gap:8px;background:#151210;border:2px solid #352a4e;padding:10px;overflow-y:auto}
+  .gpc{width:150px;display:flex;flex-direction:column;align-items:center;gap:2px;background:#352a4e;border:3px solid var(--rc);padding:8px 4px;animation:pflip .35s both}
   .presult:not(.many){justify-content:center;align-content:center} .presult:not(.many) .gpc{width:200px;padding:14px 6px} .presult:not(.many) .gpc img{width:80px;height:80px}
   .presult.many:not(.sum){display:grid;grid-template-columns:repeat(5,minmax(0,1fr));align-content:center} .presult.many .gpc{width:auto;padding:5px 2px}
   .gpc img{width:56px;height:56px;image-rendering:pixelated}
   .presult.many .gpc img{width:40px;height:40px}
   .presult.sum{gap:5px} .presult.sum .gpc{width:calc(33.3% - 4px);flex-direction:row;flex-wrap:wrap;justify-content:flex-start;padding:4px 6px;gap:0 6px;text-align:left} .presult.sum .gpc img{width:32px;height:32px;flex:none} .presult.sum .gpc>div{flex:1 1 60%;min-width:0} .presult.sum .pn{font-size:14px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis} .presult.sum .pr{font-size:12px} .presult.sum .pn b{color:#f5a623;font-weight:400}
-  .pempty{width:100%;display:flex;flex-direction:column;align-items:center;gap:6px;padding:6px 0} .pebig{width:72px;height:72px;image-rendering:pixelated} .pet1{font-family:'Do Hyeon',sans-serif;font-size:22px;color:#f1e8d6} .pet2{font-family:'Do Hyeon',sans-serif;font-size:14px;color:#8a7e6c}
+  .pempty{width:100%;display:flex;flex-direction:column;align-items:center;gap:6px;padding:6px 0} .pebig{width:72px;height:72px;image-rendering:pixelated} .pet1{font-family:'Do Hyeon',sans-serif;font-size:22px;color:#f1e8d6} .pet2{font-family:'Do Hyeon',sans-serif;font-size:14px;color:#a99cc0}
   .petiles{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;width:100%;margin-top:6px}
-  .petile{display:flex;flex-direction:column;align-items:center;gap:2px;background:#2c2620;border:3px solid var(--rc);padding:8px 4px;font-family:'Do Hyeon',sans-serif} .petile b{font-weight:400;font-size:17px;color:var(--rc)} .petile span{font-size:15px;color:#f1e8d6} .petile i{font-style:normal;font-size:12px;color:#8a7e6c}
+  .petile{display:flex;flex-direction:column;align-items:center;gap:2px;background:#352a4e;border:3px solid var(--rc);padding:8px 4px;font-family:'Do Hyeon',sans-serif} .petile b{font-weight:400;font-size:17px;color:var(--rc)} .petile span{font-size:15px;color:#f1e8d6} .petile i{font-style:normal;font-size:12px;color:#a99cc0}
   .peimgs{display:flex;gap:2px;flex-wrap:wrap;justify-content:center} .peimgs img{width:24px;height:24px;image-rendering:pixelated}
-  .psum{width:100%;font-family:'Do Hyeon',sans-serif;font-size:16px;color:#cfc3ae;display:flex;align-items:center;gap:4px}
+  .psum{width:100%;font-family:'Do Hyeon',sans-serif;font-size:16px;color:#ddd2ee;display:flex;align-items:center;gap:4px}
   .prow{display:flex;gap:6px} .prow .btn{flex:1}
   .pn{font-family:'Do Hyeon',sans-serif;font-size:16px;text-align:center;line-height:1.1;color:var(--rc)}
   .presult.many .pn{font-size:13px}
-  .pr{font-family:'Do Hyeon',sans-serif;font-size:13px;color:#8a7e6c}
+  .pr{font-family:'Do Hyeon',sans-serif;font-size:13px;color:#a99cc0}
   .pnew,.pup,.pref{font-family:'Press Start 2P',monospace;font-size:8px;padding:3px 4px;margin-top:2px}
-  .pnew{background:#f5a623;color:#1d1915} .pup{background:#3a6a3a;color:#cff0c0} .pref{background:#2f3f6a;color:#cfe0ff;display:flex;align-items:center;gap:6px}
+  .pnew{background:#f5a623;color:#2b2140} .pup{background:#3a6a3a;color:#cff0c0} .pref{background:#2f3f6a;color:#cfe0ff;display:flex;align-items:center;gap:6px}
   @keyframes pflip{from{transform:rotateY(90deg) scale(.8);opacity:0}to{transform:none;opacity:1}}
   .portrait .cgrid,.portrait .ggrid{grid-template-columns:1fr}
   .dexcount{font-family:'Press Start 2P',monospace;font-size:12px;color:#f5a623}
-  .dexinfo{font-family:'Do Hyeon',sans-serif;font-size:16px;color:#cfc3ae;display:flex;align-items:center;gap:12px}
+  .dexinfo{font-family:'Do Hyeon',sans-serif;font-size:16px;color:#ddd2ee;display:flex;align-items:center;gap:12px}
   .dexinfo .abar{flex:1;height:8px;margin:0}
   .dsec{font-family:'Do Hyeon',sans-serif;font-size:19px;color:#f5a623;margin-top:2px}
   .dgrid{display:grid;grid-template-columns:repeat(5,1fr);gap:8px}
-  .dcard{background:#2c2620;border:3px solid #0f0d0b;box-shadow:inset 0 0 0 2px #4a3f33;padding:6px;display:flex;flex-direction:column;align-items:center;gap:2px;text-align:center}
+  .dcard{background:#352a4e;border:3px solid #1d1424;box-shadow:inset 0 0 0 2px #5a4a7a;padding:6px;display:flex;flex-direction:column;align-items:center;gap:2px;text-align:center}
   .dcard.got{box-shadow:inset 0 0 0 2px var(--dc)}
   .dcard img{width:64px;height:64px;image-rendering:pixelated}
-  .dcard .dq{width:64px;height:64px;display:flex;align-items:center;justify-content:center;background:#0f0d0b;border:2px dashed #4a3f33;font-family:'Press Start 2P',monospace;font-size:18px;color:#4a3f33;box-sizing:border-box}
+  .dcard .dq{width:64px;height:64px;display:flex;align-items:center;justify-content:center;background:#1d1424;border:2px dashed #5a4a7a;font-family:'Press Start 2P',monospace;font-size:18px;color:#5a4a7a;box-sizing:border-box}
   .dcard.seen{box-shadow:inset 0 0 0 2px #6a5f50}
   .dcard .d1{font-family:'Do Hyeon',sans-serif;font-size:17px;line-height:1.1}
-  .dcard .d2{font-family:'Do Hyeon',sans-serif;font-size:13px;color:#8a7e6c}
-  .dcard .d3{font-family:'Do Hyeon',sans-serif;font-size:13px;color:#cfc3ae;line-height:1.2;min-height:31px}
+  .dcard .d2{font-family:'Do Hyeon',sans-serif;font-size:13px;color:#a99cc0}
+  .dcard .d3{font-family:'Do Hyeon',sans-serif;font-size:13px;color:#ddd2ee;line-height:1.2;min-height:31px}
   .dcard .d4{font-family:'Press Start 2P',monospace;font-size:8px;color:#8fd06a;display:flex;align-items:center;gap:5px}
   .dcard:not(.got) .d1{color:#6a5f50}
   .portrait .dgrid{grid-template-columns:repeat(3,1fr)}
-  .mfoot{display:flex;align-items:center;gap:12px;font-family:'Do Hyeon',sans-serif;font-size:15px;color:#8a7e6c}
+  .mfoot{display:flex;align-items:center;gap:12px;font-family:'Do Hyeon',sans-serif;font-size:15px;color:#a99cc0}
   #bCode{margin-left:auto;font-family:'Do Hyeon',sans-serif;font-size:15px;padding:6px 10px;white-space:nowrap}
-  .cdesc{font-family:'Do Hyeon',sans-serif;font-size:17px;color:#cfc3ae}
+  .cdesc{font-family:'Do Hyeon',sans-serif;font-size:17px;color:#ddd2ee}
   .csec{display:grid;grid-template-columns:1fr 130px;grid-template-rows:auto auto;gap:6px 10px;align-items:stretch}
   .csec .hh{grid-column:1 / 3}
-  .csec textarea{font-family:'Press Start 2P',monospace;font-size:9px;line-height:1.6;color:#f1e8d6;background:#0f0d0b;border:2px solid #4a3f33;padding:8px;resize:none;word-break:break-all;user-select:text;-webkit-user-select:text;touch-action:auto}
+  .csec textarea{font-family:'Press Start 2P',monospace;font-size:9px;line-height:1.6;color:#f1e8d6;background:#1d1424;border:2px solid #5a4a7a;padding:8px;resize:none;word-break:break-all;user-select:text;-webkit-user-select:text;touch-action:auto}
   .csec .btn{font-family:'Do Hyeon',sans-serif;font-size:19px}
   #bWipe{font-family:'Do Hyeon',sans-serif;font-size:15px;padding:6px 10px;background:#3a1512;white-space:nowrap}
   .htabs{display:flex;gap:6px;margin-left:8px}
   .htab{font-family:'Do Hyeon',sans-serif;font-size:18px;padding:5px 16px}
   .btab{font-family:'Do Hyeon',sans-serif;font-size:18px;padding:5px 16px}
-  .btab.on{background:#f5a623;color:#1d1915;box-shadow:inset 0 0 0 2px #ffd27a,0 3px 0 #0f0d0b}
+  .btab.on{background:#f5a623;color:#2b2140;box-shadow:inset 0 0 0 2px #ffd27a,0 3px 0 #1d1424}
   .htab2{font-family:'Do Hyeon',sans-serif;font-size:16px;padding:5px 12px;color:#f5a623}
-  .htab.on{background:#f5a623;color:#1d1915;box-shadow:inset 0 0 0 2px #ffd27a,0 3px 0 #0f0d0b}
+  .htab.on{background:#f5a623;color:#2b2140;box-shadow:inset 0 0 0 2px #ffd27a,0 3px 0 #1d1424}
   .hgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
   .hpage{overflow-y:auto;touch-action:pan-y;min-height:0}
-  .hcard{background:#2c2620;border:3px solid #0f0d0b;box-shadow:inset 0 0 0 2px #4a3f33;padding:6px;display:flex;flex-direction:column;gap:4px}
-  .hcard img{width:100%;height:116px;object-fit:cover;display:block;image-rendering:pixelated;border:2px solid #0f0d0b}
+  .hcard{background:#352a4e;border:3px solid #1d1424;box-shadow:inset 0 0 0 2px #5a4a7a;padding:6px;display:flex;flex-direction:column;gap:4px}
+  .hcard img{width:100%;height:116px;object-fit:cover;display:block;image-rendering:pixelated;border:2px solid #1d1424}
   .ht1{font-family:'Do Hyeon',sans-serif;font-size:18px;color:#f5a623;padding:0 4px}
-  .ht2{font-family:'Do Hyeon',sans-serif;font-size:15px;color:#cfc3ae;line-height:1.25;padding:0 4px 2px}
+  .ht2{font-family:'Do Hyeon',sans-serif;font-size:15px;color:#ddd2ee;line-height:1.25;padding:0 4px 2px}
   .hkeys{display:flex;flex-direction:column;gap:10px;padding:6px 8px}
   .hkeys .hr{font-size:20px}
   .hkeys .hr span:first-child{width:170px}
-  .hgoal{font-family:'Do Hyeon',sans-serif;font-size:21px;color:#f1e8d6;background:#2c2620;border-left:6px solid #f5a623;padding:8px 12px}
+  .hgoal{font-family:'Do Hyeon',sans-serif;font-size:21px;color:#f1e8d6;background:#352a4e;border-left:6px solid #f5a623;padding:8px 12px}
   .hgoal b,.hl b{color:#f5a623;font-weight:400}
   .hcols{display:grid;grid-template-columns:1.2fr 1fr;gap:16px}
   .hcol{display:flex;flex-direction:column;gap:7px}
   .hh{font-family:'Press Start 2P',monospace;font-size:10px;color:#f5a623;letter-spacing:1px;margin-bottom:2px}
   .hr{display:flex;gap:10px;font-family:'Do Hyeon',sans-serif;font-size:17px;line-height:1.25}
   .hr span:first-child{width:142px;flex:none;color:#f1e8d6;white-space:nowrap}
-  .hr span:last-child{color:#cfc3ae}
+  .hr span:last-child{color:#ddd2ee}
   .hr em{font-style:normal}
-  .ib2{display:inline-flex;align-items:center;justify-content:center;width:18px;height:18px;font-family:'Press Start 2P',monospace;font-size:8px;font-weight:400;color:#f5a623;border:2px solid #4a3f33;vertical-align:middle}
-  .hl{font-family:'Do Hyeon',sans-serif;font-size:17px;color:#cfc3ae;line-height:1.25;padding-left:14px;position:relative}
+  .ib2{display:inline-flex;align-items:center;justify-content:center;width:18px;height:18px;font-family:'Press Start 2P',monospace;font-size:8px;font-weight:400;color:#f5a623;border:2px solid #5a4a7a;vertical-align:middle}
+  .hl{font-family:'Do Hyeon',sans-serif;font-size:17px;color:#ddd2ee;line-height:1.25;padding-left:14px;position:relative}
   .hl::before{content:'';position:absolute;left:0;top:7px;width:6px;height:6px;background:#f5a623}
   #submitRow{display:grid;grid-template-columns:1fr 120px;gap:10px}
   #submitRow.hide{display:none}
-  #nick{font-family:'Do Hyeon',sans-serif;font-size:20px;color:#f1e8d6;background:#0f0d0b;border:2px solid #4a3f33;padding:8px 10px;user-select:text;-webkit-user-select:text;touch-action:auto;min-width:0}
+  #nick{font-family:'Do Hyeon',sans-serif;font-size:20px;color:#f1e8d6;background:#1d1424;border:2px solid #5a4a7a;padding:8px 10px;user-select:text;-webkit-user-select:text;touch-action:auto;min-width:0}
   #nick:focus{outline:none;border-color:#f5a623}
   #bSubmit[disabled]{opacity:.5;cursor:default}
   #overMvp{font-family:'Do Hyeon',sans-serif;font-size:17px;color:#c9bfa8;margin:-6px 0 8px;display:flex;gap:12px;justify-content:center;flex-wrap:wrap}
   #overMvp b{color:#f5a623;font-weight:400}
-  #myBest{font-family:'Do Hyeon',sans-serif;font-size:17px;color:#8a7e6c;margin:-4px 0 8px}
+  #myBest{font-family:'Do Hyeon',sans-serif;font-size:17px;color:#a99cc0;margin:-4px 0 8px}
   #myBest b{color:#f1e8d6;font-weight:400}
   #myBest .nb{color:#f5a623;margin-left:6px}
-  #rankSub{font-family:'Do Hyeon',sans-serif;font-size:16px;color:#8a7e6c}
+  #rankSub{font-family:'Do Hyeon',sans-serif;font-size:16px;color:#a99cc0}
   .rhead,.rrow{display:grid;grid-template-columns:56px 1fr 110px 110px 90px;gap:8px;align-items:center;padding:4px 12px}
   .rhead{font-family:'Press Start 2P',monospace;font-size:9px;color:#f5a623}
   #rankList{display:flex;flex-direction:column;gap:4px;overflow-y:auto;touch-action:pan-y;max-height:360px}
-  .rrow{background:#2c2620;border:2px solid #0f0d0b;font-family:'Do Hyeon',sans-serif;font-size:20px;color:#f1e8d6}
-  .rrow .rk{font-family:'Press Start 2P',monospace;font-size:11px;color:#cfc3ae}
+  .rrow{background:#352a4e;border:2px solid #1d1424;font-family:'Do Hyeon',sans-serif;font-size:20px;color:#f1e8d6}
+  .rrow .rk{font-family:'Press Start 2P',monospace;font-size:11px;color:#ddd2ee}
   .rrow.top1 .rk{color:#f5c623} .rrow.top2 .rk{color:#d0d4da} .rrow.top3 .rk{color:#e8a06a}
   .rrow.me{box-shadow:inset 0 0 0 2px #f5a623}
-  .rrow .sm{font-size:15px;color:#8a7e6c}
-  .rmsg{font-family:'Do Hyeon',sans-serif;font-size:19px;color:#8a7e6c;text-align:center;padding:30px 0}
+  .rrow .sm{font-size:15px;color:#a99cc0}
+  .rmsg{font-family:'Do Hyeon',sans-serif;font-size:19px;color:#a99cc0;text-align:center;padding:30px 0}
   .ibox{width:900px}
   #infoTags{display:flex;gap:6px}
-  .itag{font-family:'Do Hyeon',sans-serif;font-size:15px;color:#1d1915;background:#cfc3ae;padding:2px 8px}
+  .itag{font-family:'Do Hyeon',sans-serif;font-size:15px;color:#2b2140;background:#ddd2ee;padding:2px 8px}
   .itag.t0{background:#f5a623}
   .itag.t1{background:#8fd06a}
-  .iunl{display:block;font-size:15px;color:#8a7e6c;margin-top:2px}
+  .iunl{display:block;font-size:15px;color:#a99cc0;margin-top:2px}
   .icards{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
-  .icard{background:#2c2620;border:3px solid #0f0d0b;box-shadow:inset 0 0 0 2px #4a3f33;padding:8px 10px;display:flex;flex-direction:column;gap:6px}
+  .icard{background:#352a4e;border:3px solid #1d1424;box-shadow:inset 0 0 0 2px #5a4a7a;padding:8px 10px;display:flex;flex-direction:column;gap:6px}
   .icard.now{box-shadow:inset 0 0 0 2px #f5a623;background:#33291f}
   .ichead{display:flex;align-items:center;gap:10px}
-  .ichead img{width:72px;height:72px;image-rendering:pixelated;background:#1d2a1a;border:2px solid #0f0d0b;flex:none}
+  .ichead img{width:72px;height:72px;image-rendering:pixelated;background:#1d2a1a;border:2px solid #1d1424;flex:none}
   .iclv{font-family:'Press Start 2P',monospace;font-size:13px;color:#f5a623}
-  .icnow{font-family:'Do Hyeon',sans-serif;font-size:14px;color:#1d1915;background:#f5a623;padding:1px 6px;margin-top:4px;display:inline-block}
-  .icost{font-family:'Do Hyeon',sans-serif;font-size:15px;color:#cfc3ae;margin-top:4px}
-  .istat{display:flex;justify-content:space-between;gap:8px;font-family:'Do Hyeon',sans-serif;font-size:17px;border-top:1px solid #1d1915;padding-top:3px}
-  .istat span:first-child{color:#cfc3ae} .istat span:last-child{color:#f1e8d6;text-align:right}
+  .icnow{font-family:'Do Hyeon',sans-serif;font-size:14px;color:#2b2140;background:#f5a623;padding:1px 6px;margin-top:4px;display:inline-block}
+  .icost{font-family:'Do Hyeon',sans-serif;font-size:15px;color:#ddd2ee;margin-top:4px}
+  .istat{display:flex;justify-content:space-between;gap:8px;font-family:'Do Hyeon',sans-serif;font-size:17px;border-top:1px solid #2b2140;padding-top:3px}
+  .istat span:first-child{color:#ddd2ee} .istat span:last-child{color:#f1e8d6;text-align:right}
   .istat .up{color:#8fd06a !important}
   .icards.wide{gap:6px} .icards.wide .icard{padding:6px 6px;gap:4px}
   .icards.wide .ichead img{width:46px;height:46px} .icards.wide .ichead{gap:6px} .icards.wide .iclv{font-size:10px} .icards.wide .icost,.icards.wide .icnow{font-size:12px}
   .icards.wide .istat{font-size:13px;gap:4px} .icards.wide .istat span{white-space:nowrap} .icards.wide .istat span:first-child{overflow:hidden;text-overflow:ellipsis;min-width:0}
-  #infoTag{font-family:'Do Hyeon',sans-serif;font-size:17px;color:#8a7e6c}
+  #infoTag{font-family:'Do Hyeon',sans-serif;font-size:17px;color:#a99cc0}
   .ileg{display:block;margin:4px 0 2px;color:#ffd27a}
-  .idesc{font-family:'Do Hyeon',sans-serif;font-size:19px;color:#f1e8d6;background:#2c2620;border-left:6px solid #f5a623;padding:8px 12px;line-height:1.35}
+  .idesc{font-family:'Do Hyeon',sans-serif;font-size:19px;color:#f1e8d6;background:#352a4e;border-left:6px solid #f5a623;padding:8px 12px;line-height:1.35}
   .itbl{border-collapse:collapse;width:100%;font-family:'Do Hyeon',sans-serif;font-size:19px}
-  .itbl th{font-family:'Press Start 2P',monospace;font-size:10px;color:#f5a623;font-weight:400;padding:8px 10px;text-align:center;border-bottom:2px solid #4a3f33}
-  .itbl th:first-child,.itbl td:first-child{text-align:left;color:#cfc3ae;width:30%}
-  .itbl td{padding:6px 10px;text-align:center;color:#f1e8d6;border-bottom:1px solid #2c2620}
+  .itbl th{font-family:'Press Start 2P',monospace;font-size:10px;color:#f5a623;font-weight:400;padding:8px 10px;text-align:center;border-bottom:2px solid #5a4a7a}
+  .itbl th:first-child,.itbl td:first-child{text-align:left;color:#ddd2ee;width:30%}
+  .itbl td{padding:6px 10px;text-align:center;color:#f1e8d6;border-bottom:1px solid #352a4e}
   .itbl .now{background:rgba(245,166,35,.13)}
-  .itbl th.now{color:#1d1915;background:#f5a623}
-  .inote{font-family:'Do Hyeon',sans-serif;font-size:15px;color:#8a7e6c;line-height:1.4}
-  .ibtn{flex:none;width:18px;height:18px;padding:0;margin-left:2px;font-family:'Press Start 2P',monospace;font-size:8px;color:#cfc3ae;background:#1d1915;border:2px solid #4a3f33;cursor:pointer;display:flex;align-items:center;justify-content:center}
+  .itbl th.now{color:#2b2140;background:#f5a623}
+  .inote{font-family:'Do Hyeon',sans-serif;font-size:15px;color:#a99cc0;line-height:1.4}
+  .ibtn{flex:none;width:18px;height:18px;padding:0;margin-left:2px;font-family:'Press Start 2P',monospace;font-size:8px;color:#ddd2ee;background:#2b2140;border:2px solid #5a4a7a;cursor:pointer;display:flex;align-items:center;justify-content:center}
   .ibtn:hover{border-color:#f5a623;color:#f5a623}
   .portrait .ibtn,.touch .ibtn{width:30px;height:30px;font-size:11px}
   .lbox{width:430px;gap:12px}
   #popPanel{z-index:30} .pbox{width:420px;align-items:center;text-align:center} .pbox .pbody{font-family:'Do Hyeon',sans-serif;font-size:18px;line-height:1.5;white-space:pre-wrap} .pbox .btn{font-family:'Do Hyeon',sans-serif;font-size:18px;padding:6px 28px}
   .ebox{width:520px} .ebox .ebody{font-family:'Do Hyeon',sans-serif;font-size:18px;line-height:1.5;color:#f1e8d6;white-space:pre-wrap} .ebox .ereward{font-family:'Do Hyeon',sans-serif;font-size:16px;color:#f5a623;display:flex;align-items:center;gap:6px}
   .nbox .nbody{font-family:'Do Hyeon',sans-serif;font-size:19px;line-height:1.4;color:#f1e8d6;white-space:pre-wrap;max-height:200px;overflow-y:auto}
-  .nbox .ncode{display:flex;align-items:center;gap:10px;background:#0f0d0b;border:2px dashed #f5a623;padding:8px 12px;font-family:'Do Hyeon',sans-serif;color:#cfc3ae}
+  .nbox .ncode{display:flex;align-items:center;gap:10px;background:#1d1424;border:2px dashed #f5a623;padding:8px 12px;font-family:'Do Hyeon',sans-serif;color:#ddd2ee}
   .nbox .ncode b{flex:1;font-family:'Press Start 2P',monospace;font-size:14px;color:#f5a623;user-select:text;-webkit-user-select:text}
   .nbox .ncode .btn{font-family:'Do Hyeon',sans-serif;font-size:17px;padding:6px 12px}
-  .ssec.admin textarea{flex:1;min-height:60px;font-family:'Do Hyeon',sans-serif;font-size:15px;background:#0f0d0b;color:#f1e8d6;border:2px solid #4a3f33;padding:4px 8px}
+  .ssec.admin textarea{flex:1;min-height:60px;font-family:'Do Hyeon',sans-serif;font-size:15px;background:#1d1424;color:#f1e8d6;border:2px solid #5a4a7a;padding:4px 8px}
   .lhead{display:flex;align-items:center;gap:14px}
-  .lhead img{width:72px;height:72px;image-rendering:pixelated;background:#1d2a1a;border:2px solid #0f0d0b;filter:grayscale(1) brightness(.7)}
+  .lhead img{width:72px;height:72px;image-rendering:pixelated;background:#1d2a1a;border:2px solid #1d1424;filter:grayscale(1) brightness(.7)}
   .lttl{font-family:'Press Start 2P',monospace;font-size:11px;color:#e0412f;letter-spacing:2px}
   .lname{font-family:'Do Hyeon',sans-serif;font-size:30px;color:#f1e8d6;margin-top:4px}
   .lmsg{font-family:'Do Hyeon',sans-serif;font-size:22px;color:#f1e8d6;line-height:1.35}
   .lmsg b{color:#f5a623;font-weight:400}
-  .lbar{height:14px;background:#0f0d0b;border:2px solid #4a3f33}
+  .lbar{height:14px;background:#1d1424;border:2px solid #5a4a7a}
   .lfill{height:100%;background:#f5a623;box-shadow:inset 0 -3px 0 #c47f12}
-  .lsub{font-family:'Do Hyeon',sans-serif;font-size:16px;color:#8a7e6c}
+  .lsub{font-family:'Do Hyeon',sans-serif;font-size:16px;color:#a99cc0}
   .lbox .grid2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
   .lbox .grid2 .btn{font-family:'Do Hyeon',sans-serif;font-size:19px;padding:8px}
-  .lbox .btn.main{background:#f5a623;color:#1d1915;box-shadow:inset 0 0 0 3px #ffd27a,0 4px 0 #0f0d0b}
+  .lbox .btn.main{background:#f5a623;color:#2b2140;box-shadow:inset 0 0 0 3px #ffd27a,0 4px 0 #1d1424}
   #danger{position:absolute;inset:0;pointer-events:none;opacity:0;box-shadow:inset 0 0 60px 14px rgba(224,40,30,.85);transition:opacity .3s}
   #danger.on{animation:dblink .7s ease-in-out infinite}
   #danger.on2{animation-duration:.4s;box-shadow:inset 0 0 80px 24px rgba(255,30,20,.95)}
@@ -474,66 +474,66 @@
   #perk.show{display:flex}
   .pkbox{display:flex;flex-direction:column;align-items:center;gap:14px}
   .pkhead{display:flex;flex-direction:column;align-items:center;gap:4px}
-  .pkt1{font-family:'Do Hyeon',sans-serif;font-size:40px;color:#f5a623;text-shadow:3px 3px 0 #0f0d0b}
-  .pkt2{font-family:'Do Hyeon',sans-serif;font-size:18px;color:#cfc3ae}
+  .pkt1{font-family:'Do Hyeon',sans-serif;font-size:40px;color:#f5a623;text-shadow:3px 3px 0 #1d1424}
+  .pkt2{font-family:'Do Hyeon',sans-serif;font-size:18px;color:#ddd2ee}
   .pkcards{display:flex;gap:14px}
-  .pkcard{width:200px;min-height:230px;display:flex;flex-direction:column;align-items:center;gap:8px;padding:16px 12px;background:#1d1915;border:3px solid #0f0d0b;box-shadow:inset 0 0 0 2px #4a3f33,0 5px 0 #0f0d0b;cursor:pointer;color:#f1e8d6;font:inherit;animation:pflip .35s both}
+  .pkcard{width:200px;min-height:230px;display:flex;flex-direction:column;align-items:center;gap:8px;padding:16px 12px;background:#2b2140;border:3px solid #1d1424;box-shadow:inset 0 0 0 2px #5a4a7a,0 5px 0 #1d1424;cursor:pointer;color:#f1e8d6;font:inherit;animation:pflip .35s both}
   .pkcard:nth-child(2){animation-delay:.08s} .pkcard:nth-child(3){animation-delay:.16s}
-  .pkcard:hover{box-shadow:inset 0 0 0 2px #f5a623,0 5px 0 #0f0d0b;transform:translateY(-4px)}
+  .pkcard:hover{box-shadow:inset 0 0 0 2px #f5a623,0 5px 0 #1d1424;transform:translateY(-4px)}
   .pkic{font-size:40px;line-height:1;color:#f5a623}
   .pkn{font-family:'Do Hyeon',sans-serif;font-size:26px}
   .pkd{font-family:'Do Hyeon',sans-serif;font-size:18px;color:#8fd06a;text-align:center;line-height:1.25;flex:1}
-  .pkl{font-family:'Do Hyeon',sans-serif;font-size:14px;color:#8a7e6c;text-align:center}
+  .pkl{font-family:'Do Hyeon',sans-serif;font-size:14px;color:#a99cc0;text-align:center}
   .pkcard .pips i{width:10px;height:10px}
   #perkRe{font-family:'Do Hyeon',sans-serif;font-size:18px;padding:8px 18px}
   #perkRe.poor{opacity:.45}
   .perklist{display:flex;flex-wrap:wrap;gap:4px;font-family:'Do Hyeon',sans-serif;font-size:15px;color:#f5a623;max-width:190px}
   .perklist:empty{display:none}
-  .perklist span{background:#0f0d0b;padding:1px 5px}
+  .perklist span{background:#1d1424;padding:1px 5px}
   #bRepair.poor,#bRepair.max{opacity:.45}
   .portrait .pkcards{flex-direction:column} .portrait .pkcard{width:520px;min-height:0;flex-direction:row;text-align:left}
   .tbot{margin-top:2px} .tbot .btn{padding:8px 4px;font-size:18px}
-  .ssec{background:#2c2620;border:3px solid #0f0d0b;box-shadow:inset 0 0 0 2px #4a3f33;padding:8px 12px;display:flex;flex-direction:column;gap:6px}
+  .ssec{background:#352a4e;border:3px solid #1d1424;box-shadow:inset 0 0 0 2px #5a4a7a;padding:8px 12px;display:flex;flex-direction:column;gap:6px}
   .ssec .sh{font-family:'Do Hyeon',sans-serif;font-size:20px;color:#f5a623}
-  .ssec .sh small{font-size:14px;color:#8a7e6c;margin-left:6px}
+  .ssec .sh small{font-size:14px;color:#a99cc0;margin-left:6px}
   .srow{display:flex;align-items:center;gap:10px;font-family:'Do Hyeon',sans-serif;font-size:17px;color:#f1e8d6;min-height:30px}
-  .srow>span{width:190px;flex:none;color:#cfc3ae}
+  .srow>span{width:190px;flex:none;color:#ddd2ee}
   .srow input[type=range]{flex:1;accent-color:#f5a623}
   .srow b{width:34px;text-align:right;font-weight:400;font-family:'Press Start 2P',monospace;font-size:10px;color:#f5a623}
   .srow .btn{font-family:'Do Hyeon',sans-serif;font-size:15px;padding:4px 12px}
   .srow a.btn{text-decoration:none;display:inline-block;margin:0}
   .stog.on{background:#3a6a3a;color:#cff0c0}
-  .sseg{display:flex;gap:4px} .sseg .btn.on{background:#f5a623;color:#1d1915}
-  #setBody input:not([type=range]){font-family:'Do Hyeon',sans-serif;font-size:16px;background:#0f0d0b;color:#f1e8d6;border:2px solid #4a3f33;padding:4px 8px;width:140px;user-select:text;-webkit-user-select:text}
-  #setNick{font-family:'Do Hyeon',sans-serif;font-size:16px;background:#0f0d0b;color:#f1e8d6;border:2px solid #4a3f33;padding:4px 8px;width:160px;user-select:text;-webkit-user-select:text}
-  .snote{font-style:normal;font-size:13px;color:#8a7e6c}
+  .sseg{display:flex;gap:4px} .sseg .btn.on{background:#f5a623;color:#2b2140}
+  #setBody input:not([type=range]){font-family:'Do Hyeon',sans-serif;font-size:16px;background:#1d1424;color:#f1e8d6;border:2px solid #5a4a7a;padding:4px 8px;width:140px;user-select:text;-webkit-user-select:text}
+  #setNick{font-family:'Do Hyeon',sans-serif;font-size:16px;background:#1d1424;color:#f1e8d6;border:2px solid #5a4a7a;padding:4px 8px;width:160px;user-select:text;-webkit-user-select:text}
+  .snote{font-style:normal;font-size:13px;color:#a99cc0}
   .skey{min-width:90px;font-family:'Press Start 2P',monospace !important;font-size:10px !important}
-  .skey.wait{background:#f5a623;color:#1d1915;animation:blink 1s steps(1) infinite}
+  .skey.wait{background:#f5a623;color:#2b2140;animation:blink 1s steps(1) infinite}
   .cb .istat .up,.cb .pkd,.cb .strow b,.cb .chtx .t3,.cb .ach .prev,.cb .gpc .pup{color:#6ab8ff !important}
   .cb .stog.on{background:#2f5a8a;color:#d8ecff} .cb .ach.done .abar b{background:#6ab8ff}
-  .ssec.soon{opacity:.7} .ssec.soon em{font-style:normal;font-size:13px;color:#1d1915;background:#8a7e6c;padding:1px 8px}
-  .sver{font-family:'Press Start 2P',monospace;font-size:9px;color:#8a7e6c;text-align:center;padding:6px}
+  .ssec.soon{opacity:.7} .ssec.soon em{font-style:normal;font-size:13px;color:#2b2140;background:#a99cc0;padding:1px 8px}
+  .sver{font-family:'Press Start 2P',monospace;font-size:9px;color:#a99cc0;text-align:center;padding:6px}
   .perkrow{display:flex;align-items:center;gap:6px;flex-wrap:wrap}
   #bStat{font-family:'Do Hyeon',sans-serif;font-size:14px;padding:3px 8px}
   .perklist span{position:relative;cursor:help}
-  .perklist span:hover::after{content:attr(data-tip);position:absolute;left:0;top:calc(100% + 6px);white-space:nowrap;z-index:9;background:#1d1915;color:#f1e8d6;border:2px solid #f5a623;padding:5px 9px;font-size:15px;box-shadow:0 4px 0 #0f0d0b}
+  .perklist span:hover::after{content:attr(data-tip);position:absolute;left:0;top:calc(100% + 6px);white-space:nowrap;z-index:9;background:#2b2140;color:#f1e8d6;border:2px solid #f5a623;padding:5px 9px;font-size:15px;box-shadow:0 4px 0 #1d1424}
   #meterPanel{position:absolute;right:12px;top:58px;width:300px;display:none;flex-direction:column;gap:4px;padding:10px 12px;z-index:4} #meterPanel.show{display:flex}
   .mrow{display:grid;grid-template-columns:22px 1fr auto;align-items:center;gap:2px 6px;font-family:'Do Hyeon',sans-serif;font-size:14px} .mrow img{width:20px;height:20px;image-rendering:pixelated} .mrow b{font-weight:400;color:#f5a623;font-size:13px}
-  .mbar{grid-column:2/4;height:5px;background:#0f0d0b} .mbar i{display:block;height:100%;background:#f5a623} .mtot{font-family:'Do Hyeon',sans-serif;font-size:13px;color:#8a7e6c;border-top:1px solid #1d1915;padding-top:3px}
+  .mbar{grid-column:2/4;height:5px;background:#1d1424} .mbar i{display:block;height:100%;background:#f5a623} .mtot{font-family:'Do Hyeon',sans-serif;font-size:13px;color:#a99cc0;border-top:1px solid #2b2140;padding-top:3px}
   #statPanel{position:absolute;right:12px;top:58px;width:330px;display:none;flex-direction:column;gap:4px;padding:10px 12px;z-index:4}
   #statPanel.show{display:flex}
   .sthead{display:flex;justify-content:space-between;align-items:center;font-family:'Do Hyeon',sans-serif;font-size:19px;color:#f5a623}
   .sthead .btn{font-family:'Do Hyeon',sans-serif;font-size:13px;padding:2px 8px}
-  .strow{display:grid;grid-template-columns:1fr auto;gap:0 8px;font-family:'Do Hyeon',sans-serif;font-size:15px;border-top:1px solid #1d1915;padding-top:3px}
-  .strow span{color:#cfc3ae} .strow b{font-weight:400;color:#8fd06a;text-align:right}
-  .stsrc{grid-column:1 / 3;display:flex;gap:6px;flex-wrap:wrap} .stsrc i{font-style:normal;font-size:12px;color:#8a7e6c}
+  .strow{display:grid;grid-template-columns:1fr auto;gap:0 8px;font-family:'Do Hyeon',sans-serif;font-size:15px;border-top:1px solid #2b2140;padding-top:3px}
+  .strow span{color:#ddd2ee} .strow b{font-weight:400;color:#8fd06a;text-align:right}
+  .stsrc{grid-column:1 / 3;display:flex;gap:6px;flex-wrap:wrap} .stsrc i{font-style:normal;font-size:12px;color:#a99cc0}
   .stnote{font-family:'Do Hyeon',sans-serif;font-size:12px;color:#6a5f50;margin-top:4px}
   .strow.flash b{animation:stfl 1s 2}
   @keyframes stfl{50%{color:#f5a623}}
   #tut{position:absolute;inset:0;display:none;pointer-events:none;z-index:5}
   #tut.show{display:block}
   .tutting #hint{visibility:hidden}
-  .tutbox{position:absolute;width:470px;transform:translateX(-50%);pointer-events:auto;background:rgba(29,25,21,.96);border:3px solid #0f0d0b;box-shadow:inset 0 0 0 2px #f5a623,0 6px 0 rgba(0,0,0,.4);padding:12px 14px;display:flex;flex-direction:column;gap:8px}
+  .tutbox{position:absolute;width:470px;transform:translateX(-50%);pointer-events:auto;background:rgba(43,33,64,.96);border:3px solid #1d1424;box-shadow:inset 0 0 0 2px #f5a623,0 6px 0 rgba(0,0,0,.4);padding:12px 14px;display:flex;flex-direction:column;gap:8px}
   .tuthead{display:flex;justify-content:space-between;font-family:'Press Start 2P',monospace;font-size:9px;color:#f5a623}
   .tuttx{font-family:'Do Hyeon',sans-serif;font-size:19px;line-height:1.3;color:#f1e8d6}
   .tutbtns{display:flex;justify-content:space-between;gap:10px}
@@ -542,7 +542,7 @@
   #tutHi{position:absolute;display:none;border:3px solid #f5a623;box-shadow:0 0 0 3px rgba(15,13,11,.6),0 0 16px #f5a623;animation:tutp 1s ease-in-out infinite;pointer-events:none}
   @keyframes tutp{50%{transform:scale(1.04);opacity:.6}}
   .hide-ui #tut{display:none}
-  #achPop{position:absolute;left:50%;top:128px;transform:translate(-50%,-20px);opacity:0;transition:opacity .3s,transform .3s;pointer-events:none;background:rgba(29,25,21,.95);border:3px solid #0f0d0b;box-shadow:inset 0 0 0 2px #f5a623;padding:10px 22px;text-align:center}
+  #achPop{position:absolute;left:50%;top:128px;transform:translate(-50%,-20px);opacity:0;transition:opacity .3s,transform .3s;pointer-events:none;background:rgba(43,33,64,.95);border:3px solid #1d1424;box-shadow:inset 0 0 0 2px #f5a623;padding:10px 22px;text-align:center}
   #achPop.show{opacity:1;transform:translate(-50%,0)}
   .ap1{font-family:'Press Start 2P',monospace;font-size:9px;color:#f5a623}
   .ap2{font-family:'Do Hyeon',sans-serif;font-size:26px;color:#f1e8d6;margin:4px 0}
@@ -684,7 +684,7 @@
 
 <script>
 'use strict';
-const VERSION = 'v0.57';
+const VERSION = 'v0.58';
 // 터치 기기인지 (휴대폰·태블릿이면 터치 UI로)
 const TOUCH = matchMedia('(pointer: coarse)').matches || navigator.maxTouchPoints > 0;
 
@@ -1469,36 +1469,36 @@ const TVSPR = {
   },
 };
 
-// ───────── 배경 (흙 + 바위 + 잔디 + 울타리) ─────────
+// ───────── 배경 (v0.58: 나무 마루 + 러그 + 장난감 블록 울타리) ─────────
+const OUTC = '#1d1424';   // 카툰 외곽선 색
 let seed = 1234;
 const sr = () => (seed = (seed * 16807) % 2147483647) / 2147483647;
 const srnd = (a, b) => a + sr() * (b - a);
 const [bg, bgg] = mk(BW, BH);
-(function buildBg() {
-  const g = bgg; g.translate(PX, PY);           // 게임 좌표 그대로 그리되, 바깥(-PX..W+PX)까지 채운다
+(function buildBg() {           // v0.58: 장난감 방 카툰 — 나무 마루 + 동그란 러그 (예전: 흙 + 바위 + 잔디)
+  const g = bgg; g.translate(PX, PY);
   const rx = () => srnd(-PX, W + PX), ry = () => srnd(-PY, H + PY), AREA = BW * BH / (W * H);
-  RC(g, -PX, -PY, BW, BH, '#6b4a2f');
-  for (let i = 0; i < 30 * AREA; i++) oval(g, rx(), ry(), srnd(8, 30), srnd(5, 18), sr() < .5 ? '#634430' : '#755236');
-  const dirt = ['#5e4029', '#7a5536', '#634430', '#82603e', '#584028'];
-  for (let i = 0; i < 4200 * AREA; i++) P(g, rx() | 0, ry() | 0, dirt[(sr() * dirt.length) | 0]);
-  // 바위 (가장자리 쪽)
-  function rock(x, y, s) {
-    oval(g, x + 1, y + 2, s, s * .7, '#3a2c20');
-    oval(g, x, y, s, s * .7, '#7d7a72');
-    oval(g, x - s * .25, y - s * .2, s * .6, s * .35, '#a8a49a');
-    oval(g, x + s * .3, y + s * .3, s * .5, s * .25, '#5f5c56');
+  // 마루 판자: 14px 줄, 줄마다 이음새 위치를 엇갈리게
+  for (let y = -PY - 14, row = 0; y < H + PY; y += 14, row++) {
+    RC(g, -PX, y, BW, 14, row % 2 ? '#e0a46a' : '#e9b077'); RC(g, -PX, y + 13, BW, 1, '#b97a4a'); RC(g, -PX, y, BW, 1, '#f4c48e');
+    for (let x = -PX + (row % 3) * 50; x < W + PX; x += 140) { RC(g, x, y, 2, 14, '#b97a4a'); RC(g, x + 2, y, 1, 14, '#f4c48e'); }
+    for (let i = 0; i < 26 * AREA; i++) RC(g, rx() | 0, (y + 3 + sr() * 8) | 0, (6 + sr() * 14) | 0, 1, sr() < .5 ? '#f2c08a' : '#d39860');   // 나뭇결
   }
-  const big = [[30, 30, 22], [70, 14, 14], [450, 22, 20], [410, 10, 12], [20, 240, 18], [62, 258, 12], [460, 250, 22], [420, 262, 12], [8, 140, 10], [474, 130, 12]];
-  big.forEach(([x, y, s]) => rock(x, y, s));
-  for (let i = 0; i < 26 * AREA; i++) { let x, y; do { x = rx(); y = ry(); } while (ell(x, y, 150, 120) < 1); rock(x, y, srnd(2.5, i < 26 ? 6 : 9)); }
-  // 잔디 덤불
-  for (let i = 0; i < 70 * AREA; i++) { let x, y; do { x = rx(); y = ry(); } while (ell(x, y, 130, 104) < 1); const c = sr() < .5 ? '#5f8a3a' : '#4c7330';
-    P(g, x | 0, y | 0, c); P(g, (x | 0) - 1, (y | 0) - 1, c); P(g, (x | 0) + 1, (y | 0) - 1, c); P(g, x | 0, (y | 0) - 2, c); }
-  // 울타리 안쪽 잔디
-  oval(g, CX, CY + 2, FENCE.rx + 3, FENCE.ry + 3, '#2f5229');
-  oval(g, CX, CY + 2, FENCE.rx, FENCE.ry, '#3e6b33');
-  const gr = ['#4c7d3c', '#355d2c', '#46743a', '#3a6430'];
-  for (let i = 0; i < 2600; i++) { const x = srnd(CX - FENCE.rx, CX + FENCE.rx), y = srnd(CY - FENCE.ry, CY + FENCE.ry); if (ell(x, y - 2, FENCE.rx - 1, FENCE.ry - 1) < 1) P(g, x | 0, y | 0, gr[(sr() * 4) | 0]); }
+  // 흩어진 장난감 블록·과자 부스러기 (러그 밖)
+  const toy = (x, y, w, h, c, hi) => { RC(g, x - 1, y - 1, w + 2, h + 2, OUTC); RC(g, x, y, w, h, c); RC(g, x, y, w, 2, hi); };
+  const TOYS = [['#ff6b7a', '#ffb3bc'], ['#ffd84a', '#fff3a8'], ['#5fbfff', '#c8ecff'], ['#6fdc7a', '#ccffd2']];
+  for (let i = 0; i < 16 * AREA; i++) { let x, y; do { x = rx(); y = ry(); } while (ell(x, y, 165, 125) < 1); const [c, h] = TOYS[(sr() * 4) | 0], w = 5 + (sr() * 7 | 0); toy(x | 0, y | 0, w, 4 + (sr() * 5 | 0), c, h); }
+  for (let i = 0; i < 60 * AREA; i++) { let x, y; do { x = rx(); y = ry(); } while (ell(x, y, 150, 115) < 1); RC(g, x | 0, y | 0, 2, 2, sr() < .5 ? '#ffe0a8' : '#c88a50'); }
+  // 러그: 그림자 → 외곽선 → 하늘색 테 → 크림 → 분홍 줄 → 크림
+  oval(g, CX, CY + 6, FENCE.rx + 12, FENCE.ry + 10, 'rgba(90,50,20,.22)');
+  oval(g, CX, CY + 2, FENCE.rx + 10, FENCE.ry + 9, OUTC);
+  oval(g, CX, CY + 2, FENCE.rx + 8, FENCE.ry + 7, '#7fd0ff');
+  oval(g, CX, CY + 2, FENCE.rx + 2, FENCE.ry + 1, '#fff4dc');
+  oval(g, CX, CY + 2, FENCE.rx - 6, FENCE.ry - 6, '#ff9db8');
+  oval(g, CX, CY + 2, FENCE.rx - 10, FENCE.ry - 10, '#fff4dc');
+  for (let i = 0; i < 2200; i++) { const x = srnd(CX - FENCE.rx, CX + FENCE.rx), y = srnd(CY - FENCE.ry, CY + FENCE.ry); if (ell(x, y - 2, FENCE.rx - 12, FENCE.ry - 12) < 1) P(g, x | 0, y | 0, sr() < .5 ? '#ffeac4' : '#fff9ec'); }   // 러그 결
+  const DOTC = ['#7fd0ff', '#ffd84a', '#8fe08a', '#ff9db8'];
+  for (let i = 0; i < 30; i++) { const a = i / 30 * Math.PI * 2; RC(g, Math.round(CX + Math.cos(a) * (FENCE.rx - 26)) - 2, Math.round(CY + 2 + Math.sin(a) * (FENCE.ry - 22)) - 2, 4, 4, DOTC[i % 4]); }
 })();
 // ───────── 울타리 (레벨마다 모양이 바뀐다) ─────────
 const FENCE_LV = [
@@ -1517,7 +1517,7 @@ const FENCE_LV = [
 const FENCE_SPARK = [null, null, '#d0d4da', '#d0d4da', '#9fe8ff', '#ff8070', '#e0a0ff', '#ffe08a', '#c8f4ff', '#7affc8', '#ffb0e0'];   // 가시·전기 불꽃 색
 const FENCE_IMG = FENCE_LV.map((_, lv) => {
   const [c, g] = mk(W, H);
-  const rail = [['#6a4426', '#7a5030'], ['#8a5a32', '#a8744a'], ['#8a8e96', '#b0b6c0'], ['#6a6e78', '#a0a6b2'], ['#3fa0c8', '#9fe8ff'], ['#c0302a', '#ff8070'], ['#8a3ac8', '#e0a0ff'], ['#c89a20', '#ffe08a'], ['#3a9ac8', '#c8f4ff'], ['#2a8a6a', '#7affc8'], ['#c83a90', '#ffb0e0']][lv];
+  const rail = [['#ff9db8', '#ffd0de'], ['#ff9db8', '#ffd0de'], ['#8a8e96', '#b0b6c0'], ['#6a6e78', '#a0a6b2'], ['#3fa0c8', '#9fe8ff'], ['#c0302a', '#ff8070'], ['#8a3ac8', '#e0a0ff'], ['#c89a20', '#ffe08a'], ['#3a9ac8', '#c8f4ff'], ['#2a8a6a', '#7affc8'], ['#c83a90', '#ffb0e0']][lv];
   for (let t = 0; t < Math.PI * 2; t += .004) {
     const x = CX + Math.cos(t) * FENCE.rx, y = CY + Math.sin(t) * FENCE.ry;
     P(g, x | 0, (y - 3) | 0, rail[0]); P(g, x | 0, (y - 1) | 0, rail[1]);
@@ -1534,8 +1534,14 @@ const FENCE_IMG = FENCE_LV.map((_, lv) => {
     const t = i / posts * Math.PI * 2, x = Math.round(CX + Math.cos(t) * FENCE.rx), y = Math.round(CY + Math.sin(t) * FENCE.ry);
     const [body, hi] = lv <= 2 ? (lv === 1 ? ['#9a6a3a', '#c08a5a'] : ['#8a5a32', '#b07a4a']) : lv === 7 ? ['#a87a18', '#ffe08a'] : lv >= 8 ? [rail[0], rail[1]] : lv >= 5 ? ['#3a3a48', '#6a6a7a'] : ['#7a808c', '#b0b6c0'];
     const h = lv >= 8 ? 12 : lv >= 5 ? 11 : lv >= 3 ? 10 : 9;
-    RC(g, x - 2, y - h + 2, 5, h, '#2a1a10'); RC(g, x - 1, y - h + 3, 3, h - 2, body); RC(g, x - 1, y - h + 3, 3, 1, hi);
-    if (lv === 1) RC(g, x - 1, y - 3, 3, 1, '#8a8e96');                 // 보강 철띠
+    if (lv <= 1) {                                       // 장난감 블록 울타리 (LV1 나무 → v0.58 블록, LV2는 블록 + 철띠)
+      const [bc, bh] = [['#ff6b7a', '#ffb3bc'], ['#ffd84a', '#fff3a8'], ['#5fbfff', '#c8ecff'], ['#6fdc7a', '#ccffd2']][i % 4];
+      RC(g, x - 4, y - 8, 9, 10, OUTC); RC(g, x - 3, y - 7, 7, 8, bc); RC(g, x - 3, y - 7, 7, 2, bh);
+      RC(g, x - 3, y - 10, 3, 3, OUTC); RC(g, x + 1, y - 10, 3, 3, OUTC); P(g, x - 2, y - 9, bc); P(g, x + 2, y - 9, bc);
+      if (lv === 1) RC(g, x - 3, y - 3, 7, 1, '#8a8e96');
+      continue;
+    }
+    RC(g, x - 2, y - h + 2, 5, h, OUTC); RC(g, x - 1, y - h + 3, 3, h - 2, body); RC(g, x - 1, y - h + 3, 3, 1, hi);
     if (lv === 4) { RC(g, x - 1, y - h + 1, 3, 2, '#f5c623'); P(g, x, y - h + 1, '#fff6b0'); }   // 전기 애자
     if (lv >= 5) { RC(g, x - 1, y - h + 1, 3, 2, rail[1]); P(g, x, y - h, '#ffffff'); }              // 레이저·플라스마·결계 발생기
   }
@@ -1547,38 +1553,39 @@ gg.translate(PX, PY); gg.drawImage(bg, -PX, -PY);
 // ───────── 방 (가운데) ─────────
 const ROOM = { w: 120, h: 92 };
 const [room, rg] = mk(ROOM.w, ROOM.h);
-(function buildRoom() {
-  const g = rg;
-  RC(g, 0, 0, 120, 92, '#1a1410'); RC(g, 1, 1, 118, 90, '#cdb68a'); RC(g, 1, 1, 118, 2, '#e2cfa4');
-  RC(g, 5, 5, 110, 82, '#3b4a6b');
-  for (let y = 9; y < 87; y += 6) RC(g, 5, y, 110, 1, '#35435f');
-  RC(g, 52, 87, 16, 5, '#6b4426'); RC(g, 52, 87, 16, 1, '#8a5a34');            // 문
-  // 벽 장식
-  RC(g, 10, 1, 8, 4, '#d65a5a'); RC(g, 22, 1, 8, 4, '#5a8ad6'); RC(g, 66, 1, 8, 4, '#e0b84a'); oval(g, 38, 3, 2, 2, '#f1e8d6'); P(g, 38, 2, '#1a1410');
-  // 책상 + 모니터
-  RC(g, 8, 8, 34, 14, '#6b4426'); RC(g, 8, 8, 34, 2, '#8a5a34');
-  RC(g, 14, 6, 14, 9, '#2a2d34'); RC(g, 15, 7, 12, 6, '#3fa0c8'); RC(g, 15, 7, 12, 1, '#7fd0f0');
-  RC(g, 16, 17, 10, 3, '#cfcfcf'); oval(g, 22, 27, 5, 4, '#2c2c30');
+(function buildRoom() {         // v0.58: 장난감 방 카툰 그림체 (굵은 외곽선 + 밝은 색). 가구 위치는 예전 그대로
+  const g = rg, O = OUTC;
+  const box = (x, y, w, h, c, hi) => { RC(g, x - 1, y - 1, w + 2, h + 2, O); RC(g, x, y, w, h, c); if (hi) RC(g, x, y, w, 2, hi); };
+  RC(g, 0, 0, 120, 92, O); RC(g, 2, 2, 116, 88, '#ff9db8'); RC(g, 2, 2, 116, 2, '#ffd0de');      // 분홍 벽
+  RC(g, 5, 5, 110, 82, O); RC(g, 6, 6, 108, 80, '#fff4dc');                                      // 크림 체크 바닥
+  for (let y = 6; y < 86; y += 8) for (let x = 6; x < 114; x += 8) if (((x + y) >> 3) % 2) RC(g, x, y, Math.min(8, 114 - x), Math.min(8, 86 - y), '#ffeac4');
+  box(52, 87, 16, 5, '#e0a46a', '#f4c48e');                                                      // 문
+  // 벽 장식: 포스터·시계
+  box(10, 1, 8, 3, '#5fbfff'); box(22, 1, 8, 3, '#ffd84a'); box(66, 1, 8, 3, '#6fdc7a'); oval(g, 38, 3, 2.5, 2.5, O); oval(g, 38, 3, 1.6, 1.6, '#ffffff'); P(g, 38, 2, O);
+  // 책상(노란 블록) + 모니터
+  box(8, 8, 34, 14, '#ffd84a', '#fff3a8'); for (let i = 0; i < 4; i++) { RC(g, 10 + i * 8, 6, 5, 2, O); RC(g, 11 + i * 8, 6, 3, 2, '#ffd84a'); }
+  box(14, 6, 14, 9, '#3a3a52'); RC(g, 15, 7, 12, 6, '#7fd0ff'); RC(g, 15, 7, 12, 1, '#e0f6ff'); RC(g, 16, 8, 3, 2, '#ffffff');
+  box(16, 17, 10, 3, '#ffffff'); oval(g, 22, 27, 5, 4, O); oval(g, 22, 27, 4, 3, '#ff6b7a');      // 키보드 + 의자
   // 책장
-  RC(g, 46, 6, 22, 8, '#5a3a22'); ['#d65a5a', '#5a8ad6', '#e0b84a', '#7aa83a', '#a35aa8', '#f1e8d6', '#d65a5a', '#5a8ad6', '#e0b84a', '#7aa83a'].forEach((c, i) => RC(g, 47 + i * 2, 7, 2, 6, c));
-  // 러그
-  RC(g, 38, 40, 36, 26, '#a55566'); RC(g, 40, 42, 32, 22, '#7a3b4a');
-  // 옛날 TV + 게임기
-  RC(g, 8, 38, 16, 13, '#2a2d34'); RC(g, 10, 40, 12, 8, '#5a7a6a'); RC(g, 10, 40, 12, 1, '#8ab09a');
-  RC(g, 46, 72, 7, 3, '#2a2a30'); P(g, 47, 73, '#e0412f'); P(g, 51, 73, '#5a8ad6');
-  RC(g, 26, 66, 9, 5, '#c8c8c8'); RC(g, 26, 66, 9, 1, '#e8e8e8');
-  // 과자, 피자 박스, 컵
-  RC(g, 30, 52, 4, 5, '#e0b84a'); RC(g, 12, 60, 10, 8, '#c8964a'); P(g, 15, 63, '#d63a2a'); P(g, 18, 65, '#d63a2a');
-  oval(g, 62, 30, 1.6, 1.6, '#f1e8d6'); RC(g, 20, 78, 4, 2, '#f1e8d6'); RC(g, 66, 80, 3, 2, '#d65a5a');
-  // 침대
-  RC(g, 78, 28, 34, 52, '#6b4426'); RC(g, 80, 30, 30, 48, '#e8e0d0');
-  RC(g, 84, 32, 22, 10, '#f8f4ea'); RC(g, 84, 41, 22, 1, '#d8d0c0');
-  RC(g, 80, 48, 30, 30, '#3f6fb5'); RC(g, 80, 48, 30, 2, '#5a8ad6');
-  oval(g, 95, 60, 8, 10, '#4a7ac0');
-  // 주인공
-  oval(g, 95, 41, 4, 4, '#f1c27d'); oval(g, 95, 38.5, 4.3, 2.3, '#3a2a1a');
-  RC(g, 98, 45, 6, 4, '#4f9a5a'); RC(g, 87, 45, 6, 4, '#4f9a5a');      // 초록 티셔츠 팔
-  RC(g, 92, 45, 3, 3, '#f1c27d'); RC(g, 92, 42, 3, 4, '#1a1a1e');       // 손 + 폰
+  box(46, 6, 22, 8, '#e0a46a'); ['#ff6b7a', '#5fbfff', '#ffd84a', '#6fdc7a', '#c79bff', '#ffffff', '#ff6b7a', '#5fbfff', '#ffd84a', '#6fdc7a'].forEach((c, i) => RC(g, 47 + i * 2, 7, 2, 6, c));
+  // 러그 (하늘색 동그라미)
+  oval(g, 56, 53, 19, 14, O); oval(g, 56, 53, 18, 13, '#7fd0ff'); oval(g, 56, 53, 13, 9, '#c8ecff'); oval(g, 56, 53, 7, 5, '#7fd0ff');
+  // TV + 게임기
+  box(8, 38, 16, 13, '#3a3a52'); RC(g, 10, 40, 12, 8, '#8fe08a'); RC(g, 10, 40, 12, 1, '#d4ffd0'); RC(g, 11, 41, 3, 2, '#ffffff');
+  box(46, 72, 7, 3, '#ffffff'); P(g, 47, 73, '#ff6b7a'); P(g, 51, 73, '#5fbfff');
+  box(26, 66, 9, 5, '#c79bff', '#e6d4ff');
+  // 과자·피자 박스·컵
+  box(30, 52, 4, 5, '#ffd84a'); box(12, 60, 10, 8, '#ffb46a', '#ffd8a8'); P(g, 15, 63, '#ff6b7a'); P(g, 18, 65, '#ff6b7a');
+  oval(g, 62, 30, 2, 2, O); oval(g, 62, 30, 1.2, 1.2, '#ffffff'); box(20, 78, 4, 2, '#ffffff'); box(66, 80, 3, 2, '#ff6b7a');
+  // 침대 (외곽선 + 파란 이불)
+  box(78, 28, 34, 52, '#e0a46a', '#f4c48e'); RC(g, 80, 30, 30, 48, '#ffffff');
+  box(84, 32, 22, 9, '#ffffff'); RC(g, 84, 40, 22, 1, '#e8e0f0');
+  RC(g, 80, 48, 30, 30, '#5fbfff'); RC(g, 80, 48, 30, 2, '#c8ecff'); RC(g, 80, 47, 30, 1, O);
+  oval(g, 95, 62, 7, 8, '#7fd0ff'); for (let i = 0; i < 5; i++) P(g, 84 + i * 5, 70, '#ffffff');
+  // 주인공 (외곽선)
+  oval(g, 95, 41, 5, 5, O); oval(g, 95, 41, 4, 4, '#ffd1a6'); oval(g, 95, 38.5, 4.3, 2.3, '#5a3420');
+  RC(g, 97, 44, 8, 6, O); RC(g, 86, 44, 8, 6, O); RC(g, 98, 45, 6, 4, '#ff6b7a'); RC(g, 87, 45, 6, 4, '#ff6b7a');
+  RC(g, 92, 45, 3, 3, '#ffd1a6'); RC(g, 92, 42, 3, 4, '#3a3a52');
 })();
 const ROOM_X = CX - ROOM.w / 2, ROOM_Y = CY - ROOM.h / 2;
 
@@ -1594,7 +1601,7 @@ const nextSlotAt = () => SLOT_EXTRA_AT.find(n => n > (G.fence || 0));
 
 const G = {};
 let HIT_SRC = null;                                  // 지금 피해를 주는 쪽 (딜량 미터기용): 타워 또는 'fence'
-let enemies, towers, shells, parts, fx, floats;
+let enemies, towers, shells, parts, fx, floats, corpses = [];
 function reset(keepDemo, title = false) {
   recalcBon();
   const baseHp = 100 + upEff('hp') + BON.hp;
@@ -1602,7 +1609,7 @@ function reset(keepDemo, title = false) {
     shake: 0, baseFlash: 0, banner: 0, bannerText: '', demo: keepDemo ? G.demo : false, demoT: 0 });
   if (G.demo) { G.scrap = 400; G.usedDemo = true; }
   selType = SAVE.deck[1] || SAVE.deck[0];
-  enemies = []; towers = []; shells = []; parts = []; fx = []; floats = [];
+  enemies = []; towers = []; shells = []; parts = []; fx = []; floats = []; corpses = [];
   ALL_SLOTS.forEach(s => s.tower = null); refreshSlots();
   if (typeof closeMenu === 'function') closeMenu();
   if (typeof renderPerkList === 'function') { renderPerkList(); $('perk').classList.remove('show'); }
@@ -1649,7 +1656,7 @@ class Enemy {
     this.vx = 0; this.vy = 0;
   }
   update(dt) {
-    this.flash -= dt;
+    this.flash -= dt; if (this.hitT > 0) this.hitT -= dt;
     this.slowT -= dt; if (this.slowT <= 0) this.slowMul = 1;
     if (this.vulnT > 0) this.vulnT -= dt;
     if (this.windRes > 0) this.windRes -= dt;
@@ -1724,7 +1731,12 @@ class Enemy {
     if (this.vulnT > 0) dmg *= 1.3;                            // 블랙홀 끈끈이 '약점 노출'
     const real = dmg * (1 - this.armor);
     if (HIT_SRC && G.phase !== 'title') { const k = HIT_SRC === 'fence' ? 'fence' : HIT_SRC.type; G.meter[k] = (G.meter[k] || 0) + Math.min(real, Math.max(0, this.hp)); }
-    this.hp -= real; if (flash) this.flash = .07;
+    this.hp -= real; if (flash) this.flash = .09;
+    if (G.phase !== 'title') {   // 손맛 (v0.58): 맞으면 찌그러지고 때린 쪽 반대로 살짝 밀리는 그림 + 때린 타워 반동
+      this.hitT = .12; const src = HIT_SRC && HIT_SRC !== 'fence' ? HIT_SRC : null;
+      if (src && src.x !== undefined) { const a = Math.atan2(this.y - src.y, this.x - src.x); this.hitDx = Math.cos(a); this.hitDy = Math.sin(a); if (src.slot) src.kick = .12; }
+      if (SET.fx && R() < .6) for (let i = 0; i < 2; i++) parts.push(new Part(this.x, this.y, (this.hitDx || 0) * rnd(30, 60) + rnd(-15, 15), (this.hitDy || 0) * rnd(30, 60) + rnd(-15, 15), '#fff6e0', .15, 1));   // 맞은 자리 불꽃
+    }
     if (this.hp > 0 && !this.boss && PK('exec') && this.hp < this.maxHp * Math.min(35, PK('exec')) / 100) { this.hp = 0; floats.push(new Floater(this.x, this.y - 14, '처형', '#e0412f', .6)); }
     if (this.hp <= 0) this.die();
   }
@@ -1751,6 +1763,12 @@ class Enemy {
       checkAch();
     }
     G.scrap += rew;
+    if (G.phase !== 'title') {
+      corpses.push(new Corpse(this)); if (corpses.length > [12, 30, 50][SET.fx]) corpses.shift();
+      fx.push(new Flash(this.x, this.y, 5 * this.scale));
+      if (this.scale >= 1.3 && !this.boss) G.shake = Math.max(G.shake, 1.2);
+      if (this.boss) G.hitStop = .45; else if (this.vid) G.hitStop = Math.max(G.hitStop || 0, .12);
+    }
     const n = this.boss ? 40 : 9;
     for (let i = 0; i < n; i++) { const a = R() * 6.28, s = rnd(15, this.boss ? 110 : 55); parts.push(new Part(this.x, this.y, Math.cos(a) * s, Math.sin(a) * s, this.d.blood[(R() * 3) | 0], rnd(.3, .7), R() < .3 ? 2 : 1)); }
     // 바닥 얼룩
@@ -1773,7 +1791,8 @@ class Enemy {
     ctx.fillStyle = 'rgba(0,0,0,0.28)';
     ctx.beginPath(); ctx.ellipse(this.x, this.y + (fly ? 7 : 2) * sc, s.W * .32 * sc, s.H * .2 * sc, 0, 0, 7); ctx.fill();
     if (this.slowT > 0) { ctx.fillStyle = 'rgba(232,194,74,.55)'; ctx.beginPath(); ctx.ellipse(this.x, this.y + 2 * sc, s.W * .4 * sc, s.H * .26 * sc, 0, 0, 7); ctx.fill(); }
-    ctx.save(); ctx.translate(Math.round(this.x), Math.round(this.y)); ctx.rotate(this.ang); ctx.scale(sc, sc);
+    const ht = Math.max(0, this.hitT || 0), kb = ht * 14;
+    ctx.save(); ctx.translate(Math.round(this.x + (this.hitDx || 0) * kb), Math.round(this.y + (this.hitDy || 0) * kb)); ctx.rotate(this.ang); ctx.scale(sc * (1 + ht * 1.6), sc * (1 - ht * 1.3));
     ctx.drawImage(img, -Math.round(s.W / 2), -Math.round(s.H / 2)); ctx.restore();
     if (this.hp < this.maxHp) {
       const w = Math.round(10 * sc), x = Math.round(this.x - w / 2), y = Math.round(this.y - s.H * .5 * sc - 4), r = Math.max(0, this.hp / this.maxHp);
@@ -1996,10 +2015,10 @@ class Tower {
     return best;
   }
   aim(dt, speed = 8) { if (this.target) { const a = Math.atan2(this.target.y - this.y, this.target.x - this.x); this.ang += angDiff(this.ang, a) * Math.min(1, dt * speed); } }
-  update(dt) { this.pop = Math.max(0, this.pop - dt); this.cd -= dt * spdMul(); this.target = this.findTarget(); }
-  idle(dt) { this.pop = Math.max(0, this.pop - dt); this.cd -= dt * spdMul(); this.firing = false; this.active = false; }
+  update(dt) { this.pop = Math.max(0, this.pop - dt); this.kick = Math.max(0, (this.kick || 0) - dt); this.cd -= dt * spdMul(); this.target = this.findTarget(); }
+  idle(dt) { this.pop = Math.max(0, this.pop - dt); this.kick = Math.max(0, (this.kick || 0) - dt); this.cd -= dt * spdMul(); this.firing = false; this.active = false; }
   drawBase(img) {
-    const sy = 1 + this.pop * 1.4;
+    const kk = this.kick || 0, sy = 1 + this.pop * 1.4 - kk * 1.1, sx = 1 + kk * 1.3;
     ctx.fillStyle = 'rgba(0,0,0,0.3)'; ctx.beginPath(); ctx.ellipse(this.x, this.y + 6, 8, 3, 0, 0, 7); ctx.fill();
     if (this.lvl > 1) {                                  // 레벨 오라: LV2 파랑, LV3 금, LV4 루비, LV5 다이아가 은은하게 맥동
       const a = (this.lvl === 2 ? .18 : .3) + .1 * Math.sin(G.time * 4 + this.x), [ar, ag, ab] = LV_AURA[this.lvl];
@@ -2008,7 +2027,7 @@ class Tower {
       ctx.strokeStyle = LV_RING[this.lvl]; ctx.lineWidth = this.lvl === 2 ? 1 : 2; ctx.beginPath(); ctx.ellipse(this.x, this.y + 6, 11 + this.lvl, 4 + this.lvl * .5, 0, 0, 7); ctx.stroke();
     }
     const im = lvSprite(img, this.lvl), k = lvScale(this.lvl);
-    ctx.save(); ctx.translate(this.x, this.y); ctx.scale(k, k * sy); ctx.drawImage(im, -im.width / 2, -im.height / 2); ctx.restore();
+    ctx.save(); ctx.translate(this.x, this.y); ctx.scale(k * sx, k * sy); ctx.drawImage(im, -im.width / 2, -im.height / 2); ctx.restore();
     if (this.lvl >= 3) drawCrown(ctx, Math.round(this.x), Math.round(this.y - im.height / 2 * k - 1), this.lvl);
     if (this.lvl >= 3 && Math.floor(G.time * 3 + this.x) % 4 === 0) { ctx.fillStyle = this.lvl >= 5 ? '#e0ffff' : '#fff6b0'; ctx.fillRect(this.x + 6, this.y - 8, 1, 1); ctx.fillRect(this.x - 7, this.y - 2, 1, 1); }
     for (let i = 0, n = this.lvl - 1; i < n; i++) { const px = Math.round(this.x - n * 2.5 + i * 5); ctx.fillStyle = '#120d0a'; ctx.fillRect(px, this.y + 9, 4, 4); ctx.fillStyle = LV_RING[Math.min(5, i + 2)] || '#f5c623'; ctx.fillRect(px + 1, this.y + 10, 2, 2); }
@@ -2017,7 +2036,7 @@ class Tower {
   drawRot(img, ox, oy, recoil = 0) {
     const im = lvSprite(img, this.lvl), o = this.lvl - 1, k = lvScale(this.lvl);
     ctx.save(); ctx.translate(this.x, this.y); ctx.rotate(this.ang); ctx.scale(k, k);
-    for (const dy of lvBarrels(this.lvl)) ctx.drawImage(im, -ox - o - recoil, -oy - o + dy);
+    for (const dy of lvBarrels(this.lvl)) ctx.drawImage(im, -ox - o - recoil - Math.round((this.kick || 0) * 16), -oy - o + dy);
     ctx.restore();
   }
   draw() {}
@@ -2396,6 +2415,16 @@ class Spit {
     ctx.fillStyle = '#e8ffc0'; ctx.fillRect(Math.round(this.x - 1), Math.round(this.y - this.h - 1), 1, 1);
   }
 }
+class Corpse {                                   // 손맛 (v0.58): 죽은 벌레는 뒤집혀서 톡 튀어 올랐다 떨어지며 사라진다
+  constructor(e) { const s = e.spr; Object.assign(this, { img: s.n[0], W: s.W, H: s.H, x: e.x, y: e.y, ang: e.ang, sc: e.scale, spin: (R() < .5 ? -1 : 1) * rnd(1.5, 3), life: e.boss ? 1.2 : .6, dead: false }); this.max = this.life; }
+  update(dt) { this.life -= dt; if (this.life <= 0) this.dead = true; }
+  draw() {
+    const t = 1 - this.life / this.max, z = Math.sin(Math.min(1, t * 1.6) * Math.PI) * 7 * this.sc;
+    ctx.globalAlpha = Math.min(1, this.life / this.max * 2.2);
+    ctx.save(); ctx.translate(Math.round(this.x), Math.round(this.y - z)); ctx.rotate(this.ang + this.spin * Math.min(1, t * 1.6)); ctx.scale(this.sc * (1 - t * .25), -this.sc * (1 - t * .25));
+    ctx.drawImage(this.img, -Math.round(this.W / 2), -Math.round(this.H / 2)); ctx.restore(); ctx.globalAlpha = 1;
+  }
+}
 class Part {
   constructor(x, y, vx, vy, c, life, size = 1, streak = false) { Object.assign(this, { x, y, vx, vy, c, life, max: life, size, streak, dead: false }); }
   update(dt) { this.x += this.vx * dt; this.y += this.vy * dt; this.vx *= .92; this.vy *= .92; this.life -= dt; if (this.life <= 0) this.dead = true; }
@@ -2710,7 +2739,7 @@ function update(dt) {
   enemies.forEach(e => e.update(dt));
   towers.forEach(t => { HIT_SRC = t; if (t !== drag?.tower || !drag.active) t.update(dt); else t.idle(dt); });   // 들고 있는 타워는 공격은 멈추고 쿨타임만 돈다
   shells.forEach(s => { HIT_SRC = s.src || null; s.update(dt); }); HIT_SRC = null;
-  parts.forEach(p => p.update(dt)); fx.forEach(f => f.update(dt)); floats.forEach(f => f.update(dt));
+  parts.forEach(p => p.update(dt)); fx.forEach(f => f.update(dt)); floats.forEach(f => f.update(dt)); corpses.forEach(c => c.update(dt)); corpses = corpses.filter(c => !c.dead);
   enemies = enemies.filter(e => !e.dead); shells = shells.filter(s => !s.dead);
   parts = parts.filter(p => !p.dead); fx = fx.filter(f => !f.dead); floats = floats.filter(f => !f.dead);
   const pmax = [150, 500, 900][SET.fx]; if (parts.length > pmax) parts.splice(0, parts.length - pmax);   // 설정: 효과 양
@@ -2779,6 +2808,7 @@ function render() {
   }
   // 엔티티를 y 순서대로 (아래 있는 게 앞에 보이게)
   const ents = [...towers.filter(t => !(drag && drag.active && drag.tower === t)), ...enemies].sort((a, b) => a.y - b.y);
+  corpses.forEach(c => c.draw());
   ents.forEach(e => e.draw());
   shells.forEach(s => s.draw());
   towers.forEach(t => t.drawFx());
@@ -4483,7 +4513,7 @@ reset(false, true);
 let last = performance.now();
 function loop(now) {
   const dt = Math.min(.05, (now - last) / 1000); last = now;
-  if (!G.paused && !panelOpen() && !G.choosing) for (let i = 0; i < speed; i++) update(dt);   // 정보·업적 창이 열려 있으면 잠깐 멈춤
+  if (!G.paused && !panelOpen() && !G.choosing) { let d = dt; if (G.hitStop > 0) { G.hitStop -= dt; d = dt * .25; } for (let i = 0; i < speed; i++) update(d); }   // 보스 처치 때 잠깐 슬로모션   // 정보·업적 창이 열려 있으면 잠깐 멈춤
   render(); hud(); tutTick();
   requestAnimationFrame(loop);
 }
