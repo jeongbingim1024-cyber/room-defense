@@ -1,1 +1,3 @@
 dist/
+tools/ai-coach/runs.jsonl
+tools/ai-coach/__pycache__/

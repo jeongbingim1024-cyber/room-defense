@@ -56,6 +56,24 @@ service cloud.firestore {
         && request.resource.data.body is string && request.resource.data.body.size() <= 500
         && request.resource.data.code is string && request.resource.data.code.size() <= 20;
     }
+    // 익명 플레이 기록 (v0.60, AI 밸런스 코치 학습용): 로그인(익명 포함)한 사람은 한 줄 추가만, 고치기·지우기는 관리자만
+    // 개인 정보 없음 (닉네임·uid·기기 정보 안 넣음). 학습 스크립트가 읽어 가야 해서 읽기는 공개
+    match /runs/{id} {
+      allow read: if true;
+      allow create: if request.auth != null
+        && request.resource.data.keys().hasOnly(['ver', 'wave', 'deck', 'per', 'up', 'twl', 'auto', 'sec', 'why', 'fence', 'ts'])
+        && request.resource.data.ver is string && request.resource.data.ver.size() <= 10
+        && request.resource.data.wave is int && request.resource.data.wave >= 1 && request.resource.data.wave <= 400
+        && request.resource.data.deck is string && request.resource.data.deck.size() <= 200
+        && request.resource.data.per is string && request.resource.data.per.size() <= 3000
+        && request.resource.data.up is int && request.resource.data.twl is int
+        && request.resource.data.auto is int && request.resource.data.sec is int && request.resource.data.fence is int
+        && request.resource.data.why in ['hp', 'time']
+        && request.resource.data.ts is timestamp
+        && request.resource.data.ts > request.time - duration.value(10, 'm')
+        && request.resource.data.ts < request.time + duration.value(10, 'm');
+      allow update, delete: if isAdmin();
+    }
     // 그 밖의 모든 데이터는 접근 금지 (예전 scores 순위표 포함)
     match /{document=**} {
       allow read, write: if false;
