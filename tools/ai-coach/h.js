@@ -91,7 +91,7 @@ SIM.setPerk(o => o[(R() * o.length) | 0].id);
     if (G.fence < Math.min(10, Math.floor(G.wave / 3)) && G.scrap >= fc && towers.length >= 4) { upgradeFence(); return; }
     const empty = SLOTS.filter(s => !s.tower);
     const UT = k => ['glue', 'fan'].includes(TBASE(k));
-    const types = SAVE.deck.filter(isUnlocked).filter(k => !UT(k) || towers.filter(t => TBASE(t.type) === TBASE(k)).length < 2);
+    const types = SAVE.deck.filter(isUnlocked).filter(k => (typeof atMax !== 'function' || !atMax(k)) && (!UT(k) || towers.filter(t => TBASE(t.type) === TBASE(k)).length < 2));   // v0.61 같은 타워 최대 6개
     if (empty.length && types.length) {
       if (!G.botTarget || !types.includes(G.botTarget)) {   // 다음에 살 타워를 무작위로 정해 두고 돈을 모은다 (새로 풀린 등급일수록 조금 더 자주)
         const w = types.map(k => 1 + TDEF[k].grade * .5); let r = R() * w.reduce((a, b) => a + b, 0), i = 0; while ((r -= w[i]) > 0) i++; G.botTarget = types[i]; }
